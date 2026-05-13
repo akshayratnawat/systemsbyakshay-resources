@@ -1,0 +1,25 @@
+/* @systemsbyakshay — Brand CSS for all resources */
+
+:root {
+  --brand-bg: #f9f8f4;
+  --brand-dark: #0a0a0a;
+  --brand-text: #1a1a1a;
+  --brand-muted: #6e6a64;
+  --brand-accent: #2563eb;
+  --brand-gold: #b8860b;
+  --brand-green: #16a34a;
+  --brand-red: #dc2626;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--brand-bg);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--brand-text);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--brand-accent); text-decoration: none; }
+a:hover { text-decoration: underline; }

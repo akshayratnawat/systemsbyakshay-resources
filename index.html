@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resources | @systemsbyakshay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/brand.css">
+<style>
+  body { padding: 60px 40px; max-width: 800px; margin: 0 auto; }
+
+  .header { text-align: center; margin-bottom: 56px; }
+  .header .brand { font-size: 14px; color: #2563eb; font-weight: 600; letter-spacing: 0.10em; text-transform: uppercase; margin-bottom: 12px; }
+  .header h1 { font-size: 42px; font-weight: 800; color: #0a0a0a; margin-bottom: 12px; }
+  .header p { font-size: 18px; color: #6e6a64; max-width: 520px; margin: 0 auto; }
+
+  .resource-list { display: flex; flex-direction: column; gap: 16px; }
+
+  .resource-card {
+    display: flex; align-items: center; gap: 24px;
+    background: white; border: 1px solid #e8e4dc; border-radius: 16px;
+    padding: 28px 32px; transition: box-shadow 0.2s, border-color 0.2s;
+    text-decoration: none; color: inherit;
+  }
+  .resource-card:hover { border-color: #2563eb; box-shadow: 0 4px 20px rgba(37,99,235,0.08); text-decoration: none; }
+
+  .resource-icon { font-size: 36px; min-width: 48px; text-align: center; }
+  .resource-info { flex: 1; }
+  .resource-info h2 { font-size: 20px; font-weight: 700; color: #0a0a0a; margin-bottom: 4px; }
+  .resource-info p { font-size: 15px; color: #6e6a64; margin: 0; }
+  .resource-series { font-size: 12px; font-weight: 600; color: #2563eb; letter-spacing: 0.08em; text-transform: uppercase; }
+  .resource-arrow { font-size: 20px; color: #ccc; }
+
+  .footer { text-align: center; margin-top: 64px; padding-top: 24px; border-top: 1px solid #e8e4dc; color: #6e6a64; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">@systemsbyakshay</div>
+  <h1>Free Resources</h1>
+  <p>Reference cards, cheat sheets, and deep dives from the No BS Series. Bookmark this page - new resources drop with every carousel.</p>
+</div>
+
+<div class="resource-list">
+  <a href="temperature/" class="resource-card">
+    <div class="resource-icon">🌡️</div>
+    <div class="resource-info">
+      <div class="resource-series">No BS Intuition Series</div>
+      <h2>Temperature Settings Reference Card</h2>
+      <p>The complete guide - from logit math to provider defaults for OpenAI, Anthropic, Google. Production settings by task type, the sampling triad, and interview prep.</p>
+    </div>
+    <div class="resource-arrow">→</div>
+  </a>
+</div>
+
+<div class="footer">
+  <p>Built by <strong>@systemsbyakshay</strong></p>
+  <p>Follow on <a href="https://instagram.com/systemsbyakshay">Instagram</a> for the No BS Series</p>
+</div>
+
+</body>
+</html>

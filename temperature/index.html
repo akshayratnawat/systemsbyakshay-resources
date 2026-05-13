@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Temperature Settings Reference Card | @systemsbyakshay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f9f8f4; font-family: 'Inter', sans-serif;
+    padding: 60px 40px; max-width: 1080px; margin: 0 auto;
+    color: #1a1a1a; line-height: 1.65;
+  }
+
+  .header { text-align: center; margin-bottom: 48px; padding-bottom: 32px; border-bottom: 2px solid #e8e4dc; }
+  .header h1 { font-size: 36px; font-weight: 800; margin-bottom: 8px; color: #0a0a0a; }
+  .header .sub { font-size: 18px; color: #6e6a64; }
+  .header .brand { font-size: 14px; color: #2563eb; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 12px; }
+
+  h2 { font-size: 24px; font-weight: 800; margin-top: 48px; margin-bottom: 16px; color: #0a0a0a; }
+  h3 { font-size: 18px; font-weight: 700; margin-top: 32px; margin-bottom: 12px; color: #1a1a1a; }
+
+  .formula-box {
+    background: #0a0a0a; color: #f9f8f4; border-radius: 12px;
+    padding: 28px 32px; margin: 24px 0; font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; text-align: center; letter-spacing: 0.5px;
+  }
+  .formula-box .label { font-size: 12px; color: #6e6a64; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 8px; font-family: 'Inter', sans-serif; }
+  .formula-box .formula { font-size: 22px; color: #FFD700; font-weight: 600; }
+
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px 0; font-size: 15px; }
+  th { background: #0a0a0a; color: #f9f8f4; padding: 12px 16px; text-align: left; font-weight: 600; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
+  td { padding: 12px 16px; border-bottom: 1px solid #e8e4dc; vertical-align: top; }
+  tr:nth-child(even) { background: rgba(0,0,0,0.02); }
+  .mono { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #2563eb; }
+  .warn { color: #dc2626; font-weight: 600; }
+  .good { color: #16a34a; font-weight: 600; }
+
+  .section-divider { border: none; border-top: 2px solid #e8e4dc; margin: 40px 0; }
+
+  .tip-box {
+    background: rgba(37,99,235,0.06); border-left: 4px solid #2563eb;
+    border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 20px 0;
+    font-size: 15px; color: #1a1a1a;
+  }
+  .tip-box strong { color: #2563eb; }
+
+  .warn-box {
+    background: rgba(220,38,38,0.06); border-left: 4px solid #dc2626;
+    border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 20px 0;
+    font-size: 15px;
+  }
+  .warn-box strong { color: #dc2626; }
+
+  .footer { text-align: center; margin-top: 48px; padding-top: 24px; border-top: 2px solid #e8e4dc; color: #6e6a64; font-size: 14px; }
+  .footer .brand { color: #2563eb; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">@systemsbyakshay - No BS Intuition Series</div>
+  <h1>Temperature Settings Reference Card</h1>
+  <div class="sub">The complete guide to LLM sampling parameters - from the logit math to provider-specific defaults</div>
+</div>
+
+<!-- SECTION 1: THE FORMULA -->
+<h2>1. The Core Mechanism</h2>
+<p>Temperature is a single division operation applied to raw model scores (logits) before they become probabilities.</p>
+
+<div class="formula-box">
+  <div class="label">The Formula</div>
+  <div class="formula">p(token) = softmax( logit / T )</div>
+</div>
+
+<table>
+  <tr><th>Temperature</th><th>Effect on Distribution</th><th>What Happens</th></tr>
+  <tr><td class="mono">T = 0</td><td>Collapsed to single token</td><td>Greedy decoding. Always picks the highest logit. Deterministic.</td></tr>
+  <tr><td class="mono">T = 0.1-0.3</td><td>Very sharp peak</td><td>Near-deterministic. Top token dominates. Minor variation possible.</td></tr>
+  <tr><td class="mono">T = 0.5-0.7</td><td>Moderate spread</td><td>Balanced. Top 3-5 tokens share meaningful probability mass.</td></tr>
+  <tr><td class="mono">T = 1.0</td><td>Model's native distribution</td><td>Unmodified probabilities. This is the raw model behavior.</td></tr>
+  <tr><td class="mono">T > 1.0</td><td>Flattened distribution</td><td>All tokens approach equal probability. <span class="warn">High hallucination risk.</span></td></tr>
+</table>
+
+<div class="tip-box">
+  <strong>Key insight:</strong> T &lt; 1 amplifies score differences (makes the model more confident). T &gt; 1 compresses them (makes the model more uncertain). "Creative" is a human label for what uncertainty produces.
+</div>
+
+<hr class="section-divider">
+
+<!-- SECTION 2: PRODUCTION SETTINGS -->
+<h2>2. Production Temperature Settings by Task</h2>
+
+<table>
+  <tr><th>Task Type</th><th>Temperature</th><th>Top-p</th><th>Top-k</th><th>Why</th></tr>
+  <tr><td>Factual QA / extraction</td><td class="mono good">0</td><td class="mono">1.0</td><td class="mono">1</td><td>Zero sampling variance. Deterministic. No hallucination from temperature.</td></tr>
+  <tr><td>JSON / structured output</td><td class="mono good">0</td><td class="mono">1.0</td><td class="mono">1</td><td>Any variation breaks parsers. Pair with strict schema enforcement.</td></tr>
+  <tr><td>Classification / labeling</td><td class="mono good">0</td><td class="mono">1.0</td><td class="mono">1</td><td>Labels must be consistent across runs. No room for "creative" labels.</td></tr>
+  <tr><td>Code generation</td><td class="mono">0.2-0.3</td><td class="mono">0.95</td><td class="mono">40</td><td>Multiple valid solutions exist. Low variance allows alternatives without errors.</td></tr>
+  <tr><td>Code review / explanation</td><td class="mono">0.1-0.2</td><td class="mono">0.9</td><td class="mono">20</td><td>Needs factual accuracy with slight phrasing variation.</td></tr>
+  <tr><td>Summarization</td><td class="mono">0.3-0.5</td><td class="mono">0.9</td><td class="mono">40</td><td>Should capture key points consistently. Minor wording variation acceptable.</td></tr>
+  <tr><td>Customer support chat</td><td class="mono">0.3-0.5</td><td class="mono">0.9</td><td class="mono">40</td><td>Must be accurate but not robotic. Keeps factual while sounding natural.</td></tr>
+  <tr><td>General conversation</td><td class="mono">0.7</td><td class="mono">0.9</td><td class="mono">50</td><td>Balanced variety. Natural-sounding without significant error increase.</td></tr>
+  <tr><td>Creative writing</td><td class="mono">0.8-0.9</td><td class="mono">0.95</td><td class="mono">80</td><td>Variety is the goal. Higher risk is acceptable when factual accuracy is not the objective.</td></tr>
+  <tr><td>Brainstorming / ideation</td><td class="mono warn">0.9-1.2</td><td class="mono">0.95</td><td class="mono">100</td><td>Maximum diversity. <span class="warn">Never for user-facing factual outputs.</span></td></tr>
+</table>
+
+<div class="warn-box">
+  <strong>The #1 production rule:</strong> If users will act on the output (make decisions, follow instructions, trust the information), temperature should be as low as your task allows.
+</div>
+
+<hr class="section-divider">
+
+<!-- SECTION 3: PROVIDER DEFAULTS -->
+<h2>3. Provider Default Settings</h2>
+<p>If you don't explicitly set temperature, here's what each provider uses. Most default to T=1.0 - which is almost never what you want in production.</p>
+
+<table>
+  <tr><th>Provider</th><th>Default T</th><th>Default top-p</th><th>Default top-k</th><th>Notes</th></tr>
+  <tr><td>OpenAI (GPT-4o, o3)</td><td class="mono warn">1.0</td><td class="mono">1.0</td><td>N/A</td><td>No top-k support. Use top-p for truncation. o-series models ignore temperature.</td></tr>
+  <tr><td>Anthropic (Claude)</td><td class="mono warn">1.0</td><td class="mono">0.999</td><td class="mono">N/A</td><td>Anthropic recommends T=1.0 with adjusted top-p. No top-k in API.</td></tr>
+  <tr><td>Google (Gemini)</td><td class="mono warn">1.0</td><td class="mono">0.95</td><td class="mono">40</td><td>Only provider with top-k support by default.</td></tr>
+  <tr><td>Cohere (Command R+)</td><td class="mono">0.3</td><td class="mono">0.75</td><td class="mono">0</td><td>More conservative default. Closer to production-ready out of the box.</td></tr>
+  <tr><td>Mistral</td><td class="mono">0.7</td><td class="mono">1.0</td><td>N/A</td><td>Middle ground default.</td></tr>
+</table>
+
+<div class="warn-box">
+  <strong>The trap:</strong> OpenAI and Anthropic both default to T=1.0. If you're using their SDKs without explicitly setting temperature, every call runs at maximum variance. This is the most common source of "inconsistent outputs" bugs.
+</div>
+
+<hr class="section-divider">
+
+<!-- SECTION 4: THE SAMPLING TRIAD -->
+<h2>4. The Sampling Triad - How Parameters Compose</h2>
+
+<p>Temperature, top-k, and top-p are applied in sequence. Understanding the order matters.</p>
+
+<h3>Processing Order</h3>
+<table>
+  <tr><th>Step</th><th>Parameter</th><th>What It Does</th></tr>
+  <tr><td>1</td><td class="mono">Temperature</td><td>Divides all logits by T. Reshapes the entire distribution. Happens first.</td></tr>
+  <tr><td>2</td><td class="mono">Top-k</td><td>Hard cutoff: keep only the k highest-probability tokens. Everything else gets zero probability.</td></tr>
+  <tr><td>3</td><td class="mono">Top-p</td><td>Dynamic cutoff: keep tokens until cumulative probability reaches p. Adapts to context - sometimes 5 tokens, sometimes 50.</td></tr>
+  <tr><td>4</td><td>Sample</td><td>Random sample from the remaining distribution.</td></tr>
+</table>
+
+<div class="tip-box">
+  <strong>Mental model:</strong> Temperature changes the shape. Top-k sets a hard floor. Top-p adapts dynamically. They're three different tools solving three different problems.
+</div>
+
+<h3>Recommended Combinations</h3>
+<table>
+  <tr><th>Use Case</th><th>T</th><th>top-p</th><th>top-k</th><th>Why This Combo</th></tr>
+  <tr><td>Factual / deterministic</td><td class="mono">0</td><td class="mono">1.0</td><td class="mono">1</td><td>Greedy. No sampling variance at all.</td></tr>
+  <tr><td>Controlled variation</td><td class="mono">0.3</td><td class="mono">0.9</td><td class="mono">20</td><td>Narrow distribution + tight truncation. Safe for production.</td></tr>
+  <tr><td>Balanced chat</td><td class="mono">0.7</td><td class="mono">0.9</td><td class="mono">50</td><td>Standard production setting. Varied but not risky.</td></tr>
+  <tr><td>Creative / brainstorm</td><td class="mono">0.9</td><td class="mono">0.95</td><td class="mono">100</td><td>Wide distribution, loose truncation. Maximum diversity.</td></tr>
+</table>
+
+<hr class="section-divider">
+
+<!-- SECTION 5: THE COMPOUNDING ERROR -->
+<h2>5. Why Temperature Errors Compound</h2>
+
+<p>Temperature-induced hallucination is not a single-token problem. It's a cascade.</p>
+
+<table>
+  <tr><th>Step</th><th>What Happens</th></tr>
+  <tr><td>1</td><td>High T makes a low-scoring token plausible enough to sample.</td></tr>
+  <tr><td>2</td><td>That wrong token shifts the context for the next prediction.</td></tr>
+  <tr><td>3</td><td>In the new context, what WAS the "right" next token may no longer score highest.</td></tr>
+  <tr><td>4</td><td>The model now generates fluent text in the wrong direction. It sounds confident and is wrong.</td></tr>
+  <tr><td>5</td><td>Each subsequent token is conditioned on the accumulating errors. The hallucination looks intentional.</td></tr>
+</table>
+
+<div class="tip-box">
+  <strong>Debugging rule:</strong> If your model is hallucinating, drop temperature to 0.1 first. If hallucinations disappear, it was sampling variance, not a model knowledge problem. If they persist, the issue is upstream (retrieval, prompt, or training data).
+</div>
+
+<hr class="section-divider">
+
+<!-- SECTION 6: ARCHITECTURE CHECKLIST -->
+<h2>6. Temperature Architecture Checklist</h2>
+
+<table>
+  <tr><th></th><th>Practice</th><th>Why</th></tr>
+  <tr><td>&#9744;</td><td>Set temperature explicitly on every API call</td><td>Never rely on provider defaults (most are T=1.0)</td></tr>
+  <tr><td>&#9744;</td><td>Use per-route temperature in your LLM Gateway</td><td>Different tasks need different settings. Centralize control.</td></tr>
+  <tr><td>&#9744;</td><td>Log temperature with every generation</td><td>You cannot diagnose quality regressions without this.</td></tr>
+  <tr><td>&#9744;</td><td>Use T=0 for all structured output (JSON, XML)</td><td>Any variation breaks parsers. No exceptions.</td></tr>
+  <tr><td>&#9744;</td><td>Include temperature in prompt version registry</td><td>When you change T, log it as a prompt version change.</td></tr>
+  <tr><td>&#9744;</td><td>A/B test temperature changes like any other parameter</td><td>Small T changes can have large quality impacts.</td></tr>
+  <tr><td>&#9744;</td><td>Set top-p and top-k alongside temperature</td><td>They compose. Setting one without the others is incomplete.</td></tr>
+</table>
+
+<hr class="section-divider">
+
+<!-- SECTION 7: INTERVIEW QUICK REFERENCE -->
+<h2>7. Interview Quick Reference</h2>
+
+<table>
+  <tr><th>Question</th><th>Strong Answer</th></tr>
+  <tr><td>"What does temperature do mathematically?"</td><td>Divides all logits by T before softmax. T&lt;1 amplifies score gaps (more deterministic). T&gt;1 compresses them (flatter, riskier). Formula: p = softmax(logit/T).</td></tr>
+  <tr><td>"Your support bot hallucinates order numbers at T=0.9. First move?"</td><td>Drop T to 0.1, re-run same 50 queries, compare exact-match rate. If hallucinations drop, it's temperature-induced compounding. If not, problem is upstream.</td></tr>
+  <tr><td>"Why not T=0 for everything?"</td><td>T=0 is greedy - always picks top logit. Works for extraction but produces repetitive text for chat. Use per-route temperature: T=0 for JSON, T=0.3 for code, T=0.7 for conversation.</td></tr>
+  <tr><td>"Difference between temperature and top-p?"</td><td>Temperature reshapes the full distribution. Top-p truncates it to the minimum token set covering p% probability. They compose: temperature first, then top-p.</td></tr>
+  <tr><td>"How do temperature, top-k, and top-p interact?"</td><td>Applied in order: (1) T divides logits, (2) top-k hard-cuts to k tokens, (3) top-p dynamically trims to cumulative p%. Three tools, three problems.</td></tr>
+</table>
+
+<div class="footer">
+  <p>Built by <span class="brand">@systemsbyakshay</span> - No BS Intuition Series</p>
+  <p>Temperature is a risk parameter, not a creativity dial.</p>
+</div>
+
+</body>
+</html>
