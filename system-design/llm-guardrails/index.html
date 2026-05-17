@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Guardrails Architecture | @systemsbyakshay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f9f8f4; font-family: 'Inter', sans-serif;
+    padding: 60px 40px; max-width: 1080px; margin: 0 auto;
+    color: #1a1a1a; line-height: 1.65;
+  }
+
+  .header { text-align: center; margin-bottom: 48px; padding-bottom: 32px; border-bottom: 2px solid #e8e4dc; }
+  .header h1 { font-size: 36px; font-weight: 800; margin-bottom: 8px; color: #0a0a0a; }
+  .header .sub { font-size: 18px; color: #6e6a64; }
+  .header .brand { font-size: 14px; color: #2563eb; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 12px; }
+
+  h2 { font-size: 24px; font-weight: 800; margin-top: 48px; margin-bottom: 16px; color: #0a0a0a; }
+  h3 { font-size: 18px; font-weight: 700; margin-top: 32px; margin-bottom: 12px; color: #1a1a1a; }
+  p { margin: 0 0 20px 0; font-size: 16px; }
+  strong { color: #0a0a0a; }
+
+  .formula-box {
+    background: #0a0a0a; color: #f9f8f4; border-radius: 12px;
+    padding: 28px 32px; margin: 24px 0; font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; text-align: center; letter-spacing: 0.5px;
+  }
+  .formula-box .label { font-size: 12px; color: #6e6a64; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 8px; font-family: 'Inter', sans-serif; }
+  .formula-box .formula { font-size: 22px; color: #FFD700; font-weight: 600; }
+
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px 0; font-size: 15px; }
+  th { background: #0a0a0a; color: #f9f8f4; padding: 12px 16px; text-align: left; font-weight: 600; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
+  td { padding: 12px 16px; border-bottom: 1px solid #e8e4dc; vertical-align: top; }
+  tr:nth-child(even) { background: rgba(0,0,0,0.02); }
+  .mono { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #2563eb; }
+  .warn { color: #dc2626; font-weight: 600; }
+  .good { color: #16a34a; font-weight: 600; }
+
+  .section-divider { border: none; border-top: 2px solid #e8e4dc; margin: 40px 0; }
+
+  .tip-box {
+    background: rgba(37,99,235,0.06); border-left: 4px solid #2563eb;
+    border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 20px 0;
+    font-size: 15px; color: #1a1a1a;
+  }
+  .tip-box strong { color: #2563eb; }
+
+  .warn-box {
+    background: rgba(220,38,38,0.06); border-left: 4px solid #dc2626;
+    border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 20px 0;
+    font-size: 15px;
+  }
+  .warn-box strong { color: #dc2626; }
+
+  .diagram-wrap { background: #fff; border: 1px solid #e8e4dc; border-radius: 12px; padding: 28px 20px; margin: 24px 0; }
+  .diagram-caption { font-size: 13px; color: #6e6a64; text-align: center; margin-top: 12px; }
+
+  .footer { text-align: center; margin-top: 48px; padding-top: 24px; border-top: 2px solid #e8e4dc; color: #6e6a64; font-size: 14px; }
+  .footer .brand { color: #2563eb; font-weight: 700; }
+
+  svg text { font-family: 'Inter', sans-serif; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">@systemsbyakshay — No BS System Design Series</div>
+  <h1>LLM Guardrails Architecture</h1>
+  <div class="sub">Why "Don't Do Harmful Things" isn't enough — the 3-layer architecture that actually enforces safety</div>
+</div>
+
+<!-- SECTION 1: THE PROBLEM -->
+<h2>1. The Core Problem</h2>
+<p>"How do you prevent your AI system from being manipulated into producing harmful content?" It's a standard system design interview question. Most candidates answer with a system prompt: "I add safety instructions to tell the model what not to do."</p>
+
+<p>Senior engineers describe an architecture. Not because the prompt doesn't matter — it does — but because they understand something fundamental about how LLMs process inputs. The model you're trying to protect against manipulation is not a reliable defender against it. The system prompt and the attacker's injected instruction sit in the same context window, processed in the same attention pass. One of them wins. You cannot know in advance which one.</p>
+
+<div class="formula-box">
+  <div class="label">The Fundamental Constraint</div>
+  <div class="formula">system_prompt ∈ context_window ← attacker_input ∈ context_window</div>
+</div>
+
+<p>Real guardrails are not instructions to the model. They're structural components that run before the model and after it, implemented in code that cannot be jailbroken.</p>
+
+<div class="warn-box">
+  <strong>7 of the OWASP LLM Top 10 (2025 v2.0)</strong> security risks are guardrail problems — not model problems. You can't prompt-engineer your way out of them. They require architectural defense.
+</div>
+
+<hr class="section-divider">
+
+<!-- SECTION 2: INPUT GUARD -->
+<h2>2. Input Guard — Stop the Attack Before the Model Sees It</h2>
+
+<p>The Input Guard is your first line of defense, and the most important. It runs before the LLM ever sees the user's message. It does not involve the main model — it's fast, independent, deterministic code. Three checks, in order:</p>
+
+<table>
+  <tr><th>Check</th><th>Mechanism</th><th>Latency</th><th>What It Prevents</th></tr>
+  <tr><td><strong>PII Detection</strong></td><td>Pattern + NER classifier</td><td class="mono">~5ms</td><td>Names, emails, SSNs, credit cards entering the context. Scrub (consumer) or block (HIPAA).</td></tr>
+  <tr><td><strong>Injection Classifier</strong></td><td class="good">ML classifier (not regex)</td><td class="mono">~20ms</td><td>"Ignore previous instructions," novel prompt injection patterns. Generalizes beyond known attacks.</td></tr>
+  <tr><td><strong>Topic Scope</strong></td><td>Domain classifier</td><td class="mono">~10ms</td><td>Out-of-scope requests. Rejected before model call — costs zero inference tokens.</td></tr>
+</table>
+
+<div class="diagram-wrap">
+<svg width="100%" viewBox="0 0 680 220" role="img">
+  <title>Input Guard: PII detection, injection classifier, topic scope check before LLM</title>
+  <defs>
+    <marker id="gr-a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+    <marker id="gr-a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <rect x="20" y="86" width="106" height="50" rx="10" fill="#f0f0ec" stroke="#b4b2a9" stroke-width="1"/>
+  <text x="73" y="113" text-anchor="middle" font-size="11" fill="#333" font-weight="600">User Input</text>
+  <line x1="126" y1="111" x2="164" y2="111" stroke="#2563eb" stroke-width="1.5" marker-end="url(#gr-a1)"/>
+  <rect x="166" y="26" width="130" height="42" rx="8" fill="rgba(37,99,235,0.08)" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="231" y="44" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">PII Detection</text>
+  <text x="231" y="58" text-anchor="middle" font-size="9" fill="#2563eb">scrub or block</text>
+  <rect x="166" y="90" width="130" height="42" rx="8" fill="rgba(37,99,235,0.08)" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="231" y="108" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">Injection Classifier</text>
+  <text x="231" y="122" text-anchor="middle" font-size="9" fill="#2563eb">20ms · generalizes</text>
+  <rect x="166" y="154" width="130" height="42" rx="8" fill="rgba(37,99,235,0.08)" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="231" y="172" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">Topic Scope</text>
+  <text x="231" y="186" text-anchor="middle" font-size="9" fill="#2563eb">out-of-scope → refuse</text>
+  <line x1="126" y1="101" x2="164" y2="49" stroke="#2563eb" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#gr-a1)"/>
+  <line x1="126" y1="121" x2="164" y2="173" stroke="#2563eb" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#gr-a1)"/>
+  <line x1="296" y1="111" x2="338" y2="111" stroke="#16a34a" stroke-width="1.5" marker-end="url(#gr-a2)"/>
+  <text x="317" y="104" text-anchor="middle" font-size="9" fill="#16a34a">clean</text>
+  <rect x="340" y="86" width="120" height="50" rx="10" fill="rgba(22,163,74,0.08)" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="400" y="113" text-anchor="middle" font-size="11" fill="#15803d" font-weight="600">LLM</text>
+  <line x1="460" y1="111" x2="496" y2="111" stroke="#16a34a" stroke-width="1.5" marker-end="url(#gr-a2)"/>
+  <rect x="498" y="86" width="120" height="50" rx="10" fill="#f0f0ec" stroke="#b4b2a9" stroke-width="1"/>
+  <text x="558" y="113" text-anchor="middle" font-size="11" fill="#333" font-weight="600">Output Guard →</text>
+  <text x="390" y="56" text-anchor="middle" font-size="9" fill="#dc2626">↑ blocked requests never reach here</text>
+  <text x="670" y="214" text-anchor="end" font-size="9" fill="#ccc">@systemsbyakshay</text>
+</svg>
+<p class="diagram-caption">Three checks run before the LLM sees anything. None involve the main model. All are code — they cannot be bypassed by clever prompting.</p>
+</div>
+
+<div class="tip-box">
+  <strong>The production rule:</strong> Use a classifier for injection detection, not a regex. Rules catch known patterns in ~5ms. A classifier catches novel attacks in ~20ms. Novel attacks are the ones that matter.
+</div>
+
+<hr class="section-divider">
+
+<!-- SECTION 3: PROMPT GUARD -->
+<h2>3. Prompt Guard — Constrain Execution, Not Just Output</h2>
+
+<p>The Prompt Guard sits between the Input Guard and the LLM. Its job is not to filter bad content — that's the Input Guard's job. The Prompt Guard constrains what the LLM is structurally capable of doing during this request.</p>
+
+<table>
+  <tr><th>Constraint</th><th>Where Enforced</th><th>What It Prevents</th></tr>
+  <tr><td><strong>Tool Permissions</strong></td><td class="mono">Orchestrator</td><td>Read-only user gets an orchestrator that won't call write-capable tools. Model can't "get around" it — the permission isn't in the model's reach.</td></tr>
+  <tr><td><strong>Context Window Budget</strong></td><td class="mono">Gateway</td><td>Hard limit (e.g. 8K tokens) on user input. Prevents pushing system prompt to low-attention positions via extremely long inputs.</td></tr>
+  <tr><td><strong>Output Format</strong></td><td class="mono">Schema validator</td><td>Requiring structured JSON with a defined schema prevents format confusion attacks on downstream systems.</td></tr>
+</table>
+
+<div class="diagram-wrap">
+<svg width="100%" viewBox="0 0 680 210" role="img">
+  <title>Prompt Guard: tool permission matrix, context window budget, output format enforcement</title>
+  <defs>
+    <marker id="gr-b1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+    <marker id="gr-b2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <rect x="20" y="80" width="116" height="52" rx="10" fill="#f0f0ec" stroke="#b4b2a9" stroke-width="1"/>
+  <text x="78" y="100" text-anchor="middle" font-size="10" fill="#444" font-weight="600">Clean Input</text>
+  <text x="78" y="116" text-anchor="middle" font-size="9" fill="#6e6a64">from Input Guard</text>
+  <line x1="136" y1="106" x2="174" y2="106" stroke="#2563eb" stroke-width="1.5" marker-end="url(#gr-b1)"/>
+  <rect x="176" y="42" width="148" height="128" rx="12" fill="rgba(37,99,235,0.08)" stroke="#2563eb" stroke-width="2"/>
+  <text x="250" y="66" text-anchor="middle" font-size="12" fill="#1e40af" font-weight="700">Prompt Guard</text>
+  <text x="250" y="86" text-anchor="middle" font-size="9" fill="#2563eb">Tool permission matrix</text>
+  <text x="250" y="102" text-anchor="middle" font-size="9" fill="#6e6a64">role → allowed tools</text>
+  <line x1="196" y1="110" x2="330" y2="110" stroke="#e8e4dc" stroke-width="0.8"/>
+  <text x="250" y="126" text-anchor="middle" font-size="9" fill="#2563eb">Context window budget</text>
+  <text x="250" y="142" text-anchor="middle" font-size="9" fill="#6e6a64">8K max user input tokens</text>
+  <line x1="196" y1="150" x2="330" y2="150" stroke="#e8e4dc" stroke-width="0.8"/>
+  <text x="250" y="162" text-anchor="middle" font-size="9" fill="#2563eb">Output format enforce</text>
+  <line x1="324" y1="106" x2="370" y2="106" stroke="#16a34a" stroke-width="1.5" marker-end="url(#gr-b2)"/>
+  <text x="347" y="99" text-anchor="middle" font-size="9" fill="#16a34a">passes</text>
+  <rect x="372" y="80" width="120" height="52" rx="10" fill="rgba(22,163,74,0.08)" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="432" y="108" text-anchor="middle" font-size="11" fill="#15803d" font-weight="600">LLM Call</text>
+  <line x1="492" y1="106" x2="534" y2="106" stroke="#16a34a" stroke-width="1.5" marker-end="url(#gr-b2)"/>
+  <rect x="536" y="56" width="128" height="100" rx="10" fill="rgba(37,99,235,0.06)" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="600" y="80" text-anchor="middle" font-size="11" fill="#1e40af" font-weight="600">Orchestrator</text>
+  <text x="600" y="97" text-anchor="middle" font-size="9" fill="#6e6a64">enforces tool perms</text>
+  <text x="600" y="113" text-anchor="middle" font-size="9" fill="#6e6a64">blocks disallowed calls</text>
+  <text x="600" y="129" text-anchor="middle" font-size="9" fill="#6e6a64">regardless of LLM output</text>
+  <text x="670" y="204" text-anchor="end" font-size="9" fill="#ccc">@systemsbyakshay</text>
+</svg>
+<p class="diagram-caption">The Prompt Guard constrains what can happen, not just what's requested. Tool permissions live in the orchestrator — the model can't reach tools it hasn't been granted.</p>
+</div>
+
+<div class="tip-box">
+  <strong>The production rule:</strong> If the model can't call the tool, it doesn't matter what it generates. Tool permission enforcement lives in the orchestrator, checked before execution — not in the system prompt, where it's just advice.
+</div>
+
+<hr class="section-divider">
+
+<!-- SECTION 4: OUTPUT GUARD -->
+<h2>4. Output Guard — After the Model, Before the User</h2>
+
+<p>The Output Guard is your last line of defense. Even with a strong Input Guard and tight Prompt Guard, edge cases reach the model. Novel jailbreaks. Unusual inputs that slip past the injection classifier. The Output Guard exists to catch what the earlier layers missed — and to do so before the response ever reaches the user.</p>
+
+<table>
+  <tr><th>Check</th><th>Mechanism</th><th>Latency</th><th>What It Catches</th></tr>
+  <tr><td><strong>Harm Classifier</strong></td><td class="good">External (Llama Guard / Azure Content Safety)</td><td class="mono">~50ms</td><td>Harmful content the model was manipulated into producing. <span class="warn">Never the main model self-assessing.</span></td></tr>
+  <tr><td><strong>PII Leakage</strong></td><td>Pattern + NER on output</td><td class="mono">~5ms</td><td>Model hallucinating or leaking personal data — even when input PII was scrubbed at Layer 1.</td></tr>
+  <tr><td><strong>Faithfulness Check</strong></td><td>RAG grounding verifier</td><td class="mono">~200ms</td><td>Hallucinated claims in RAG outputs. Does the response actually derive from retrieved context?</td></tr>
+</table>
+
+<div class="diagram-wrap">
+<svg width="100%" viewBox="0 0 680 220" role="img">
+  <title>Output Guard: external harm classifier, PII leakage detection, faithfulness check before response delivery</title>
+  <defs>
+    <marker id="gr-c1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+    <marker id="gr-c2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <rect x="20" y="86" width="100" height="50" rx="10" fill="rgba(22,163,74,0.08)" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="70" y="115" text-anchor="middle" font-size="11" fill="#15803d" font-weight="600">LLM output</text>
+  <line x1="120" y1="111" x2="158" y2="111" stroke="#2563eb" stroke-width="1.5" marker-end="url(#gr-c1)"/>
+  <rect x="160" y="28" width="140" height="42" rx="8" fill="rgba(37,99,235,0.08)" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="230" y="46" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">Harm Classifier</text>
+  <text x="230" y="60" text-anchor="middle" font-size="9" fill="#2563eb">Llama Guard · external · 50ms</text>
+  <rect x="160" y="90" width="140" height="42" rx="8" fill="rgba(37,99,235,0.08)" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="230" y="108" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">PII Leakage</text>
+  <text x="230" y="122" text-anchor="middle" font-size="9" fill="#2563eb">detect on output too</text>
+  <rect x="160" y="152" width="140" height="42" rx="8" fill="rgba(37,99,235,0.08)" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="230" y="170" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">Faithfulness Check</text>
+  <text x="230" y="184" text-anchor="middle" font-size="9" fill="#2563eb">RAG: grounded? 200ms sync</text>
+  <line x1="120" y1="101" x2="158" y2="51" stroke="#2563eb" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#gr-c1)"/>
+  <line x1="120" y1="121" x2="158" y2="171" stroke="#2563eb" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#gr-c1)"/>
+  <line x1="300" y1="111" x2="356" y2="111" stroke="#16a34a" stroke-width="1.5" marker-end="url(#gr-c2)"/>
+  <text x="328" y="104" text-anchor="middle" font-size="9" fill="#16a34a">clean</text>
+  <rect x="358" y="86" width="120" height="50" rx="10" fill="rgba(22,163,74,0.08)" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="418" y="115" text-anchor="middle" font-size="11" fill="#15803d" font-weight="600">User</text>
+  <line x1="300" y1="50" x2="460" y2="50" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <line x1="300" y1="173" x2="460" y2="173" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <rect x="462" y="34" width="100" height="32" rx="8" fill="rgba(220,38,38,0.08)" stroke="#dc2626" stroke-width="1"/>
+  <text x="512" y="55" text-anchor="middle" font-size="9" fill="#dc2626">block + log</text>
+  <rect x="462" y="157" width="100" height="32" rx="8" fill="rgba(220,38,38,0.08)" stroke="#dc2626" stroke-width="1"/>
+  <text x="512" y="178" text-anchor="middle" font-size="9" fill="#dc2626">block + log</text>
+  <text x="670" y="214" text-anchor="end" font-size="9" fill="#ccc">@systemsbyakshay</text>
+</svg>
+<p class="diagram-caption">The Output Guard uses an external classifier — never the main model self-assessing. Flagged outputs are blocked and logged. Never retried for harm violations.</p>
+</div>
+
+<div class="warn-box">
+  <strong>Never use self-assessment:</strong> Asking the model "is your output harmful?" is unreliable by design. The model that was manipulated into producing harmful content will often evaluate its own output as clean. Use an external harm classifier. The independence is the point.
+</div>
+
+<hr class="section-divider">
+
+<!-- SECTION 5: OWASP MAPPING -->
+<h2>5. OWASP LLM Top 10 (2025 v2.0) Mapping</h2>
+
+<p>The OWASP LLM Top 10 is the industry's standard taxonomy of LLM security risks. Seven of the ten are explicitly guardrail problems — risks that cannot be mitigated by model selection, fine-tuning, or better prompts.</p>
+
+<table>
+  <tr><th>OWASP Risk</th><th>Guard Layer</th><th>Mechanism</th></tr>
+  <tr><td><strong>LLM01</strong> Prompt Injection</td><td class="mono">Input Guard</td><td>Injection classifier runs before the model — code that cannot itself be injected.</td></tr>
+  <tr><td><strong>LLM02</strong> Sensitive Info Disclosure</td><td class="mono">Input + Output</td><td>PII detection on input (scrub/block) + PII leakage detection on output.</td></tr>
+  <tr><td><strong>LLM05</strong> Improper Output Handling</td><td class="mono">Output Guard</td><td>Schema validation and format enforcement prevent downstream misprocessing.</td></tr>
+  <tr><td><strong>LLM06</strong> Excessive Agency</td><td class="mono">Prompt Guard</td><td>Tool permission matrix enforced at orchestrator level per user role.</td></tr>
+  <tr><td><strong>LLM07</strong> System Prompt Leakage</td><td class="mono">Output Guard</td><td>Detects system prompt content in responses before they reach the user.</td></tr>
+  <tr><td><strong>LLM09</strong> Misinformation</td><td class="mono">Output Guard</td><td>Faithfulness check — synchronous verification response is grounded in retrieved context.</td></tr>
+  <tr><td><strong>LLM10</strong> Unbounded Consumption</td><td class="mono">Prompt Guard</td><td>Context budget enforcement + rate limiting in gateway. Model not involved.</td></tr>
+</table>
+
+<div class="tip-box">
+  <strong>The pattern:</strong> Every one of these risks has a structural solution. None of them is solved by making the prompt more emphatic about what the model shouldn't do.
+</div>
+
+<hr class="section-divider">
+
+<!-- SECTION 6: PRODUCTION CHECKLIST -->
+<h2>6. Production Readiness Checklist</h2>
+
+<table>
+  <tr><th></th><th>Practice</th><th>Why</th></tr>
+  <tr><td>&#9744;</td><td>Input Guard runs before every LLM call — not inside the prompt</td><td>Code cannot be jailbroken. System prompts can.</td></tr>
+  <tr><td>&#9744;</td><td>PII detection covers names, emails, SSNs, financial data</td><td>Scrub or block based on regulatory context (HIPAA → block).</td></tr>
+  <tr><td>&#9744;</td><td>Injection classifier is ML-based, not regex-only</td><td>Regex catches known patterns. Classifiers generalize to novel attacks.</td></tr>
+  <tr><td>&#9744;</td><td>Topic scope classifier rejects out-of-scope requests</td><td>Zero inference tokens for out-of-domain requests.</td></tr>
+  <tr><td>&#9744;</td><td>Tool permission matrix enforced at orchestrator level</td><td>Model can't reach tools it hasn't been granted.</td></tr>
+  <tr><td>&#9744;</td><td>Context window budget enforced — hard max input token limit</td><td>Prevents system prompt attention dilution attacks.</td></tr>
+  <tr><td>&#9744;</td><td>Output format schema enforced</td><td>Any unexpected structure can break downstream parsers.</td></tr>
+  <tr><td>&#9744;</td><td>External harm classifier (Llama Guard / Azure Content Safety)</td><td>Never the main model. Independence is the point.</td></tr>
+  <tr><td>&#9744;</td><td>PII leakage detection on output</td><td>Model can include PII even when input was scrubbed.</td></tr>
+  <tr><td>&#9744;</td><td>Faithfulness check for RAG outputs — synchronous</td><td>200ms latency prevents hallucinated medical/legal claims.</td></tr>
+  <tr><td>&#9744;</td><td>Flagged outputs blocked and logged — never retried</td><td>Do not send harmful content twice hoping the second attempt is better.</td></tr>
+  <tr><td>&#9744;</td><td>Total guardrail latency budget: &lt;250ms</td><td>Acceptable for most production applications.</td></tr>
+</table>
+
+<hr class="section-divider">
+
+<!-- SECTION 7: THE CLOSING INSIGHT -->
+<h2>7. Why This Is an Architecture Problem</h2>
+
+<p>The reason most LLM safety approaches fail in production is a fundamental misunderstanding of what a system prompt actually is. It's a text instruction. It lives in the context window alongside everything else the model processes — including whatever an attacker puts in the user input. The outcome depends on which instruction the model finds more persuasive in that moment.</p>
+
+<p>Structural guardrails don't have that problem. Code that runs before the model doesn't care what the model thinks. A classifier that blocks prompt injections runs regardless of how sophisticated the injection is. A permission gate that prevents tool calls operates at the infrastructure level — outside the model's awareness entirely. An external harm classifier evaluates output independently of the process that generated it.</p>
+
+<p>The three layers — input guard, prompt guard, output guard — are what separate a system that's mostly safe from one that's reliably safe at scale.</p>
+
+<div class="footer">
+  <p>Built by <span class="brand">@systemsbyakshay</span> — No BS System Design Series</p>
+  <p>Guardrails are in the architecture, not the prompt.</p>
+</div>
+
+</body>
+</html>
