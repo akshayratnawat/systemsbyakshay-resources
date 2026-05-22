@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linear Algebra for AI - The Complete Guide | @systemsbyakshay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: #f9f8f4; font-family: 'Inter', sans-serif;
+    padding: 60px 40px; max-width: 1080px; margin: 0 auto;
+    color: #1a1a1a; line-height: 1.65;
+  }
+  a { color: #2563eb; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  hr {
+    border: 0;
+    border-top: 2px solid #e8e4dc;
+    margin: 32px 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    border: 1px solid #e8e4dc;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  thead {
+    background: #0a0a0a;
+    color: #ffffff;
+  }
+  th, td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid #e8e4dc;
+  }
+  tbody tr:nth-child(even) {
+    background: rgba(10, 10, 10, 0.03);
+  }
+  .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: #2563eb;
+  }
+  .page {
+    width: 100%;
+  }
+  .doc-header,
+  .toc,
+  .section,
+  .summary {
+    border-bottom: 2px solid #e8e4dc;
+  }
+  .doc-header {
+    padding-bottom: 34px;
+    margin-bottom: 40px;
+    text-align: center;
+  }
+  .doc-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(37, 99, 235, 0.16);
+    background: rgba(37, 99, 235, 0.08);
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .doc-title {
+    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    line-height: 1.08;
+    font-weight: 800;
+    color: #0a0a0a;
+    margin-bottom: 14px;
+    letter-spacing: -0.03em;
+  }
+  .doc-subtitle {
+    max-width: 760px;
+    margin: 0 auto 24px auto;
+    font-size: 1.15rem;
+    color: #6e6a64;
+  }
+  .doc-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  .meta-pill {
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid #ddd7cb;
+    background: #fffcf5;
+    color: #1a1a1a;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .meta-pill.gold,
+  .meta-pill.purple,
+  .meta-pill.amber {
+    color: #2563eb;
+    border-color: rgba(37, 99, 235, 0.18);
+    background: rgba(37, 99, 235, 0.06);
+  }
+  .toc {
+    padding-bottom: 34px;
+    margin-bottom: 40px;
+  }
+  .section-tag,
+  .section-number,
+  .block-title,
+  .diagram-title {
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .section-tag,
+  .diagram-title {
+    color: #6e6a64;
+    margin-bottom: 12px;
+  }
+  .toc-title {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: #0a0a0a;
+    margin-bottom: 18px;
+  }
+  .toc-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 16px;
+  }
+  .toc-list a {
+    display: block;
+    padding: 16px 18px;
+    border-radius: 16px;
+    border: 1px solid #e8e4dc;
+    background: rgba(255, 255, 255, 0.55);
+    color: #1a1a1a;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .toc-list a:hover {
+    border-color: rgba(37, 99, 235, 0.28);
+    box-shadow: 0 10px 24px rgba(10, 10, 10, 0.05);
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+  .toc-list span {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #2563eb;
+    margin-bottom: 6px;
+  }
+  .section {
+    padding-bottom: 40px;
+    margin-bottom: 40px;
+  }
+  .section-header {
+    margin-bottom: 24px;
+  }
+  .section-number {
+    color: #2563eb;
+    margin-bottom: 10px;
+  }
+  .section-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0a0a0a;
+    margin-bottom: 10px;
+    line-height: 1.25;
+  }
+  .section-kicker {
+    font-size: 1.05rem;
+    color: #6e6a64;
+  }
+  .block {
+    margin-bottom: 24px;
+  }
+  .block:last-child { margin-bottom: 0; }
+  .block-title {
+    color: #2563eb;
+    margin-bottom: 10px;
+  }
+  .block-title.teal,
+  .block-title.gold,
+  .block-title.purple,
+  .block-title.amber {
+    color: #2563eb;
+  }
+  .body-text {
+    font-size: 1.05rem;
+    color: #1a1a1a;
+  }
+  .body-text p { margin-bottom: 15px; }
+  .body-text p:last-child { margin-bottom: 0; }
+  .body-text strong { color: #0a0a0a; font-weight: 700; }
+  .body-text em { color: #2563eb; font-style: italic; }
+  .concept-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
+    gap: 18px;
+    margin: 24px 0 28px 0;
+  }
+  .card,
+  .summary-card {
+    border-radius: 18px;
+    padding: 22px 24px;
+    border: 1px solid #e8e4dc;
+    background: rgba(255, 255, 255, 0.72);
+  }
+  .card.highlight-gold { background: rgba(255, 215, 0, 0.07); }
+  .card.highlight-teal,
+  .card.highlight-purple,
+  .card.highlight-amber { background: rgba(37, 99, 235, 0.05); }
+  .mini-note {
+    margin-top: 12px;
+    font-size: 0.96rem;
+    line-height: 1.6;
+    color: #6e6a64;
+  }
+  .embedding-dots,
+  .axis-stack,
+  .matmul-stack,
+  .similarity-stack,
+  .norm-stack,
+  .warp-stack,
+  .svd-stack,
+  .eigen-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .point-row,
+  .axis-row,
+  .mm-row,
+  .sim-row,
+  .norm-row,
+  .warp-row,
+  .svd-row,
+  .eig-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  .point, .axis-chip, .mm-chip, .sim-chip, .norm-chip, .warp-chip, .svd-chip, .eig-chip {
+    flex: 1;
+    min-width: 0;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid #ddd7cb;
+    background: #fffdf8;
+    color: #1a1a1a;
+  }
+  .point,
+  .mm-chip,
+  .sim-chip.gold,
+  .norm-chip.gold,
+  .svd-chip.gold {
+    background: rgba(255, 215, 0, 0.08);
+  }
+  .point.alt,
+  .axis-chip.teal,
+  .mm-chip.teal,
+  .sim-chip.teal,
+  .norm-chip.teal,
+  .warp-chip.teal,
+  .eig-chip.teal,
+  .svd-chip.teal {
+    background: rgba(37, 99, 235, 0.08);
+    color: #2563eb;
+    border-color: rgba(37, 99, 235, 0.16);
+  }
+  .point.purple,
+  .axis-chip.purple,
+  .mm-chip.purple,
+  .warp-chip,
+  .svd-chip.purple,
+  .eig-chip.amber,
+  .norm-chip.amber {
+    background: rgba(10, 10, 10, 0.04);
+  }
+  .op {
+    flex-shrink: 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #6e6a64;
+  }
+  .math-box {
+    border-radius: 18px;
+    padding: 24px;
+    background: #0a0a0a;
+    color: #f6f3eb;
+    border: 1px solid #0a0a0a;
+  }
+  .math-box .block-title {
+    color: #89b4fa;
+  }
+  .equation {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(1.15rem, 2.2vw, 1.55rem);
+    line-height: 1.5;
+    color: #FFD700;
+    text-align: center;
+    margin-bottom: 14px;
+    overflow-wrap: anywhere;
+  }
+  .equation-sub {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.78);
+    text-align: center;
+    margin-bottom: 14px;
+  }
+  .symbol-list {
+    list-style: none;
+    display: grid;
+    gap: 8px;
+  }
+  .symbol-list li {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.84);
+    line-height: 1.6;
+  }
+  .symbol-list strong { color: #ffffff; }
+  .code-block {
+    margin-top: 10px;
+    padding: 20px 22px;
+    border-radius: 12px;
+    background: #0a0a0a;
+    border: 1px solid #171717;
+    overflow-x: auto;
+  }
+  pre {
+    margin: 0;
+    white-space: pre-wrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #cdd6f4;
+  }
+  .kw { color: #cba6f7; }
+  .str { color: #a6e3a1; }
+  .fn { color: #89b4fa; }
+  .cm { color: #585b70; }
+  .mistake-box {
+    border-radius: 18px;
+    padding: 22px 24px;
+    border-left: 4px solid #dc2626;
+    background: rgba(220, 38, 38, 0.06);
+    border-top: 1px solid rgba(220, 38, 38, 0.12);
+    border-right: 1px solid rgba(220, 38, 38, 0.12);
+    border-bottom: 1px solid rgba(220, 38, 38, 0.12);
+  }
+  .mistake-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0a0a0a;
+    margin-bottom: 10px;
+  }
+  .mistake-text {
+    font-size: 1rem;
+    color: #1a1a1a;
+    line-height: 1.6;
+  }
+  .mistake-fix {
+    margin-top: 12px;
+    padding: 14px 16px;
+    border-left: 4px solid #2563eb;
+    border-radius: 12px;
+    background: rgba(37, 99, 235, 0.06);
+    color: #1a1a1a;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  .summary {
+    padding-bottom: 34px;
+    margin-bottom: 36px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .summary-card .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2563eb;
+    margin-bottom: 6px;
+  }
+  .summary-card p {
+    font-size: 1rem;
+    color: #1a1a1a;
+    line-height: 1.6;
+  }
+  .doc-footer {
+    border-top: 2px solid #e8e4dc;
+    padding-top: 24px;
+    text-align: center;
+  }
+  .footer-handle {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #2563eb;
+    margin-bottom: 10px;
+  }
+  .footer-copy {
+    font-size: 0.98rem;
+    color: #6e6a64;
+    line-height: 1.7;
+  }
+  @media (max-width: 900px) {
+    body {
+      padding: 36px 20px;
+    }
+    .toc-list,
+    .concept-grid,
+    .summary-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+</style>
+</head>
+<body>
+  <div class="page">
+    <header class="doc-header">
+      <div class="doc-eyebrow">No BS Intuition - AI/ML Series</div>
+      <h1 class="doc-title">Linear Algebra for AI - The Complete Guide</h1>
+      <p class="doc-subtitle">8 concepts every ML engineer uses daily - explained with intuition, diagrams, and PyTorch code.</p>
+      <div class="doc-meta">
+        <div class="meta-pill gold">8 Concepts</div>
+        <div class="meta-pill">Production Order</div>
+        <div class="meta-pill purple">PyTorch Code</div>
+        <div class="meta-pill amber">@systemsbyakshay</div>
+      </div>
+    </header>
+
+    <section class="toc">
+      <div class="section-tag">Table of Contents</div>
+      <h2 class="toc-title">What you actually use in production</h2>
+      <ul class="toc-list">
+        <li><a href="#vectors"><span>01</span>Vectors &amp; Embeddings</a></li>
+        <li><a href="#matrices"><span>02</span>Matrices &amp; Tensor Shapes</a></li>
+        <li><a href="#matmul"><span>03</span>Matrix Multiplication</a></li>
+        <li><a href="#similarity"><span>04</span>Dot Product &amp; Cosine Similarity</a></li>
+        <li><a href="#norms"><span>05</span>Norms - L1 and L2</a></li>
+        <li><a href="#transforms"><span>06</span>Linear Transformations</a></li>
+        <li><a href="#svd"><span>07</span>SVD &amp; LoRA</a></li>
+        <li><a href="#eigen"><span>08</span>Eigenvectors &amp; PCA</a></li>
+      </ul>
+    </section>
+
+    <section class="section" id="vectors">
+      <div class="section-header">
+        <div class="section-number">Concept 01 of 08</div>
+        <h2 class="section-title">Vectors &amp; Embeddings</h2>
+        <div class="section-kicker">An embedding is a coordinate in meaning space, not a magic blob of numbers.</div>
+      </div>
+      <div class="block">
+        <div class="block-title teal">The intuition</div>
+        <div class="body-text">
+          <p>A vector is just an ordered list of numbers, but in AI it helps to picture it as a <strong>location in a space</strong>. If one axis roughly captures sentiment, another captures topic, another captures formality, then a sentence or song can sit somewhere inside that giant space. Nearby points mean similar meaning. Far points mean different meaning.</p>
+          <p>That is why embeddings feel so useful. They turn messy things like text, users, products, and songs into coordinates you can compare. OpenAI's <strong>text-embedding-3-large</strong> uses a 3072-dimensional vector, which sounds abstract until you remember that each dimension only needs to help separate meaning a little bit. The full geometry is what matters.</p>
+          <p>Once you see embeddings as coordinates, a lot of product behavior stops feeling mysterious. Search becomes nearest-neighbor lookup. Recommendations become finding users and items that occupy similar neighborhoods. Clustering becomes asking which regions of the space are naturally dense.</p>
+        </div>
+      </div>
+      <div class="concept-grid">
+        <div class="card highlight-gold">
+          <div class="diagram-title">Diagram - meaning space</div>
+          <div class="embedding-dots">
+            <div class="point-row">
+              <div class="point">"neural nets"</div>
+              <div class="point">"transformers"</div>
+              <div class="point alt">"GPU kernels"</div>
+            </div>
+            <div class="point-row">
+              <div class="point purple">"jazz playlist"</div>
+              <div class="point alt">"lofi study"</div>
+              <div class="point">"matrix math"</div>
+            </div>
+          </div>
+          <div class="mini-note">Close points share meaning. The axes are not human-labeled, but the geometry is still real enough to drive retrieval and ranking.</div>
+        </div>
+        <div class="card highlight-teal">
+          <div class="block-title gold">In production</div>
+          <div class="body-text" style="font-size:18px;">
+            <p>OpenAI embedding APIs turn documents into dense vectors so RAG systems can retrieve semantically related chunks instead of keyword matches.</p>
+            <p>Spotify-style recommendation systems use Word2Vec-like embeddings to place users, songs, and artists in a shared space, then rank what sits nearby.</p>
+          </div>
+        </div>
+      </div>
+      <div class="block math-box">
+        <div class="block-title purple">The math</div>
+        <div class="equation">cos(a, b) = (a · b) / (||a|| ||b||)</div>
+        <div class="equation-sub">Cosine similarity asks whether two embedding directions line up, independent of raw magnitude.</div>
+        <ul class="symbol-list">
+          <li><strong>a, b</strong> - two embedding vectors you want to compare.</li>
+          <li><strong>a · b</strong> - the dot product, which grows when matching dimensions point in the same direction.</li>
+          <li><strong>||a||, ||b||</strong> - vector magnitudes used to normalize away size.</li>
+          <li><strong>cos(a, b)</strong> - a score near 1 means highly aligned, near 0 means unrelated, near -1 means opposite direction.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <div class="block-title amber">PyTorch example</div>
+        <div class="code-block"><pre><span class="kw">import</span> torch
+<span class="kw">import</span> torch.nn.functional <span class="kw">as</span> F
+
+embedding = torch.nn.<span class="fn">Embedding</span>(num_embeddings=<span class="str">10000</span>, embedding_dim=<span class="str">3072</span>)
+ids = torch.<span class="fn">tensor</span>([<span class="str">7</span>, <span class="str">42</span>])
+vecs = <span class="fn">embedding</span>(ids)
+score = F.<span class="fn">cosine_similarity</span>(vecs[<span class="str">0</span>].unsqueeze(<span class="str">0</span>), vecs[<span class="str">1</span>].unsqueeze(<span class="str">0</span>))
+<span class="fn">print</span>(score.item())</pre></div>
+      </div>
+      <div class="block mistake-box">
+        <div class="block-title amber">Common mistake</div>
+        <div class="mistake-title">Using raw dot product for retrieval when vectors have different magnitudes</div>
+        <div class="mistake-text">This silently biases results toward embeddings with bigger norms, not better semantic match. In production that shows up as weird retrieval, popular-item bias, or chunks that look similar only because their vector length is large.</div>
+        <div class="mistake-fix">Normalize embeddings or use cosine similarity when your ranking goal is semantic closeness rather than energy or confidence.</div>
+      </div>
+    </section>
+
+    <section class="section" id="matrices">
+      <div class="section-header">
+        <div class="section-number">Concept 02 of 08</div>
+        <h2 class="section-title">Matrices &amp; Tensor Shapes</h2>
+        <div class="section-kicker">A matrix is a container. A tensor is the same idea with more axes.</div>
+      </div>
+      <div class="block">
+        <div class="block-title teal">The intuition</div>
+        <div class="body-text">
+          <p>The biggest beginner mistake in deep learning is not hard math. It is forgetting what each axis means. A tensor shape is really a set of labeled slots: batch, sequence, heads, channels, embedding dimension, height, width. If you lose track of the labels, your model can still run while learning garbage.</p>
+          <p>Think of a matrix as a spreadsheet with structure. Rows and columns are not interchangeable unless the operation says they are. A tensor is just the same idea extended to more directions. A Transformer batch often looks like <strong>(batch, seq, dim)</strong>. An image batch often looks like <strong>(batch, channel, height, width)</strong>. Same concept, different labels.</p>
+          <p>Production ML engineering is full of shape bookkeeping. You reshape for batching, permute for attention, flatten for classifiers, and unsqueeze for broadcasting. The people who debug fastest are usually the people who keep the axis meaning in their head at every line.</p>
+        </div>
+      </div>
+      <div class="concept-grid">
+        <div class="card highlight-purple">
+          <div class="diagram-title">Diagram - labeled axes</div>
+          <div class="axis-stack">
+            <div class="axis-row">
+              <div class="axis-chip">batch = 32</div>
+              <div class="axis-chip teal">seq = 128</div>
+              <div class="axis-chip purple">dim = 768</div>
+            </div>
+            <div class="axis-row">
+              <div class="axis-chip">image batch</div>
+              <div class="axis-chip teal">channel = 3</div>
+              <div class="axis-chip purple">height × width</div>
+            </div>
+          </div>
+          <div class="mini-note">The numbers matter, but the labels matter more. Most silent bugs come from preserving numbers while scrambling semantics.</div>
+        </div>
+        <div class="card highlight-teal">
+          <div class="block-title gold">In production</div>
+          <div class="body-text" style="font-size:18px;">
+            <p>PyTorch training code and Hugging Face loops constantly move between batch-first and head-first layouts. Attention layers commonly reshape from <strong>(B, S, D)</strong> to <strong>(B, H, S, d)</strong>.</p>
+            <p>Many nasty bugs are not exceptions. They are tensors with valid sizes but wrong axis meaning, so the training loop keeps going and quality quietly collapses.</p>
+          </div>
+        </div>
+      </div>
+      <div class="block math-box">
+        <div class="block-title purple">The math</div>
+        <div class="equation">(m, k) × (k, n) → (m, n)</div>
+        <div class="equation-sub">Matrix operations are legal only when the shared dimensions line up. The output keeps the outer dimensions.</div>
+        <ul class="symbol-list">
+          <li><strong>m</strong> - number of rows in the first matrix.</li>
+          <li><strong>k</strong> - inner dimension that must match across both operands.</li>
+          <li><strong>n</strong> - number of columns in the second matrix.</li>
+          <li><strong>(m, n)</strong> - output shape after combining rows from the first with columns from the second.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <div class="block-title amber">PyTorch example</div>
+        <div class="code-block"><pre><span class="kw">import</span> torch
+
+x = torch.<span class="fn">randn</span>(<span class="str">4</span>, <span class="str">128</span>, <span class="str">256</span>)  <span class="cm"># batch, seq, dim</span>
+<span class="fn">print</span>(x.shape)
+y = x.<span class="fn">view</span>(<span class="str">4</span>, <span class="str">128</span>, <span class="str">8</span>, <span class="str">32</span>).<span class="fn">permute</span>(<span class="str">0</span>, <span class="str">2</span>, <span class="str">1</span>, <span class="str">3</span>)
+<span class="fn">print</span>(y.shape)  <span class="cm"># batch, heads, seq, head_dim</span></pre></div>
+      </div>
+      <div class="block mistake-box">
+        <div class="block-title amber">Common mistake</div>
+        <div class="mistake-title">Swapping sequence and feature dimensions in attention code</div>
+        <div class="mistake-text">The tensor still has the same total number of elements, so the model does not always crash. Instead, attention operates across the wrong axis and training is quietly poisoned. The result looks like unexplained instability or a model that never really learns.</div>
+        <div class="mistake-fix">Write shapes in comments, assert tensor sizes at critical boundaries, and treat <strong>(batch, seq, dim)</strong> as semantic labels instead of just integers.</div>
+      </div>
+    </section>
+
+    <section class="section" id="matmul">
+      <div class="section-header">
+        <div class="section-number">Concept 03 of 08</div>
+        <h2 class="section-title">Matrix Multiplication</h2>
+        <div class="section-kicker">This is the core operation behind almost every neural network layer.</div>
+      </div>
+      <div class="block">
+        <div class="block-title teal">The intuition</div>
+        <div class="body-text">
+          <p>If you only memorize one equation in deep learning, make it <strong>y = Wx + b</strong>. That is a linear layer. The matrix <strong>W</strong> says how much each input feature should influence each output feature. The vector <strong>b</strong> shifts the result. Stack enough of these with nonlinearities and you get most modern networks.</p>
+          <p>Matrix multiplication looks intimidating because it is written compactly, but the behavior is simple: each output neuron is a weighted sum of inputs. One row of <strong>W</strong> defines one detector. Multiply that row by the input, add everything up, and you get one output value.</p>
+          <p>This is why GPUs matter so much. Training and inference are mostly giant matrix multiplies repeated at ridiculous scale. NVIDIA tensor cores exist because AI workloads are basically a relentless stream of linear algebra. On an A100, those matmuls are what turn model architecture into actual throughput.</p>
+        </div>
+      </div>
+      <div class="concept-grid">
+        <div class="card highlight-gold">
+          <div class="diagram-title">Diagram - one layer</div>
+          <div class="matmul-stack">
+            <div class="mm-row">
+              <div class="mm-chip">W</div>
+              <div class="op">×</div>
+              <div class="mm-chip teal">x</div>
+              <div class="op">+</div>
+              <div class="mm-chip purple">b</div>
+            </div>
+            <div class="mm-row">
+              <div class="mm-chip purple">output y</div>
+            </div>
+          </div>
+          <div class="mini-note">Every row of <strong>W</strong> is a recipe for one output feature. Neural networks feel fancy, but this is the engine.</div>
+        </div>
+        <div class="card highlight-amber">
+          <div class="block-title gold">In production</div>
+          <div class="body-text" style="font-size:18px;">
+            <p>NVIDIA A100 tensor cores are built to accelerate matrix multiplies at enormous scale. Roughly speaking, modern AI hardware is optimized around this one primitive.</p>
+            <p>When a model is slow, you are often really asking how efficiently your stack feeds these matmuls to the GPU.</p>
+          </div>
+        </div>
+      </div>
+      <div class="block math-box">
+        <div class="block-title purple">The math</div>
+        <div class="equation">y[i] = Σ<sub>j</sub> W[i, j] x[j] + b[i]</div>
+        <div class="equation-sub">The i-th output is the weighted sum of every input feature plus its own bias term.</div>
+        <ul class="symbol-list">
+          <li><strong>W[i, j]</strong> - weight connecting input feature <strong>j</strong> to output feature <strong>i</strong>.</li>
+          <li><strong>x[j]</strong> - value of input feature <strong>j</strong>.</li>
+          <li><strong>Σ</strong> - add contributions from all input features.</li>
+          <li><strong>b[i]</strong> - bias for output feature <strong>i</strong>.</li>
+          <li><strong>y[i]</strong> - final activation before any nonlinearity.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <div class="block-title amber">PyTorch example</div>
+        <div class="code-block"><pre><span class="kw">import</span> torch
+<span class="kw">import</span> torch.nn <span class="kw">as</span> nn
+
+x = torch.<span class="fn">randn</span>(<span class="str">32</span>, <span class="str">768</span>)
+layer = nn.<span class="fn">Linear</span>(<span class="str">768</span>, <span class="str">256</span>)
+y1 = layer(x)
+y2 = torch.<span class="fn">matmul</span>(x, layer.weight.<span class="fn">T</span>) + layer.bias
+<span class="fn">print</span>(torch.<span class="fn">allclose</span>(y1, y2))</pre></div>
+      </div>
+      <div class="block mistake-box">
+        <div class="block-title amber">Common mistake</div>
+        <div class="mistake-title">Forgetting that inner dimensions must match</div>
+        <div class="mistake-text">This is the classic shape mismatch error: you try to multiply <strong>(batch, 512)</strong> by a weight matrix expecting 768 features. In a more subtle version, you reshape tensors until the code runs but the learned mapping is wrong.</div>
+        <div class="mistake-fix">Track the feature dimension through the network and verify it at every layer boundary before blaming the optimizer or dataset.</div>
+      </div>
+    </section>
+
+    <section class="section" id="similarity">
+      <div class="section-header">
+        <div class="section-number">Concept 04 of 08</div>
+        <h2 class="section-title">Dot Product &amp; Cosine Similarity</h2>
+        <div class="section-kicker">Dot product measures alignment. Attention turns those alignments into weights.</div>
+      </div>
+      <div class="block">
+        <div class="block-title teal">The intuition</div>
+        <div class="body-text">
+          <p>The dot product answers a simple question: <strong>how much do these two vectors point in the same direction?</strong> If two vectors align, the score is high. If they are orthogonal, the score is near zero. If they point against each other, the score goes negative.</p>
+          <p>This matters because attention is built from dot products. A query vector asks what it is looking for. Key vectors say what each token contains. The dot product between them becomes a compatibility score. Softmax turns those scores into probabilities, and the model blends values accordingly.</p>
+          <p>Cosine similarity is just the normalized version of the same idea. Retrieval systems like Pinecone and Weaviate often use cosine when semantic direction matters more than vector magnitude. Transformers, meanwhile, often use raw dot products but scale them to keep the softmax stable.</p>
+        </div>
+      </div>
+      <div class="concept-grid">
+        <div class="card highlight-teal">
+          <div class="diagram-title">Diagram - attention scores</div>
+          <div class="similarity-stack">
+            <div class="sim-row">
+              <div class="sim-chip gold">Q</div>
+              <div class="op">·</div>
+              <div class="sim-chip teal">Kᵀ</div>
+              <div class="op">/</div>
+              <div class="sim-chip">√d<sub>k</sub></div>
+            </div>
+            <div class="sim-row">
+              <div class="sim-chip gold">softmax</div>
+              <div class="op">→</div>
+              <div class="sim-chip teal">weights</div>
+              <div class="op">×</div>
+              <div class="sim-chip">V</div>
+            </div>
+          </div>
+          <div class="mini-note">Attention is similarity scoring plus normalization. The glamour is in the scale. The mechanic is still alignment.</div>
+        </div>
+        <div class="card highlight-purple">
+          <div class="block-title gold">In production</div>
+          <div class="body-text" style="font-size:18px;">
+            <p>Transformers compute <strong>softmax(QKᵀ / √d<sub>k</sub>)V</strong> on every layer. That one line powers chatbots, copilots, and RAG rerankers.</p>
+            <p>Vector databases use the same geometric idea for retrieval, even when the serving layer hides the math behind an API.</p>
+          </div>
+        </div>
+      </div>
+      <div class="block math-box">
+        <div class="block-title purple">The math</div>
+        <div class="equation">a · b = ||a|| ||b|| cos(θ)</div>
+        <div class="equation">Attention(Q, K, V) = softmax(QKᵀ / √d<sub>k</sub>)V</div>
+        <div class="equation-sub">The first equation explains alignment. The second shows how a whole attention head uses that alignment to blend values.</div>
+        <ul class="symbol-list">
+          <li><strong>θ</strong> - angle between vectors. Smaller angle means stronger alignment.</li>
+          <li><strong>Q</strong> - query matrix containing what each token wants.</li>
+          <li><strong>K</strong> - key matrix describing what each token offers.</li>
+          <li><strong>V</strong> - value matrix containing the information to be blended.</li>
+          <li><strong>d<sub>k</sub></strong> - key dimension used to scale scores before softmax.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <div class="block-title amber">PyTorch example</div>
+        <div class="code-block"><pre><span class="kw">import</span> math
+<span class="kw">import</span> torch
+
+q = torch.<span class="fn">randn</span>(<span class="str">4</span>)
+k = torch.<span class="fn">randn</span>(<span class="str">4</span>)
+<span class="fn">print</span>(torch.<span class="fn">dot</span>(q, k).item())
+Q, K, V = [torch.<span class="fn">randn</span>(<span class="str">2</span>, <span class="str">3</span>, <span class="str">8</span>) <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="str">3</span>)]
+weights = torch.<span class="fn">softmax</span>(torch.<span class="fn">matmul</span>(Q, K.<span class="fn">transpose</span>(-<span class="str">1</span>, -<span class="str">2</span>)) / math.<span class="fn">sqrt</span>(Q.size(-<span class="str">1</span>)), dim=-<span class="str">1</span>)
+out = torch.<span class="fn">matmul</span>(weights, V)</pre></div>
+      </div>
+      <div class="block mistake-box">
+        <div class="block-title amber">Common mistake</div>
+        <div class="mistake-title">Skipping the √d<sub>k</sub> scaling in attention</div>
+        <div class="mistake-text">As vector dimension grows, raw dot products get large. Then softmax saturates, one token wins too hard, gradients get ugly, and training becomes brittle. The model looks overconfident for a mathematical reason, not a mysterious one.</div>
+        <div class="mistake-fix">Always scale by the square root of key dimension before softmax so score variance stays in a healthy range.</div>
+      </div>
+    </section>
+
+    <section class="section" id="norms">
+      <div class="section-header">
+        <div class="section-number">Concept 05 of 08</div>
+        <h2 class="section-title">Norms - L1 and L2</h2>
+        <div class="section-kicker">Norms tell you how big a vector is, and that makes them a health metric for training.</div>
+      </div>
+      <div class="block">
+        <div class="block-title teal">The intuition</div>
+        <div class="body-text">
+          <p>A norm is just a way to measure size. For vectors, that means asking how large the overall signal is once you combine all coordinates. In training, the most important vector is often the gradient. If the gradient norm suddenly spikes, you are usually watching the system become unstable before the loss graph fully reveals it.</p>
+          <p><strong>L2 norm</strong> is the familiar Euclidean length. It grows faster when individual coordinates get very large, which makes it useful for spotting exploding gradients. <strong>L1 norm</strong> adds absolute values instead, which is more robust and often used when you want sparsity or a less outlier-sensitive notion of size.</p>
+          <p>This is why gradient clipping works. You are not magically fixing optimization. You are enforcing a maximum update size so one bad batch cannot kick the model into a broken region. GPT-style training stacks commonly clip gradient norm at values like <strong>1.0</strong> for exactly this reason.</p>
+        </div>
+      </div>
+      <div class="concept-grid">
+        <div class="card highlight-amber">
+          <div class="diagram-title">Diagram - norm monitoring</div>
+          <div class="norm-stack">
+            <div class="norm-row">
+              <div class="norm-chip gold">grad norm = 0.8</div>
+              <div class="norm-chip teal">stable</div>
+            </div>
+            <div class="norm-row">
+              <div class="norm-chip gold">grad norm = 7.4</div>
+              <div class="norm-chip amber">warning</div>
+            </div>
+            <div class="norm-row">
+              <div class="norm-chip gold">grad norm = 54.0</div>
+              <div class="norm-chip amber">exploding</div>
+            </div>
+          </div>
+          <div class="mini-note">Loss often tells you after the crash. Gradient norm warns you on the way there.</div>
+        </div>
+        <div class="card highlight-teal">
+          <div class="block-title gold">In production</div>
+          <div class="body-text" style="font-size:18px;">
+            <p>Large-model training pipelines routinely log gradient norms alongside loss and learning rate. It is one of the earliest signals of instability.</p>
+            <p>Gradient clipping such as <strong>max_grad_norm = 1.0</strong> became standard because it prevents rare but catastrophic parameter updates.</p>
+          </div>
+        </div>
+      </div>
+      <div class="block math-box">
+        <div class="block-title purple">The math</div>
+        <div class="equation">||x||<sub>2</sub> = √Σ x<sub>i</sub><sup>2</sup></div>
+        <div class="equation">||x||<sub>1</sub> = Σ |x<sub>i</sub>|</div>
+        <div class="equation-sub">L2 measures Euclidean length. L1 measures total absolute mass.</div>
+        <ul class="symbol-list">
+          <li><strong>x<sub>i</sub></strong> - the i-th coordinate of vector <strong>x</strong>.</li>
+          <li><strong>Σ</strong> - sum over all coordinates.</li>
+          <li><strong>||x||<sub>2</sub></strong> - L2 norm, sensitive to large coordinates.</li>
+          <li><strong>||x||<sub>1</sub></strong> - L1 norm, often linked to sparsity and robust magnitude measurement.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <div class="block-title amber">PyTorch example</div>
+        <div class="code-block"><pre><span class="kw">import</span> torch
+<span class="kw">from</span> torch.nn.utils <span class="kw">import</span> clip_grad_norm_
+
+model = torch.nn.<span class="fn">Linear</span>(<span class="str">16</span>, <span class="str">4</span>)
+x = torch.<span class="fn">randn</span>(<span class="str">8</span>, <span class="str">16</span>)
+loss = model(x).<span class="fn">pow</span>(<span class="str">2</span>).<span class="fn">mean</span>()
+loss.<span class="fn">backward</span>()
+<span class="fn">print</span>(torch.<span class="fn">norm</span>(model.weight.grad, p=<span class="str">2</span>).item())
+clip_grad_norm_(model.parameters(), max_norm=<span class="str">1.0</span>)</pre></div>
+      </div>
+      <div class="block mistake-box">
+        <div class="block-title amber">Common mistake</div>
+        <div class="mistake-title">Only watching loss while gradients are exploding underneath</div>
+        <div class="mistake-text">Teams often notice NaNs only after the training run is already ruined. The actual root cause was visible much earlier in the gradient norm trace. Loss is a lagging indicator here.</div>
+        <div class="mistake-fix">Log gradient norms per step or per interval, clip when appropriate, and treat sudden spikes as a first-class debugging signal.</div>
+      </div>
+    </section>
+
+    <section class="section" id="transforms">
+      <div class="section-header">
+        <div class="section-number">Concept 06 of 08</div>
+        <h2 class="section-title">Linear Transformations</h2>
+        <div class="section-kicker">A weight matrix does not just compute numbers. It warps space.</div>
+      </div>
+      <div class="block">
+        <div class="block-title teal">The intuition</div>
+        <div class="body-text">
+          <p>When you multiply by a matrix <strong>W</strong>, you are applying a transformation to the whole input space. Points can rotate, stretch, compress, or shear. In ML terms, the model is learning how to remap features so the next decision becomes easier.</p>
+          <p>This geometric view is more useful than thinking about isolated neurons. A classifier head learns a transformation that pushes classes apart. Early layers in a network reshape raw inputs into feature spaces where useful patterns line up more cleanly. Depth means applying many warps in sequence.</p>
+          <p>That is also why deep networks need architectural help. Without skip connections, repeated warping can squeeze signal into bad regions where gradients fade. Residual paths keep a stable route through the stack so the model can learn useful transforms without destroying information every time.</p>
+        </div>
+      </div>
+      <div class="concept-grid">
+        <div class="card highlight-purple">
+          <div class="diagram-title">Diagram - warping feature space</div>
+          <div class="warp-stack">
+            <div class="warp-row">
+              <div class="warp-chip">input space</div>
+              <div class="op">→</div>
+              <div class="warp-chip teal">W₁</div>
+              <div class="op">→</div>
+              <div class="warp-chip">W₂</div>
+            </div>
+            <div class="warp-row">
+              <div class="warp-chip teal">classes separate</div>
+            </div>
+          </div>
+          <div class="mini-note">Training is really a search for transforms that make the task linearly easier at the next step.</div>
+        </div>
+        <div class="card highlight-gold">
+          <div class="block-title gold">In production</div>
+          <div class="body-text" style="font-size:18px;">
+            <p>Classifier layers in vision and language models learn to move examples of different classes apart so a simple final decision boundary works.</p>
+            <p>Residual networks and Transformers use skip connections because deep stacks of linear transforms plus nonlinearities are hard to optimize without shortcuts.</p>
+          </div>
+        </div>
+      </div>
+      <div class="block math-box">
+        <div class="block-title purple">The math</div>
+        <div class="equation">y = Wx</div>
+        <div class="equation-sub">The same input vector space is being remapped into a new coordinate system defined by <strong>W</strong>.</div>
+        <ul class="symbol-list">
+          <li><strong>x</strong> - point in the original feature space.</li>
+          <li><strong>W</strong> - learned transformation matrix.</li>
+          <li><strong>y</strong> - transformed point in the new space.</li>
+          <li><strong>Geometric effect</strong> - depending on <strong>W</strong>, this can rotate, scale, reflect, or shear the whole space.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <div class="block-title amber">PyTorch example</div>
+        <div class="code-block"><pre><span class="kw">import</span> torch
+<span class="kw">import</span> torch.nn <span class="kw">as</span> nn
+
+layer = nn.<span class="fn">Linear</span>(<span class="str">2</span>, <span class="str">2</span>, bias=<span class="kw">False</span>)
+layer.weight.data = torch.<span class="fn">tensor</span>([[<span class="str">2.0</span>, <span class="str">0.5</span>], [<span class="str">0.0</span>, <span class="str">1.5</span>]])
+points = torch.<span class="fn">tensor</span>([[<span class="str">1.0</span>, <span class="str">0.0</span>], [<span class="str">0.0</span>, <span class="str">1.0</span>], [<span class="str">1.0</span>, <span class="str">1.0</span>]])
+<span class="fn">print</span>(layer.weight)
+<span class="fn">print</span>(<span class="fn">layer</span>(points))</pre></div>
+      </div>
+      <div class="block mistake-box">
+        <div class="block-title amber">Common mistake</div>
+        <div class="mistake-title">Building deep stacks of transforms without skip connections</div>
+        <div class="mistake-text">Each layer can distort the signal a little. After many layers, useful gradient paths disappear and optimization gets harder. The issue is not that linear algebra stopped working. It is that repeated warps without a clean fallback path make learning fragile.</div>
+        <div class="mistake-fix">Use residual connections in deep models so the network can learn transforms on top of a stable identity path instead of replacing it every time.</div>
+      </div>
+    </section>
+
+    <section class="section" id="svd">
+      <div class="section-header">
+        <div class="section-number">Concept 07 of 08</div>
+        <h2 class="section-title">SVD &amp; LoRA</h2>
+        <div class="section-kicker">Low-rank adaptation works because many useful weight updates live in a much smaller subspace than the full matrix.</div>
+      </div>
+      <div class="block">
+        <div class="block-title teal">The intuition</div>
+        <div class="body-text">
+          <p>Singular Value Decomposition says any matrix can be broken into three pieces: rotate, scale, rotate. That matters because it gives you a clean way to describe where the real action of a matrix lives. Often, only a few singular directions carry most of the useful energy.</p>
+          <p>LoRA takes that idea and turns it into a deployment trick. Instead of updating a giant weight matrix directly, it learns two skinny matrices whose product is a low-rank update. If task-specific change mostly lives in a few directions, you get most of the benefit with a tiny fraction of the parameters.</p>
+          <p>That is why parameter-efficient fine-tuning changed the economics of model adaptation. A base model can stay frozen while a small low-rank adapter captures the task delta. QLoRA pushes this even further by quantizing the base model and training only the compact adapters.</p>
+        </div>
+      </div>
+      <div class="concept-grid">
+        <div class="card highlight-amber">
+          <div class="diagram-title">Diagram - low-rank update</div>
+          <div class="svd-stack">
+            <div class="svd-row">
+              <div class="svd-chip gold">A</div>
+              <div class="op">=</div>
+              <div class="svd-chip teal">U</div>
+              <div class="svd-chip">Σ</div>
+              <div class="svd-chip purple">Vᵀ</div>
+            </div>
+            <div class="svd-row">
+              <div class="svd-chip gold">ΔW</div>
+              <div class="op">=</div>
+              <div class="svd-chip teal">B</div>
+              <div class="svd-chip purple">A</div>
+            </div>
+          </div>
+          <div class="mini-note">SVD tells you how a matrix spends its capacity. LoRA bets that task-specific change only needs a few of those directions.</div>
+        </div>
+        <div class="card highlight-teal">
+          <div class="block-title gold">In production</div>
+          <div class="body-text" style="font-size:18px;">
+            <p>LoRA can shrink trainable parameter count from millions to tens of thousands on a given layer stack, often cutting adaptation cost by two orders of magnitude.</p>
+            <p>QLoRA made it practical to fine-tune very large models, including 65B-scale systems, on hardware budgets that would have looked unrealistic before.</p>
+          </div>
+        </div>
+      </div>
+      <div class="block math-box">
+        <div class="block-title purple">The math</div>
+        <div class="equation">A = UΣVᵀ</div>
+        <div class="equation">ΔW = BA, where rank(ΔW) &lt;&lt; rank(W)</div>
+        <div class="equation-sub">SVD decomposes a matrix into orthogonal directions and strengths. LoRA constrains the learned update to a low-rank product.</div>
+        <ul class="symbol-list">
+          <li><strong>U</strong> - left singular vectors, or output-side directions.</li>
+          <li><strong>Σ</strong> - diagonal matrix of singular values showing how important each direction is.</li>
+          <li><strong>Vᵀ</strong> - right singular vectors, or input-side directions.</li>
+          <li><strong>ΔW</strong> - trainable adapter update added to a frozen base weight matrix.</li>
+          <li><strong>rank</strong> - number of independent directions available to represent change.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <div class="block-title amber">PyTorch example</div>
+        <div class="code-block"><pre><span class="kw">import</span> torch
+
+W = torch.<span class="fn">randn</span>(<span class="str">8</span>, <span class="str">8</span>)
+U, S, Vh = torch.linalg.<span class="fn">svd</span>(W)
+r = <span class="str">2</span>
+A = torch.<span class="fn">randn</span>(r, W.size(<span class="str">1</span>))
+B = torch.<span class="fn">randn</span>(W.size(<span class="str">0</span>), r)
+delta_W = torch.<span class="fn">matmul</span>(B, A)
+<span class="fn">print</span>(S[:r], delta_W.shape)  <span class="cm"># LoRA-style low-rank update</span></pre></div>
+      </div>
+      <div class="block mistake-box">
+        <div class="block-title amber">Common mistake</div>
+        <div class="mistake-title">Choosing LoRA rank so low that the adapter cannot express the task</div>
+        <div class="mistake-text">A rank like <strong>r = 2</strong> can be great for lightweight tasks and terrible for complex reasoning, domain transfer, or multilingual behavior. The training run looks cheap, but the adapter simply underfits because it does not have enough independent directions to move in.</div>
+        <div class="mistake-fix">Treat LoRA rank as a capacity knob. Start from the task complexity, monitor validation quality, and increase rank when the adapter is clearly too constrained.</div>
+      </div>
+    </section>
+
+    <section class="section" id="eigen">
+      <div class="section-header">
+        <div class="section-number">Concept 08 of 08</div>
+        <h2 class="section-title">Eigenvectors &amp; PCA</h2>
+        <div class="section-kicker">Some directions survive a transformation. Those directions often explain the whole system.</div>
+      </div>
+      <div class="block">
+        <div class="block-title teal">The intuition</div>
+        <div class="body-text">
+          <p>An eigenvector is a direction a matrix does not rotate away from. Apply the transformation and the vector stays on the same line - it only gets stretched or shrunk. That sounds niche, but it is the key to understanding long-run system behavior.</p>
+          <p>Google's original PageRank can be understood through the dominant eigenvector of a link transition matrix. Repeatedly apply the web graph dynamics and one importance pattern keeps reappearing. In representation work, PCA uses closely related spectral ideas to find the directions with the most variance so you can compress embeddings without throwing away as much structure.</p>
+          <p>The practical lesson is that not all directions in data are equally important. Some directions dominate signal. Others mostly carry noise or redundancy. Spectral methods help you find the axes the system naturally cares about.</p>
+        </div>
+      </div>
+      <div class="concept-grid">
+        <div class="card highlight-gold">
+          <div class="diagram-title">Diagram - stable directions</div>
+          <div class="eigen-stack">
+            <div class="eig-row">
+              <div class="eig-chip teal">Av</div>
+              <div class="op">=</div>
+              <div class="eig-chip amber">λv</div>
+            </div>
+            <div class="eig-row">
+              <div class="eig-chip">principal component 1</div>
+              <div class="eig-chip teal">max variance</div>
+            </div>
+          </div>
+          <div class="mini-note">Eigenvectors expose persistent directions. PCA uses top directions to keep information while shrinking dimension.</div>
+        </div>
+        <div class="card highlight-purple">
+          <div class="block-title gold">In production</div>
+          <div class="body-text" style="font-size:18px;">
+            <p>PageRank relies on the dominant eigenvector of a graph-related matrix to estimate stable importance across the web.</p>
+            <p>PCA is still used for embedding compression, visualization, denoising, and feature reduction before faster downstream models.</p>
+          </div>
+        </div>
+      </div>
+      <div class="block math-box">
+        <div class="block-title purple">The math</div>
+        <div class="equation">Av = λv</div>
+        <div class="equation-sub">After transforming <strong>v</strong> by matrix <strong>A</strong>, the direction stays the same and only the scale changes by <strong>λ</strong>.</div>
+        <ul class="symbol-list">
+          <li><strong>A</strong> - transformation matrix.</li>
+          <li><strong>v</strong> - eigenvector, a direction preserved by the transformation.</li>
+          <li><strong>λ</strong> - eigenvalue, telling you how strongly that direction is amplified or shrunk.</li>
+          <li><strong>PCA link</strong> - principal components are eigenvectors of the covariance matrix, ordered by eigenvalue size.</li>
+        </ul>
+      </div>
+      <div class="block">
+        <div class="block-title amber">PyTorch example</div>
+        <div class="code-block"><pre><span class="kw">import</span> torch
+<span class="kw">from</span> sklearn.decomposition <span class="kw">import</span> PCA
+
+A = torch.<span class="fn">tensor</span>([[<span class="str">2.0</span>, <span class="str">1.0</span>], [<span class="str">1.0</span>, <span class="str">2.0</span>]])
+eigvals, eigvecs = torch.linalg.<span class="fn">eig</span>(A)
+X = torch.<span class="fn">randn</span>(<span class="str">100</span>, <span class="str">16</span>)
+pca = <span class="fn">PCA</span>(n_components=<span class="str">4</span>)
+X_reduced = <span class="fn">pca.fit_transform</span>(X.<span class="fn">numpy</span>())
+<span class="fn">print</span>(eigvals.real, X_reduced.shape)</pre></div>
+      </div>
+      <div class="block mistake-box">
+        <div class="block-title amber">Common mistake</div>
+        <div class="mistake-title">Running PCA on unnormalized features</div>
+        <div class="mistake-text">PCA follows variance. If one feature has a giant scale, the top eigenvectors will mostly track that scale rather than genuine information content. You think you compressed signal, but you mostly encoded units.</div>
+        <div class="mistake-fix">Standardize or otherwise normalize features before PCA unless raw scale itself is the thing you intentionally want to preserve.</div>
+      </div>
+    </section>
+
+    <section class="summary">
+      <div class="section-tag">Production Order Recap</div>
+      <h2 class="toc-title">How these 8 concepts fit together</h2>
+      <div class="summary-grid">
+        <div class="summary-card"><div class="num">1</div><p>Embeddings turn messy inputs into vectors you can compare.</p></div>
+        <div class="summary-card"><div class="num">2</div><p>Tensor shapes keep those vectors arranged along the right axes.</p></div>
+        <div class="summary-card"><div class="num">3</div><p>Matrix multiplication applies learned feature mixing at scale.</p></div>
+        <div class="summary-card"><div class="num">4</div><p>Dot products and cosine scores drive retrieval and attention.</p></div>
+        <div class="summary-card"><div class="num">5</div><p>Norms tell you whether training is healthy or about to blow up.</p></div>
+        <div class="summary-card"><div class="num">6</div><p>Linear transforms explain what layers are doing geometrically.</p></div>
+        <div class="summary-card"><div class="num">7</div><p>SVD motivates why low-rank fine-tuning methods like LoRA work.</p></div>
+        <div class="summary-card"><div class="num">8</div><p>Eigenvectors and PCA reveal the dominant directions in systems and data.</p></div>
+      </div>
+    </section>
+
+    <footer class="doc-footer">
+      <div class="footer-handle">@systemsbyakshay</div>
+      <div class="footer-copy">This guide is from @systemsbyakshay - follow for the intuition behind the math.<br>Part of the No BS Intuition series.</div>
+    </footer>
+  </div>
+</body>
+</html>
