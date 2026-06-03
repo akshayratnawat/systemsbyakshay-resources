@@ -1,0 +1,383 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The LLM Gateway: How to Govern AI Access Across Engineering Teams | Systems by Akshay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f9f8f4; font-family: 'Inter', sans-serif;
+    padding: 60px 40px; max-width: 1080px; margin: 0 auto;
+    color: #1a1a1a; line-height: 1.65; font-size: 16px;
+  }
+
+  .header { text-align: center; margin-bottom: 48px; padding-bottom: 32px; border-bottom: 2px solid #e8e4dc; }
+  .header h1 { font-size: 36px; font-weight: 800; margin-bottom: 8px; color: #0a0a0a; }
+  .header .sub { font-size: 18px; color: #6e6a64; }
+  .header .brand { font-size: 14px; color: #2563eb; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 12px; }
+
+  h2 { font-size: 24px; font-weight: 800; margin-top: 48px; margin-bottom: 16px; color: #0a0a0a; }
+  h3 { font-size: 18px; font-weight: 700; margin-top: 32px; margin-bottom: 12px; color: #1a1a1a; }
+  p { margin: 0 0 20px 0; font-size: 16px; }
+  strong { color: #0a0a0a; }
+
+  .formula-box {
+    background: #0a0a0a; color: #f9f8f4; border-radius: 12px;
+    padding: 28px 32px; margin: 24px 0; font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; text-align: center; letter-spacing: 0.5px;
+  }
+  .formula-box .label { font-size: 12px; color: #6e6a64; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 8px; font-family: 'Inter', sans-serif; }
+  .formula-box .formula { font-size: 22px; color: #FFD700; font-weight: 600; }
+
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px 0; font-size: 15px; }
+  th { background: #0a0a0a; color: #f9f8f4; padding: 12px 16px; text-align: left; font-weight: 600; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
+  td { padding: 12px 16px; border-bottom: 1px solid #e8e4dc; vertical-align: top; }
+  tr:nth-child(even) { background: rgba(0,0,0,0.02); }
+  .mono { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #2563eb; }
+  .warn { color: #dc2626; font-weight: 600; }
+  .good { color: #16a34a; font-weight: 600; }
+
+  .section-divider { border: none; border-top: 2px solid #e8e4dc; margin: 40px 0; }
+
+  .tip-box {
+    background: rgba(37,99,235,0.06); border-left: 4px solid #2563eb;
+    border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 20px 0;
+    font-size: 15px; color: #1a1a1a;
+  }
+  .tip-box strong { color: #2563eb; }
+
+  .warn-box {
+    background: rgba(220,38,38,0.06); border-left: 4px solid #dc2626;
+    border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 20px 0;
+    font-size: 15px;
+  }
+  .warn-box strong { color: #dc2626; }
+
+  .diagram-wrap { background: #fff; border: 1px solid #e8e4dc; border-radius: 12px; padding: 28px 20px; margin: 24px 0; }
+  .diagram-caption { font-size: 13px; color: #6e6a64; text-align: center; margin-top: 12px; }
+
+  .footer { text-align: center; margin-top: 48px; padding-top: 24px; border-top: 2px solid #e8e4dc; color: #6e6a64; font-size: 14px; }
+  .footer .brand { color: #2563eb; font-weight: 700; }
+
+  svg text { font-family: 'Inter', sans-serif; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="brand">@systemsbyakshay - No BS System Design Series</div>
+  <h1>The LLM Gateway</h1>
+  <div class="sub">How to govern AI access across engineering teams - the 8-layer system that puts cost, reliability, and compliance under control</div>
+</div>
+
+<p>The question sounds simple: "How would you manage LLM access across 15 product teams?" Most candidates describe a spreadsheet. Or they say they'd share one API key and document the usage policy. That's a policy. It's not an architecture.</p>
+
+<p>Here's what actually happens when there's no governance layer: one team's batch job wipes everyone else's monthly token budget. An OpenAI outage takes down all 15 products simultaneously because there's no fallback routing. A new compliance requirement arrives and nobody can prove what was sent to the model because there's no audit trail. And at the end of the month, the finance team gets a $47K invoice with no line-item breakdown by team or product.</p>
+
+<p>This has happened at real companies. It happens every time a platform scales past a handful of services without a gateway. The LLM Gateway is how you prevent it.</p>
+
+<div class="formula-box">
+  <div class="label">The Core Architecture</div>
+  <div class="formula">Request → Auth → Cache → Route → Limit → Guard → Attribute → Retry → Audit → Response</div>
+</div>
+
+<hr class="section-divider">
+
+<h2>1. Auth &amp; Tenant: Identity First, Everything Else Second</h2>
+
+<p>The first thing a gateway request touches is authentication. Not routing, not rate limiting, not logging - authentication. Every request is mapped to a caller: which team, which product, which user. This mapping is the foundation of everything else in the gateway. Without it, you have no way to enforce budgets, no way to assign costs, and no way to answer an auditor's questions.</p>
+
+<p>Authentication in a gateway context is more than "is this a valid API key." It's "which tenant does this key belong to, what is their current budget allocation, and what models are they permitted to call?" A read-only integration service and a real-time user-facing product have different needs, different cost profiles, and different risk tolerances. The auth layer creates that distinction before any other decision is made.</p>
+
+<p>Tenant isolation is what prevents Team A's traffic from affecting Team B. Token budgets are allocated per tenant - if a team's batch job starts burning 500K tokens per hour, it hits its own limit and returns a 429. Team B's real-time product is untouched. Without tenant isolation enforced at the auth layer, one misbehaving service is a platform-wide incident.</p>
+
+<div class="diagram-wrap">
+<svg width="100%" viewBox="0 0 680 210" role="img">
+  <title>LLM Gateway authentication mapping request to tenant with budget and model permissions</title>
+  <defs>
+    <marker id="gw-a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+    <marker id="gw-a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <rect x="20" y="36" width="88" height="40" rx="8" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="1"/>
+  <text x="64" y="61" text-anchor="middle" font-size="10" fill="#444">Team A</text>
+  <rect x="20" y="88" width="88" height="40" rx="8" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="1"/>
+  <text x="64" y="113" text-anchor="middle" font-size="10" fill="#444">Team B</text>
+  <rect x="20" y="140" width="88" height="40" rx="8" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="1"/>
+  <text x="64" y="165" text-anchor="middle" font-size="10" fill="#444">Team C</text>
+  <line x1="108" y1="56" x2="148" y2="92" stroke="#888" stroke-width="1" marker-end="url(#gw-a2)"/>
+  <line x1="108" y1="108" x2="148" y2="108" stroke="#888" stroke-width="1" marker-end="url(#gw-a2)"/>
+  <line x1="108" y1="160" x2="148" y2="124" stroke="#888" stroke-width="1" marker-end="url(#gw-a2)"/>
+  <rect x="150" y="66" width="150" height="84" rx="12" fill="rgba(37,99,235,0.06)" stroke="#2563eb" stroke-width="2"/>
+  <text x="225" y="92" text-anchor="middle" font-size="12" fill="#1e40af" font-weight="700">Auth &amp; Tenant</text>
+  <text x="225" y="108" text-anchor="middle" font-size="9" fill="#2563eb">key → team + budget</text>
+  <text x="225" y="122" text-anchor="middle" font-size="9" fill="#2563eb">model permissions</text>
+  <text x="225" y="138" text-anchor="middle" font-size="9" fill="#2563eb">isolation enforced</text>
+  <line x1="300" y1="108" x2="340" y2="108" stroke="#2563eb" stroke-width="1.5" marker-end="url(#gw-a1)"/>
+  <rect x="342" y="66" width="160" height="84" rx="12" fill="#fff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="422" y="92" text-anchor="middle" font-size="11" fill="#1e40af" font-weight="600">Router</text>
+  <text x="422" y="108" text-anchor="middle" font-size="9" fill="#888">complexity → model</text>
+  <text x="422" y="122" text-anchor="middle" font-size="9" fill="#888">GPT-4o Mini vs GPT-4o</text>
+  <text x="422" y="136" text-anchor="middle" font-size="9" fill="#888">fallback on degradation</text>
+  <line x1="502" y1="108" x2="544" y2="108" stroke="#2563eb" stroke-width="1.5" marker-end="url(#gw-a1)"/>
+  <rect x="546" y="82" width="114" height="52" rx="10" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
+  <text x="603" y="106" text-anchor="middle" font-size="11" fill="#085041" font-weight="600">LLM API</text>
+  <text x="603" y="122" text-anchor="middle" font-size="9" fill="#0F6E56">GPT-4o · Claude · etc.</text>
+  <text x="670" y="204" text-anchor="end" font-size="9" fill="#ccc">@systemsbyakshay</text>
+</svg>
+<p class="diagram-caption">Every request is authenticated before routing. The auth layer maps callers to tenants with budgets and model permissions - the foundation of everything downstream.</p>
+</div>
+
+<div class="tip-box">
+<strong>The production rule:</strong> Authenticate before routing. Route before rate limiting. Every layer downstream depends on knowing which tenant made the request. Get the identity wrong and every other control in the gateway is meaningless.
+</div>
+
+<hr class="section-divider">
+
+<h2>2. The Router: 10ms of Overhead, 40% Cost Reduction</h2>
+
+<p>Once a request is authenticated and the tenant is identified, the router decides which model gets it. This sounds trivial - but it's where most of the cost optimization happens. The default behavior without a router is that every request goes to the most capable (and most expensive) model. A customer asking "what are your hours?" goes to GPT-4o. A developer writing a complex multi-step reasoning task also goes to GPT-4o. These are not the same problem.</p>
+
+<p>A complexity classifier runs on the first 200 tokens of the request in approximately 8 milliseconds. Low-complexity requests - simple Q&A, formatting tasks, short-context operations - route to GPT-4o Mini or an equivalent smaller model: <strong>20x cheaper per token</strong>. Long-context reasoning, code generation, multi-step analysis route to the full model. The routing decision is transparent to the calling service. No application code changes when the routing logic changes.</p>
+
+<p>The second function of the router is circuit breaking and fallback. When an LLM provider degrades - slow response times, elevated error rates - the circuit breaker opens and traffic shifts to a configured fallback provider automatically. No pager alert, no manual intervention, no 15-minute outage while an engineer updates environment variables. The fallback is pre-configured in the gateway, and it fires in the same request cycle.</p>
+
+<div class="diagram-wrap">
+<svg width="100%" viewBox="0 0 680 220" role="img">
+  <title>LLM router: complexity scoring routes to GPT-4o Mini or GPT-4o, circuit breaker for fallback</title>
+  <defs>
+    <marker id="gw-b1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+    <marker id="gw-b2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+    <marker id="gw-b3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <rect x="20" y="86" width="120" height="50" rx="10" fill="rgba(37,99,235,0.06)" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="80" y="108" text-anchor="middle" font-size="11" fill="#1e40af" font-weight="600">Complexity</text>
+  <text x="80" y="122" text-anchor="middle" font-size="10" fill="#2563eb">Classifier 8ms</text>
+  <line x1="140" y1="111" x2="178" y2="111" stroke="#2563eb" stroke-width="1.5" marker-end="url(#gw-b1)"/>
+  <rect x="180" y="66" width="148" height="90" rx="12" fill="#fff" stroke="#2563eb" stroke-width="2"/>
+  <text x="254" y="90" text-anchor="middle" font-size="11" fill="#1e40af" font-weight="700">Router</text>
+  <text x="254" y="108" text-anchor="middle" font-size="9" fill="#888">complexity score</text>
+  <text x="254" y="122" text-anchor="middle" font-size="9" fill="#888">compliance region</text>
+  <text x="254" y="136" text-anchor="middle" font-size="9" fill="#888">provider health</text>
+  <line x1="328" y1="96" x2="380" y2="68" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#gw-b2)"/>
+  <text x="355" y="60" text-anchor="middle" font-size="9" fill="#1D9E75">low complexity</text>
+  <line x1="328" y1="126" x2="380" y2="154" stroke="#2563eb" stroke-width="1.5" marker-end="url(#gw-b1)"/>
+  <text x="355" y="170" text-anchor="middle" font-size="9" fill="#2563eb">high complexity</text>
+  <rect x="382" y="44" width="140" height="46" rx="10" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
+  <text x="452" y="64" text-anchor="middle" font-size="10" fill="#085041" font-weight="600">GPT-4o Mini</text>
+  <text x="452" y="80" text-anchor="middle" font-size="9" fill="#0F6E56">20× cheaper · simple tasks</text>
+  <rect x="382" y="132" width="140" height="46" rx="10" fill="rgba(37,99,235,0.06)" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="452" y="152" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">GPT-4o / Claude</text>
+  <text x="452" y="167" text-anchor="middle" font-size="9" fill="#1e40af">full model · complex tasks</text>
+  <rect x="548" y="80" width="120" height="52" rx="10" fill="#FCEBEB" stroke="#E24B4A" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text x="608" y="101" text-anchor="middle" font-size="10" fill="#A32D2D" font-weight="600">Fallback</text>
+  <text x="608" y="116" text-anchor="middle" font-size="9" fill="#E24B4A">on provider degradation</text>
+  <text x="608" y="128" text-anchor="middle" font-size="8" fill="#E24B4A">circuit breaker fires</text>
+  <line x1="522" y1="67" x2="548" y2="96" stroke="#888" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#gw-b3)"/>
+  <text x="670" y="214" text-anchor="end" font-size="9" fill="#ccc">@systemsbyakshay</text>
+</svg>
+<p class="diagram-caption">The router adds ~10ms. Low-complexity requests go to a 20× cheaper model. If a provider degrades, the circuit breaker fires and fallback routes activate - no application code changes.</p>
+</div>
+
+<div class="tip-box">
+<strong>The production rule:</strong> The router adds 10ms of latency and reduces AI costs by 40% for most orgs. That math works above roughly 10,000 requests per day. Below that, a shared key is fine. Above it, the savings compound fast.
+</div>
+
+<hr class="section-divider">
+
+<h2>3. The Rate Limiter: Denial-of-Wallet Is a Real Attack</h2>
+
+<p>Request-count limits are not enough for LLM systems. They're a useful blunt instrument, but a single document analysis request consuming 50,000 input tokens costs as much in compute as 500 short FAQ queries. If your rate limiter only counts requests, a user sending 10 long requests per minute can still drain your token budget in hours.</p>
+
+<p>The correct unit for LLM rate limiting is <strong>tokens per minute</strong>, split into input and output. Output tokens cost 4-5× more per token than input tokens on most providers - failing to track them separately means your rate limit is structurally underestimating real cost. A user generating 10,000-token responses at 5 requests per minute is far more expensive than the request count suggests.</p>
+
+<p>The two-limit model is what prevents Friday incidents. A <strong>soft limit at 80%</strong> of the token budget sends an alert to the team's Slack channel: "you're trending toward your monthly ceiling." Engineers can investigate and adjust behavior before the ceiling hits. A <strong>hard limit at 100%</strong> returns HTTP 429 with a Retry-After header - the service degrades gracefully, not silently. Dropping requests silently is never the right behavior. The caller needs to know they've been rate-limited so they can queue, backoff, or escalate.</p>
+
+<div class="diagram-wrap">
+<svg width="100%" viewBox="0 0 680 240" role="img">
+  <title>Two-limit rate model: soft alert at 80 percent, hard 429 at 100 percent, token-based not request-based</title>
+  <defs>
+    <marker id="gw-c1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <rect x="20" y="20" width="300" height="150" rx="12" fill="#fff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="170" y="46" text-anchor="middle" font-size="12" fill="#1e40af" font-weight="700">Token Budget (TPM)</text>
+  <rect x="40" y="58" width="260" height="18" rx="4" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.8"/>
+  <rect x="40" y="58" width="208" height="18" rx="4" fill="#2563eb"/>
+  <text x="170" y="96" text-anchor="middle" font-size="10" fill="#1e40af">80K of 100K tokens used</text>
+  <line x1="248" y1="54" x2="248" y2="80" stroke="#1e40af" stroke-width="1.5" stroke-dasharray="3 2"/>
+  <text x="248" y="48" text-anchor="middle" font-size="9" fill="#1e40af">80% soft limit</text>
+  <rect x="40" y="108" width="260" height="42" rx="8" fill="rgba(37,99,235,0.06)" stroke="#2563eb" stroke-width="1"/>
+  <text x="170" y="128" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">Soft limit → Slack alert</text>
+  <text x="170" y="143" text-anchor="middle" font-size="9" fill="#888">team notified before ceiling hits</text>
+  <rect x="360" y="20" width="300" height="150" rx="12" fill="#fff" stroke="#E24B4A" stroke-width="1.5"/>
+  <text x="510" y="46" text-anchor="middle" font-size="12" fill="#A32D2D" font-weight="700">Hard Limit (100%)</text>
+  <rect x="380" y="58" width="260" height="18" rx="4" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.8"/>
+  <rect x="380" y="58" width="260" height="18" rx="4" fill="#E24B4A"/>
+  <text x="510" y="96" text-anchor="middle" font-size="10" fill="#A32D2D">100K / 100K - ceiling reached</text>
+  <rect x="380" y="108" width="260" height="42" rx="8" fill="#FCEBEB" stroke="#E24B4A" stroke-width="1"/>
+  <text x="510" y="128" text-anchor="middle" font-size="10" fill="#A32D2D" font-weight="600">HTTP 429 + Retry-After</text>
+  <text x="510" y="143" text-anchor="middle" font-size="9" fill="#888">never drop silently</text>
+  <rect x="20" y="192" width="640" height="36" rx="8" fill="rgba(37,99,235,0.06)" stroke="#2563eb" stroke-width="1"/>
+  <text x="340" y="211" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">Track input tokens + output tokens separately - output costs 4-5× more per token</text>
+  <text x="670" y="234" text-anchor="end" font-size="9" fill="#ccc">@systemsbyakshay</text>
+</svg>
+<p class="diagram-caption">Soft limit at 80% triggers a Slack alert. Hard limit at 100% returns HTTP 429 with a Retry-After header. Never drop silently - silent failures hide in dead-letter queues.</p>
+</div>
+
+<div class="warn-box">
+<strong>The denial-of-wallet attack:</strong> A buggy retry loop running uncapped for four hours on a Friday afternoon is a $3,000 incident. It doesn't look like an attack - it looks like normal traffic, just a lot of it. A token-based hard limit stops it at $50 and sends the 429.
+</div>
+
+<hr class="section-divider">
+
+<h2>4. Cost Attribution: Chargeback Changes Behavior</h2>
+
+<p>When engineering teams have no visibility into their AI spend, they optimize for capability, not cost. They reach for GPT-4o first because it's there. They use 8,000-token prompts when 2,000-token prompts would work. They don't batch requests because the latency difference is invisible and so is the cost difference. The AI bill is someone else's problem until it shows up as a line item on the quarterly review.</p>
+
+<p>When teams see their actual AI cost in real time - per request, per product, per day - behavior changes. Teams with real-time cost dashboards start reaching for smaller models first. They trim context windows. They batch requests that don't need low latency. The same engineering team makes different decisions when the feedback loop is minutes instead of months. The average cost reduction when teams move from opaque shared spending to per-team cost dashboards: <strong>40%</strong>.</p>
+
+<p>Cost attribution requires tagging every request at the auth layer with at minimum three dimensions: team, product, and user ID. These tags flow through the rate limiter, get logged with every token count, and get rolled up into daily and monthly chargeback reports. The weekly report delivered to each team's engineering lead - "here's what you spent last week and how it compares to budget" - is the behavioral mechanism. It's not accounting. It's a feedback loop.</p>
+
+<div class="diagram-wrap">
+<svg width="100%" viewBox="0 0 680 200" role="img">
+  <title>Cost attribution: tagging every request with team, product, user for real-time dashboards and chargeback</title>
+  <defs>
+    <marker id="gw-d1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <rect x="20" y="74" width="120" height="52" rx="10" fill="rgba(37,99,235,0.06)" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="80" y="96" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">Request</text>
+  <text x="80" y="110" text-anchor="middle" font-size="9" fill="#888">team · product</text>
+  <text x="80" y="122" text-anchor="middle" font-size="9" fill="#888">user ID tag</text>
+  <line x1="140" y1="100" x2="178" y2="100" stroke="#2563eb" stroke-width="1.5" marker-end="url(#gw-d1)"/>
+  <rect x="180" y="60" width="120" height="80" rx="10" fill="#fff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="240" y="84" text-anchor="middle" font-size="11" fill="#1e40af" font-weight="600">LLM Call</text>
+  <text x="240" y="100" text-anchor="middle" font-size="9" fill="#888">input tokens</text>
+  <text x="240" y="114" text-anchor="middle" font-size="9" fill="#888">output tokens</text>
+  <text x="240" y="128" text-anchor="middle" font-size="9" fill="#888">model used</text>
+  <line x1="300" y1="100" x2="338" y2="100" stroke="#2563eb" stroke-width="1.5" marker-end="url(#gw-d1)"/>
+  <rect x="340" y="60" width="130" height="80" rx="10" fill="rgba(37,99,235,0.06)" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="405" y="84" text-anchor="middle" font-size="11" fill="#1e40af" font-weight="600">Cost Logger</text>
+  <text x="405" y="100" text-anchor="middle" font-size="9" fill="#888">$0.0023 this request</text>
+  <text x="405" y="114" text-anchor="middle" font-size="9" fill="#888">team-A · search-product</text>
+  <text x="405" y="128" text-anchor="middle" font-size="9" fill="#888">running total: $184.20</text>
+  <line x1="470" y1="88" x2="516" y2="56" stroke="#2563eb" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#gw-d1)"/>
+  <line x1="470" y1="112" x2="516" y2="144" stroke="#2563eb" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#gw-d1)"/>
+  <rect x="518" y="28" width="140" height="46" rx="8" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1"/>
+  <text x="588" y="48" text-anchor="middle" font-size="10" fill="#085041" font-weight="600">Real-time dashboard</text>
+  <text x="588" y="64" text-anchor="middle" font-size="9" fill="#0F6E56">per team · per product</text>
+  <rect x="518" y="128" width="140" height="46" rx="8" fill="rgba(37,99,235,0.06)" stroke="#2563eb" stroke-width="1"/>
+  <text x="588" y="148" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">Weekly chargeback</text>
+  <text x="588" y="164" text-anchor="middle" font-size="9" fill="#1e40af">changes team behavior</text>
+  <text x="670" y="194" text-anchor="end" font-size="9" fill="#ccc">@systemsbyakshay</text>
+</svg>
+<p class="diagram-caption">Tag every request at auth. Log token counts with attribution at every LLM call. Feed real-time dashboards and weekly chargeback reports. The visibility is the mechanism.</p>
+</div>
+
+<div class="tip-box">
+<strong>The production rule:</strong> Cost attribution is not an accounting feature. It's an engineering behavior change mechanism. Teams with opaque spend optimize for capability. Teams with real-time spend visibility optimize for cost. Same engineers, completely different decisions.
+</div>
+
+<hr class="section-divider">
+
+<h2>5. Audit &amp; Observability: Log What Matters, Scrub What Doesn't</h2>
+
+<p>In regulated industries, an AI audit isn't optional - it's contractual. When a healthcare system routes patient documents through an LLM and an adverse outcome occurs, someone will ask: what was sent to the model? What did it respond? Who authorized the call? Which model version was used? Without a gateway, the answer to all of these is "we don't know." That is a compliance failure before the conversation even begins.</p>
+
+<p>The audit layer captures structured request metadata for every gateway call: tenant, team, user ID, model requested, model actually used, input token count, output token count, latency, response status, timestamp. What it does <strong>not</strong> log: the plaintext prompt. PII in your audit log is PII leakage with extra steps. Log hashes of inputs, not raw content. Retain full encrypted inputs separately with a short TTL - 48 hours is enough for debugging; 90 days is the minimum for most compliance frameworks.</p>
+
+<p>Observability means three key metrics tracked continuously: latency P50 and P95 per model, because provider degradation shows up in latency before it shows up in errors. Error rate per tenant, distinguishing client-side validation errors from provider-side failures. And budget burn rate - a simple projection: "at the current spend rate, Team A hits their ceiling on day 19 of the month." Catch it on day 5 and there's time to act. Catch it on day 18 and it's a crisis.</p>
+
+<div class="diagram-wrap">
+<svg width="100%" viewBox="0 0 680 210" role="img">
+  <title>Audit layer: PII-scrubbed structured log with 90-day retention, latency and cost monitoring</title>
+  <defs>
+    <marker id="gw-e1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+    <marker id="gw-e2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#E24B4A" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <rect x="20" y="78" width="110" height="52" rx="10" fill="rgba(37,99,235,0.06)" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="75" y="101" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">Gateway call</text>
+  <text x="75" y="117" text-anchor="middle" font-size="9" fill="#888">with PII in input</text>
+  <line x1="130" y1="104" x2="166" y2="104" stroke="#2563eb" stroke-width="1.5" marker-end="url(#gw-e1)"/>
+  <rect x="168" y="60" width="138" height="88" rx="12" fill="#FCEBEB" stroke="#E24B4A" stroke-width="1.5"/>
+  <text x="237" y="84" text-anchor="middle" font-size="11" fill="#A32D2D" font-weight="700">PII Scrub</text>
+  <text x="237" y="100" text-anchor="middle" font-size="9" fill="#E24B4A">names · emails · SSNs</text>
+  <text x="237" y="116" text-anchor="middle" font-size="9" fill="#E24B4A">replaced with hashes</text>
+  <text x="237" y="131" text-anchor="middle" font-size="9" fill="#888">before write to log</text>
+  <line x1="306" y1="104" x2="344" y2="104" stroke="#2563eb" stroke-width="1.5" marker-end="url(#gw-e1)"/>
+  <rect x="346" y="60" width="138" height="88" rx="12" fill="rgba(37,99,235,0.06)" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="415" y="84" text-anchor="middle" font-size="11" fill="#1e40af" font-weight="700">Audit Log</text>
+  <text x="415" y="100" text-anchor="middle" font-size="9" fill="#888">team · model · tokens</text>
+  <text x="415" y="116" text-anchor="middle" font-size="9" fill="#888">latency · status</text>
+  <text x="415" y="131" text-anchor="middle" font-size="9" fill="#0F6E56">90-day retention</text>
+  <line x1="484" y1="96" x2="528" y2="70" stroke="#2563eb" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#gw-e1)"/>
+  <line x1="484" y1="112" x2="528" y2="138" stroke="#2563eb" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#gw-e1)"/>
+  <rect x="530" y="40" width="138" height="46" rx="8" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1"/>
+  <text x="599" y="60" text-anchor="middle" font-size="10" fill="#085041" font-weight="600">Latency P50/P95</text>
+  <text x="599" y="76" text-anchor="middle" font-size="9" fill="#0F6E56">per model · per tenant</text>
+  <rect x="530" y="120" width="138" height="46" rx="8" fill="rgba(37,99,235,0.06)" stroke="#2563eb" stroke-width="1"/>
+  <text x="599" y="140" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">Budget burn rate</text>
+  <text x="599" y="156" text-anchor="middle" font-size="9" fill="#1e40af">project ceiling by day 5</text>
+  <text x="670" y="204" text-anchor="end" font-size="9" fill="#ccc">@systemsbyakshay</text>
+</svg>
+<p class="diagram-caption">PII is scrubbed before the audit write. The log captures metadata - not plaintext. Latency and burn rate monitoring catch provider issues and budget overruns before they become incidents.</p>
+</div>
+
+<div class="tip-box">
+<strong>The production rule:</strong> Log hashes, not plaintext. Retain full encrypted inputs separately with a 48-hour TTL for debugging. The 90-day audit log is for compliance - it needs team, model, tokens, and timestamp, not the raw prompt content.
+</div>
+
+<hr class="section-divider">
+
+<h2>6. Production Readiness Checklist</h2>
+<table>
+  <tr><th></th><th>Practice</th></tr>
+  <tr><td>&#9744;</td><td>Authentication maps every request to a tenant with budget and model permissions</td></tr>
+  <tr><td>&#9744;</td><td>Tenant isolation enforced - one team's traffic cannot affect another's quota</td></tr>
+  <tr><td>&#9744;</td><td>Complexity classifier in place for routing decisions (target: under 10ms)</td></tr>
+  <tr><td>&#9744;</td><td>Circuit breaker configured per provider with at least one fallback route</td></tr>
+  <tr><td>&#9744;</td><td>Rate limiting is token-based (TPM), not just request-based (RPM)</td></tr>
+  <tr><td>&#9744;</td><td>Input and output tokens tracked separately - output costs 4-5× more</td></tr>
+  <tr><td>&#9744;</td><td>Soft limit at 80% sends alert to team; hard limit at 100% returns HTTP 429</td></tr>
+  <tr><td>&#9744;</td><td>Every request tagged with team, product, and user ID for attribution</td></tr>
+  <tr><td>&#9744;</td><td>Real-time cost dashboard per team accessible without data engineering work</td></tr>
+  <tr><td>&#9744;</td><td>Weekly chargeback report delivered to each team's engineering lead</td></tr>
+  <tr><td>&#9744;</td><td>PII scrubbed before any audit log write - log hashes, not plaintext</td></tr>
+  <tr><td>&#9744;</td><td>Latency P50/P95 tracked per model - catch provider degradation before errors spike</td></tr>
+  <tr><td>&#9744;</td><td>Budget burn rate projection available by day 5 of each billing period</td></tr>
+  <tr><td>&#9744;</td><td>90-day audit log retention (minimum) for compliance</td></tr>
+</table>
+
+<h2>7. Build It Before the Invoice Arrives</h2>
+
+<p>The LLM Gateway is infrastructure that feels optional until it suddenly isn't. Teams skip it when they're small - one service, one team, one API key, no problem. They skip it when they're moving fast - there are features to ship and the governance layer can wait. They skip it until a $47K invoice arrives with no breakdown, or an OpenAI outage takes down three product teams simultaneously, or the compliance team asks to see what was sent to the model last quarter and the answer is "we don't know."</p>
+
+<p>The eight layers - auth and tenant isolation, semantic caching, intelligent routing, token-based rate limiting, guardrails and safety, cost attribution, retry and fallback, and PII-scrubbed audit logging - address eight distinct categories of production risk. None of them are engineering elegance for its own sake. Each one exists because a specific thing went wrong at a real company without it.</p>
+
+<p>Build the gateway before you need it. Retrofit it after 15 teams are calling LLMs in production and you'll spend twice as long while also being half as thorough. The time to build governance infrastructure is before the complexity arrives. Not after.</p>
+
+<div class="footer">
+  <p>Built by <span class="brand">@systemsbyakshay</span> - No BS System Design Series</p>
+  <p>The frameworks that ship.</p>
+</div>
+
+</body>
+</html>
