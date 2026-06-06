@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gradients for AI - The Complete Guide | @systemsbyakshay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: #f9f8f4; font-family: 'Inter', sans-serif;
+    padding: 60px 40px; max-width: 1080px; margin: 0 auto;
+    color: #1a1a1a; line-height: 1.65; font-size: 16px;
+  }
+  a { color: #2563eb; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  hr {
+    border: 0;
+    border-top: 2px solid #e8e4dc;
+    margin: 32px 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    border: 1px solid #e8e4dc;
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 15px;
+  }
+  thead {
+    background: #0a0a0a;
+    color: #ffffff;
+  }
+  th, td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid #e8e4dc;
+    vertical-align: top;
+  }
+  tbody tr:nth-child(even) {
+    background: rgba(10, 10, 10, 0.03);
+  }
+  .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: #2563eb;
+  }
+  .warn {
+    color: #dc2626;
+    font-weight: 600;
+  }
+  .good {
+    color: #16a34a;
+    font-weight: 600;
+  }
+  .page {
+    width: 100%;
+  }
+  .doc-header,
+  .toc,
+  .section,
+  .summary {
+    border-bottom: 2px solid #e8e4dc;
+  }
+  .doc-header {
+    padding-bottom: 34px;
+    margin-bottom: 40px;
+    text-align: center;
+  }
+  .doc-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(37, 99, 235, 0.16);
+    background: rgba(37, 99, 235, 0.08);
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .doc-title {
+    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    line-height: 1.08;
+    font-weight: 800;
+    color: #0a0a0a;
+    margin-bottom: 14px;
+    letter-spacing: -0.03em;
+  }
+  .doc-subtitle {
+    max-width: 760px;
+    margin: 0 auto 24px auto;
+    font-size: 1.15rem;
+    color: #6e6a64;
+  }
+  .doc-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  .meta-pill {
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid #ddd7cb;
+    background: #fffcf5;
+    color: #1a1a1a;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .meta-pill.gold,
+  .meta-pill.purple,
+  .meta-pill.amber {
+    color: #2563eb;
+    border-color: rgba(37, 99, 235, 0.18);
+    background: rgba(37, 99, 235, 0.06);
+  }
+  .toc {
+    padding-bottom: 34px;
+    margin-bottom: 40px;
+  }
+  .section-tag,
+  .section-number,
+  .block-title,
+  .diagram-title {
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .section-tag,
+  .diagram-title {
+    color: #6e6a64;
+    margin-bottom: 12px;
+  }
+  .toc-title {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: #0a0a0a;
+    margin-bottom: 18px;
+  }
+  .toc-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 16px;
+  }
+  .toc-list a {
+    display: block;
+    padding: 16px 18px;
+    border-radius: 16px;
+    border: 1px solid #e8e4dc;
+    background: rgba(255, 255, 255, 0.55);
+    color: #1a1a1a;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .toc-list a:hover {
+    border-color: rgba(37, 99, 235, 0.28);
+    box-shadow: 0 10px 24px rgba(10, 10, 10, 0.05);
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+  .toc-list span {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #2563eb;
+    margin-bottom: 6px;
+  }
+  .section {
+    padding-bottom: 40px;
+    margin-bottom: 40px;
+  }
+  .section-header {
+    margin-bottom: 24px;
+  }
+  .section-number {
+    color: #2563eb;
+    margin-bottom: 10px;
+  }
+  .section-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0a0a0a;
+    margin-bottom: 10px;
+    line-height: 1.25;
+  }
+  .section-kicker {
+    font-size: 1.05rem;
+    color: #6e6a64;
+  }
+  .block {
+    margin-bottom: 24px;
+  }
+  .block:last-child { margin-bottom: 0; }
+  .block-title {
+    color: #2563eb;
+    margin-bottom: 10px;
+  }
+  .block-title.teal,
+  .block-title.gold,
+  .block-title.purple,
+  .block-title.amber {
+    color: #2563eb;
+  }
+  .body-text {
+    font-size: 1.05rem;
+    color: #1a1a1a;
+  }
+  .body-text p { margin-bottom: 15px; }
+  .body-text p:last-child { margin-bottom: 0; }
+  .body-text strong { color: #0a0a0a; font-weight: 700; }
+  .body-text em { color: #2563eb; font-style: italic; }
+  .concept-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
+    gap: 18px;
+    margin: 24px 0 28px 0;
+  }
+  .card,
+  .summary-card {
+    border-radius: 18px;
+    padding: 22px 24px;
+    border: 1px solid #e8e4dc;
+    background: rgba(255, 255, 255, 0.72);
+  }
+  .card.highlight-gold { background: rgba(255, 215, 0, 0.07); }
+  .card.highlight-teal,
+  .card.highlight-purple,
+  .card.highlight-amber { background: rgba(37, 99, 235, 0.05); }
+  .mini-note {
+    margin-top: 12px;
+    font-size: 0.96rem;
+    line-height: 1.6;
+    color: #6e6a64;
+  }
+  .slope-stack,
+  .partial-stack,
+  .vector-stack,
+  .descent-stack,
+  .rate-stack,
+  .vanish-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .slope-row,
+  .partial-row,
+  .vector-row,
+  .descent-row,
+  .rate-row,
+  .vanish-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  .slope-chip,
+  .partial-chip,
+  .vector-chip,
+  .descent-chip,
+  .rate-chip,
+  .vanish-chip {
+    flex: 1;
+    min-width: 0;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid #ddd7cb;
+    background: #fffdf8;
+    color: #1a1a1a;
+  }
+  .slope-chip.blue,
+  .partial-chip.blue,
+  .vector-chip.blue,
+  .descent-chip.blue,
+  .rate-chip.blue,
+  .vanish-chip.blue {
+    background: rgba(37, 99, 235, 0.08);
+    color: #2563eb;
+    border-color: rgba(37, 99, 235, 0.16);
+  }
+  .slope-chip.red,
+  .partial-chip.red,
+  .vector-chip.red,
+  .descent-chip.red,
+  .rate-chip.red,
+  .vanish-chip.red {
+    background: rgba(220, 38, 38, 0.08);
+    color: #dc2626;
+    border-color: rgba(220, 38, 38, 0.16);
+  }
+  .slope-chip.green,
+  .partial-chip.green,
+  .vector-chip.green,
+  .descent-chip.green,
+  .rate-chip.green,
+  .vanish-chip.green {
+    background: rgba(22, 163, 74, 0.08);
+    color: #16a34a;
+    border-color: rgba(22, 163, 74, 0.16);
+  }
+  .slope-chip.dark,
+  .partial-chip.dark,
+  .vector-chip.dark,
+  .descent-chip.dark,
+  .rate-chip.dark,
+  .vanish-chip.dark {
+    background: rgba(10, 10, 10, 0.04);
+  }
+  .op {
+    flex-shrink: 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #6e6a64;
+  }
+  .formula-box {
+    border-radius: 18px;
+    padding: 24px;
+    background: #0a0a0a;
+    color: #f6f3eb;
+    border: 1px solid #0a0a0a;
+  }
+  .formula-box .block-title {
+    color: #89b4fa;
+  }
+  .equation {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(1.15rem, 2.2vw, 1.55rem);
+    line-height: 1.5;
+    color: #FFD700;
+    text-align: center;
+    margin-bottom: 14px;
+    overflow-wrap: anywhere;
+  }
+  .equation:last-of-type {
+    margin-bottom: 10px;
+  }
+  .equation-sub {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.78);
+    text-align: center;
+    margin-bottom: 14px;
+  }
+  .symbol-list {
+    list-style: none;
+    display: grid;
+    gap: 8px;
+  }
+  .symbol-list li {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.84);
+    line-height: 1.6;
+  }
+  .symbol-list strong { color: #ffffff; }
+  .tip-box,
+  .warn-box {
+    border-radius: 18px;
+    padding: 22px 24px;
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+  .tip-box {
+    border-left: 4px solid #2563eb;
+    background: rgba(37, 99, 235, 0.06);
+    border-top: 1px solid rgba(37, 99, 235, 0.12);
+    border-right: 1px solid rgba(37, 99, 235, 0.12);
+    border-bottom: 1px solid rgba(37, 99, 235, 0.12);
+  }
+  .warn-box {
+    border-left: 4px solid #dc2626;
+    background: rgba(220, 38, 38, 0.06);
+    border-top: 1px solid rgba(220, 38, 38, 0.12);
+    border-right: 1px solid rgba(220, 38, 38, 0.12);
+    border-bottom: 1px solid rgba(220, 38, 38, 0.12);
+  }
+  .tip-box strong { color: #2563eb; }
+  .warn-box strong { color: #dc2626; }
+  .summary {
+    padding-bottom: 34px;
+    margin-bottom: 36px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 18px;
+  }
+  .summary-card .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2563eb;
+    margin-bottom: 6px;
+  }
+  .summary-card p {
+    font-size: 1rem;
+    color: #1a1a1a;
+    line-height: 1.6;
+  }
+  .doc-footer {
+    border-top: 2px solid #e8e4dc;
+    padding-top: 24px;
+    text-align: center;
+  }
+  .footer-handle {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #2563eb;
+    margin-bottom: 10px;
+  }
+  .footer-copy {
+    font-size: 0.98rem;
+    color: #6e6a64;
+    line-height: 1.7;
+  }
+  .check-col {
+    width: 56px;
+    text-align: center;
+  }
+  @media (max-width: 900px) {
+    body {
+      padding: 36px 20px;
+    }
+    .toc-list,
+    .concept-grid,
+    .summary-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+</style>
+</head>
+<body>
+  <div class="page">
+    <header class="doc-header">
+      <div class="doc-eyebrow">No BS Intuition</div>
+      <h1 class="doc-title">Gradients for AI - The Complete Guide</h1>
+      <p class="doc-subtitle">The training signal behind every weight update, from single-parameter slope to vanishing gradients in deep networks.</p>
+      <div class="doc-meta">
+        <div class="meta-pill gold">6 Concepts</div>
+        <div class="meta-pill">Optimization Core</div>
+        <div class="meta-pill purple">Training Intuition</div>
+        <div class="meta-pill amber">@systemsbyakshay</div>
+      </div>
+    </header>
+
+    <section class="toc">
+      <div class="section-tag">Table of Contents</div>
+      <h2 class="toc-title">What you need to understand before tuning training</h2>
+      <ul class="toc-list">
+        <li><a href="#what-is-gradient"><span>01</span>What Is a Gradient</a></li>
+        <li><a href="#partial-derivatives"><span>02</span>Partial Derivatives</a></li>
+        <li><a href="#gradient-vector"><span>03</span>The Gradient Vector</a></li>
+        <li><a href="#gradient-descent"><span>04</span>Gradient Descent</a></li>
+        <li><a href="#learning-rate"><span>05</span>Learning Rate</a></li>
+        <li><a href="#vanishing-gradients"><span>06</span>Vanishing Gradients</a></li>
+        <li><a href="#gradient-cheatsheet"><span>07</span>The Gradient Cheatsheet</a></li>
+        <li><a href="#production-checklist"><span>08</span>Production Checklist</a></li>
+      </ul>
+    </section>
+
+    <section class="section" id="what-is-gradient">
+      <div class="section-header">
+        <div class="section-number">Concept 01 of 06</div>
+        <h2 class="section-title">What Is a Gradient</h2>
+        <div class="section-kicker">A gradient tells you which way is uphill and how steep the hill is at your current point.</div>
+      </div>
+      <div class="block">
+        <div class="block-title teal">The intuition</div>
+        <div class="body-text">
+          <p>For a loss function <strong>L(w)</strong>, the quantity <strong>&part;L/&part;w</strong> is the local slope at the current weight value. If the slope is positive, nudging <strong>w</strong> upward makes loss go up. If the slope is negative, nudging <strong>w</strong> upward makes loss go down.</p>
+          <p>That is why training does not move in the direction of the gradient. It moves in the <strong>opposite</strong> direction. The gradient points uphill. Optimization wants downhill.</p>
+        </div>
+      </div>
+      <div class="concept-grid">
+        <div class="card highlight-gold">
+          <div class="diagram-title">Diagram - reading the slope</div>
+          <div class="slope-stack">
+            <div class="slope-row">
+              <div class="slope-chip dark">Current point</div>
+              <div class="op">→</div>
+              <div class="slope-chip red">Gradient &gt; 0</div>
+              <div class="slope-chip">Loss goes up if w increases</div>
+            </div>
+            <div class="slope-row">
+              <div class="slope-chip dark">Current point</div>
+              <div class="op">→</div>
+              <div class="slope-chip green">Gradient &lt; 0</div>
+              <div class="slope-chip">Loss goes down if w increases</div>
+            </div>
+            <div class="slope-row">
+              <div class="slope-chip blue">To minimize loss, step opposite the sign</div>
+            </div>
+          </div>
+          <div class="mini-note">You can think of the gradient as a tiny arrow attached to the current point on the loss landscape.</div>
+        </div>
+        <div class="card highlight-teal">
+          <div class="block-title gold">Fast lookup</div>
+          <table>
+            <thead>
+              <tr><th>Gradient sign</th><th>What increasing w does</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="mono">&part;L/&part;w &gt; 0</td><td>Loss increases, so <span class="warn">w is hurting</span>.</td></tr>
+              <tr><td class="mono">&part;L/&part;w &lt; 0</td><td>Loss decreases, so <span class="good">w is helping</span>.</td></tr>
+              <tr><td class="mono">&part;L/&part;w = 0</td><td>Flat point locally. No immediate slope signal.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="block tip-box"><strong>Key insight:</strong> A gradient is not the loss value. It is the sensitivity of the loss to a tiny change in a weight.</div>
+    </section>
+
+    <section class="section" id="partial-derivatives">
+      <div class="section-header">
+        <div class="section-number">Concept 02 of 06</div>
+        <h2 class="section-title">Partial Derivatives</h2>
+        <div class="section-kicker">A modern network has too many weights for one slope. You need one gradient per parameter.</div>
+      </div>
+      <div class="block">
+        <div class="block-title teal">The intuition</div>
+        <div class="body-text">
+          <p>A partial derivative <strong>&part;L/&part;w<sub>i</sub></strong> asks one tightly scoped question: if you change only <strong>w<sub>i</sub></strong> and freeze every other weight, how does the loss respond?</p>
+          <p>That framing matters because neural networks are huge coupled systems. The only practical way to update them is to measure the slope for every parameter separately, then bundle those slopes into a full update.</p>
+        </div>
+      </div>
+      <div class="concept-grid">
+        <div class="card highlight-purple">
+          <div class="diagram-title">Diagram - one weight at a time</div>
+          <div class="partial-stack">
+            <div class="partial-row">
+              <div class="partial-chip blue">Change w<sub>1</sub></div>
+              <div class="partial-chip dark">Freeze w<sub>2</sub> ... w<sub>n</sub></div>
+            </div>
+            <div class="partial-row">
+              <div class="partial-chip blue">Measure &part;L/&part;w<sub>1</sub></div>
+              <div class="partial-chip green">Repeat for every weight</div>
+            </div>
+            <div class="partial-row">
+              <div class="partial-chip">One training step = one slope per parameter</div>
+            </div>
+          </div>
+          <div class="mini-note">Backpropagation is the engine that computes all those partials efficiently in one backward pass.</div>
+        </div>
+        <div class="card highlight-teal">
+          <div class="block-title gold">Scale check</div>
+          <table>
+            <thead>
+              <tr><th>Model size</th><th>Gradients per step</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Small demo net</td><td class="mono">1 partial per weight</td></tr>
+              <tr><td>100M parameter model</td><td class="mono">100,000,000 partials</td></tr>
+              <tr><td>7B parameter model</td><td class="mono">7,000,000,000 partials</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title amber">What the notation means</div>
+        <table>
+          <thead>
+            <tr><th>Term</th><th>Meaning</th><th>Why it matters</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">L</td><td>The loss you are trying to minimize.</td><td>The objective for training.</td></tr>
+            <tr><td class="mono">w<sub>i</sub></td><td>One specific weight or parameter.</td><td>The unit you can update directly.</td></tr>
+            <tr><td class="mono">&part;L/&part;w<sub>i</sub></td><td>Slope of loss with respect to that one weight.</td><td>Tells you whether that weight should move up or down.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="block tip-box"><strong>Production rule:</strong> Even when frameworks hide the details, every trainable tensor still receives a gradient tensor of the same shape during backprop.</div>
+    </section>
+
+    <section class="section" id="gradient-vector">
+      <div class="section-header">
+        <div class="section-number">Concept 03 of 06</div>
+        <h2 class="section-title">The Gradient Vector</h2>
+        <div class="section-kicker">Stack every partial derivative together and you get the direction of steepest ascent in weight space.</div>
+      </div>
+      <div class="block">
+        <div class="block-title teal">The intuition</div>
+        <div class="body-text">
+          <p>Once you have a partial for every parameter, you pack them into one object: the gradient vector <strong>&nabla;L</strong>. That vector points in the direction that makes loss increase fastest.</p>
+          <p>If <strong>w<sub>1</sub></strong> has gradient <span class="mono">+0.42</span>, then increasing it makes the loss worse. If <strong>w<sub>2</sub></strong> has gradient <span class="mono">-0.18</span>, then increasing it helps. Gradient descent flips the whole vector and walks the other way.</p>
+        </div>
+      </div>
+      <div class="concept-grid">
+        <div class="card highlight-gold">
+          <div class="diagram-title">Diagram - stacking partials</div>
+          <div class="vector-stack">
+            <div class="vector-row">
+              <div class="vector-chip blue">&part;L/&part;w<sub>1</sub></div>
+              <div class="vector-chip blue">&part;L/&part;w<sub>2</sub></div>
+              <div class="vector-chip blue">&part;L/&part;w<sub>3</sub></div>
+            </div>
+            <div class="vector-row">
+              <div class="vector-chip dark">...</div>
+              <div class="vector-chip blue">&part;L/&part;w<sub>n</sub></div>
+            </div>
+            <div class="vector-row">
+              <div class="vector-chip">Together they form one direction in parameter space</div>
+            </div>
+          </div>
+          <div class="mini-note">The more parameters you have, the higher-dimensional this direction becomes. The intuition stays the same.</div>
+        </div>
+        <div class="card highlight-teal">
+          <div class="block-title gold">Reading components</div>
+          <table>
+            <thead>
+              <tr><th>Weight</th><th>Gradient</th><th>Interpretation</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="mono">w<sub>1</sub></td><td class="mono">+0.42</td><td><span class="warn">Making loss worse</span> if increased.</td></tr>
+              <tr><td class="mono">w<sub>2</sub></td><td class="mono">-0.18</td><td><span class="good">Helping loss</span> if increased.</td></tr>
+              <tr><td class="mono">w<sub>3</sub></td><td class="mono">0.00</td><td>Little local effect right now.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="block formula-box">
+        <div class="block-title purple">The formula</div>
+        <div class="equation">&nabla;L = [&part;L/&part;w<sub>1</sub>, &part;L/&part;w<sub>2</sub>, ..., &part;L/&part;w<sub>n</sub>]</div>
+        <div class="equation-sub">The gradient vector is every partial derivative stacked into one object.</div>
+        <ul class="symbol-list">
+          <li><strong>&nabla;L</strong> - full gradient across all parameters.</li>
+          <li><strong>&part;L/&part;w<sub>i</sub></strong> - slope contributed by one parameter.</li>
+          <li><strong>Direction</strong> - points toward steepest ascent, so descent moves opposite.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="gradient-descent">
+      <div class="section-header">
+        <div class="section-number">Concept 04 of 06</div>
+        <h2 class="section-title">Gradient Descent</h2>
+        <div class="section-kicker">Training is a loop: compute loss, compute gradients, update weights, repeat.</div>
+      </div>
+      <div class="block">
+        <div class="block-title teal">The intuition</div>
+        <div class="body-text">
+          <p>Gradient descent is the mechanical rule that turns slope information into learning. The update says: move each weight opposite its gradient, scaled by the learning rate <strong>&eta;</strong>.</p>
+          <p>If the gradient is large, the weight wants a larger correction. If the learning rate is large, the optimizer takes a bigger step. The same logic applies whether you train a tiny regression model or a frontier-scale transformer.</p>
+        </div>
+      </div>
+      <div class="concept-grid">
+        <div class="card highlight-purple">
+          <div class="diagram-title">Diagram - the loop</div>
+          <div class="descent-stack">
+            <div class="descent-row"><div class="descent-chip red">1. Compute loss</div></div>
+            <div class="descent-row"><div class="descent-chip blue">2. Compute gradients with backprop</div></div>
+            <div class="descent-row"><div class="descent-chip green">3. Update weights</div></div>
+            <div class="descent-row"><div class="descent-chip dark">4. Repeat for the next batch</div></div>
+          </div>
+          <div class="mini-note">This four-step loop is the heartbeat of training.</div>
+        </div>
+        <div class="card highlight-teal">
+          <div class="block-title gold">Four-step breakdown</div>
+          <table>
+            <thead>
+              <tr><th>Step</th><th>What happens</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="mono">1</td><td>Run the model and compute current loss.</td></tr>
+              <tr><td class="mono">2</td><td>Backprop computes gradients for every weight.</td></tr>
+              <tr><td class="mono">3</td><td>Optimizer updates weights using gradients and <span class="mono">&eta;</span>.</td></tr>
+              <tr><td class="mono">4</td><td>Process the next batch and repeat.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="block formula-box">
+        <div class="block-title purple">The update rule</div>
+        <div class="equation">w &larr; w - &eta; &middot; &part;L/&part;w</div>
+        <div class="equation-sub">Subtract the gradient because the gradient points uphill.</div>
+        <ul class="symbol-list">
+          <li><strong>w</strong> - the current weight value.</li>
+          <li><strong>&eta;</strong> - learning rate, or step size.</li>
+          <li><strong>&part;L/&part;w</strong> - slope telling you how loss changes near the current point.</li>
+        </ul>
+      </div>
+      <div class="block tip-box"><strong>Key insight:</strong> Basic gradient descent has one crucial hyperparameter: the learning rate. Everything else is the mechanics of measuring and applying slope.</div>
+    </section>
+
+    <section class="section" id="learning-rate">
+      <div class="section-header">
+        <div class="section-number">Concept 05 of 06</div>
+        <h2 class="section-title">Learning Rate</h2>
+        <div class="section-kicker">The learning rate decides how big each downhill step should be.</div>
+      </div>
+      <div class="block">
+        <div class="block-title teal">The intuition</div>
+        <div class="body-text">
+          <p>If <strong>&eta;</strong> is too large, updates overshoot the valley and loss can explode. If <strong>&eta;</strong> is too small, training still works in principle but takes far longer than necessary.</p>
+          <p>That is why learning rate tuning is usually the first lever to pull when training looks unstable or painfully slow.</p>
+        </div>
+      </div>
+      <div class="concept-grid">
+        <div class="card highlight-gold">
+          <div class="diagram-title">Diagram - step size regimes</div>
+          <div class="rate-stack">
+            <div class="rate-row">
+              <div class="rate-chip red">1e-1</div>
+              <div class="rate-chip">Too large - overshoots and diverges</div>
+            </div>
+            <div class="rate-row">
+              <div class="rate-chip blue">3e-4</div>
+              <div class="rate-chip">Sweet spot for many transformer runs</div>
+            </div>
+            <div class="rate-row">
+              <div class="rate-chip green">1e-6</div>
+              <div class="rate-chip">Too small - training drags</div>
+            </div>
+          </div>
+          <div class="mini-note">Same optimizer, same model, completely different behavior if the step size is wrong.</div>
+        </div>
+        <div class="card highlight-teal">
+          <div class="block-title gold">Practical tuning table</div>
+          <table>
+            <thead>
+              <tr><th>Situation</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Training explodes</td><td><span class="warn">Halve the learning rate</span> and retry.</td></tr>
+              <tr><td>Training is stable but slow</td><td>Try about <span class="mono">3x</span> larger and watch loss.</td></tr>
+              <tr><td>Long runs</td><td>Add a scheduler so the rate can decay over time.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title amber">LR finder workflow</div>
+        <table>
+          <thead>
+            <tr><th>Step</th><th>What to do</th><th>Why</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">1</td><td>Start very low, around <span class="mono">1e-7</span>.</td><td>Avoid immediate divergence.</td></tr>
+            <tr><td class="mono">2</td><td>Increase LR exponentially every batch.</td><td>Cover many scales in one sweep.</td></tr>
+            <tr><td class="mono">3</td><td>Track where loss starts rising sharply.</td><td>That is the danger zone.</td></tr>
+            <tr><td class="mono">4</td><td>Pick a value just before the rise.</td><td>Usually gives a fast but stable starting point.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="block warn-box"><strong>Warning:</strong> A bad learning rate can look like a broken architecture, a bad dataset, or a bug in backprop. Check step size before chasing exotic explanations.</div>
+    </section>
+
+    <section class="section" id="vanishing-gradients">
+      <div class="section-header">
+        <div class="section-number">Concept 06 of 06</div>
+        <h2 class="section-title">Vanishing Gradients</h2>
+        <div class="section-kicker">When gradients get multiplied by small numbers across many layers, early layers stop learning.</div>
+      </div>
+      <div class="block">
+        <div class="block-title teal">The intuition</div>
+        <div class="body-text">
+          <p>Backprop pushes gradients backward through the network by repeated multiplication. If each layer contributes a factor smaller than <strong>1</strong>, the signal shrinks fast.</p>
+          <p>With sigmoid activations, the maximum derivative is only <strong>0.25</strong>. Multiply that through enough layers and the earliest weights see almost no update signal. Training stalls even though later layers still receive gradients.</p>
+        </div>
+      </div>
+      <div class="concept-grid">
+        <div class="card highlight-purple">
+          <div class="diagram-title">Diagram - shrinking backward signal</div>
+          <div class="vanish-stack">
+            <div class="vanish-row">
+              <div class="vanish-chip blue">L5: 1.00</div>
+              <div class="op">→</div>
+              <div class="vanish-chip blue">L4: 0.25</div>
+              <div class="op">→</div>
+              <div class="vanish-chip dark">L3: 0.06</div>
+            </div>
+            <div class="vanish-row">
+              <div class="vanish-chip dark">L2: 0.015</div>
+              <div class="op">→</div>
+              <div class="vanish-chip red">L1: ≈0</div>
+            </div>
+            <div class="vanish-row">
+              <div class="vanish-chip">By the first layers, the update can be effectively gone</div>
+            </div>
+          </div>
+          <div class="mini-note">Vanishing gradients are not abstract math pain. They directly stop early layers from adapting.</div>
+        </div>
+        <div class="card highlight-teal">
+          <div class="block-title gold">Common fixes</div>
+          <table>
+            <thead>
+              <tr><th>Fix</th><th>Why it helps</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>ReLU</td><td>Its max derivative is <span class="mono">1.0</span>, so it preserves signal better.</td></tr>
+              <tr><td>Residual connections</td><td>Create shorter gradient paths through deep stacks.</td></tr>
+              <tr><td>Batch norm</td><td>Keeps activations in healthier ranges for optimization.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="block">
+        <div class="block-title amber">Gradient decay by layer</div>
+        <table>
+          <thead>
+            <tr><th>Layer</th><th>Gradient value</th><th>What it means</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">L5</td><td class="mono">1.00</td><td>Healthy update signal at the output side.</td></tr>
+            <tr><td class="mono">L4</td><td class="mono">0.25</td><td>Already shrunk by 4x.</td></tr>
+            <tr><td class="mono">L3</td><td class="mono">0.06</td><td>Now very small.</td></tr>
+            <tr><td class="mono">L2</td><td class="mono">0.015</td><td>Barely enough to change weights.</td></tr>
+            <tr><td class="mono">L1</td><td class="mono">≈ 0</td><td><span class="warn">Almost no learning signal left</span>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="block warn-box"><strong>Warning:</strong> If your activation derivatives are consistently below 1, depth alone can kill learning. Architecture choices like ReLU and residual paths are optimization tools, not just style preferences.</div>
+    </section>
+
+    <section class="summary" id="gradient-cheatsheet">
+      <div class="section-tag">Quick Reference</div>
+      <h2 class="toc-title">The Gradient Cheatsheet</h2>
+      <table>
+        <thead>
+          <tr><th>Symbol</th><th>Term</th><th>Meaning</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="mono">&part;L/&part;w</td><td>Gradient</td><td>Slope of loss with respect to one weight.</td></tr>
+          <tr><td class="mono">&nabla;L</td><td>Gradient Vector</td><td>All partials stacked together. Points toward steepest ascent.</td></tr>
+          <tr><td class="mono">&eta;</td><td>Learning Rate</td><td>Step size. The core hyperparameter in basic gradient descent.</td></tr>
+          <tr><td class="mono">w &larr; w - &eta;&nabla;L</td><td>Update Rule</td><td>Subtract a scaled gradient, then repeat on the next batch.</td></tr>
+        </tbody>
+      </table>
+      <div class="summary-grid">
+        <div class="summary-card"><div class="num">1</div><p>The gradient tells you which way makes loss rise fastest.</p></div>
+        <div class="summary-card"><div class="num">2</div><p>Partial derivatives give that slope for each individual parameter.</p></div>
+        <div class="summary-card"><div class="num">3</div><p>The learning rate decides how aggressively you move against the gradient.</p></div>
+        <div class="summary-card"><div class="num">4</div><p>Deep networks need gradient-preserving design choices or early layers stop learning.</p></div>
+      </div>
+    </section>
+
+    <section class="section" id="production-checklist">
+      <div class="section-header">
+        <div class="section-number">Checklist</div>
+        <h2 class="section-title">Production Checklist</h2>
+        <div class="section-kicker">Use this before blaming the model, the data, or the optimizer implementation.</div>
+      </div>
+      <div class="block">
+        <table>
+          <thead>
+            <tr><th class="check-col"></th><th>Practice</th><th>Why</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="check-col">&#9744;</td><td>Log loss, learning rate, and gradient norms together.</td><td>You need all three signals to debug training behavior quickly.</td></tr>
+            <tr><td class="check-col">&#9744;</td><td>Run an LR finder or small sweep before long training jobs.</td><td>Bad step size wastes the most time for the least insight.</td></tr>
+            <tr><td class="check-col">&#9744;</td><td>Watch for exploding or vanishing gradients in early runs.</td><td>Optimization issues show up before final quality metrics do.</td></tr>
+            <tr><td class="check-col">&#9744;</td><td>Use ReLU, residual paths, or normalization in deep stacks.</td><td>They help preserve useful gradient flow backward through depth.</td></tr>
+            <tr><td class="check-col">&#9744;</td><td>Remember that every parameter gets its own partial derivative.</td><td>That mental model makes backprop and optimizer updates much easier to reason about.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="block tip-box"><strong>Closing insight:</strong> Once gradients make sense, training stops looking like magic and starts looking like local geometry plus repeated bookkeeping.</div>
+    </section>
+
+    <footer class="doc-footer">
+      <div class="footer-handle">Built by @systemsbyakshay - No BS Intuition</div>
+      <div class="footer-copy">Gradients are the signal that turns loss into learning. Understand them, and almost every optimizer problem becomes easier to diagnose.</div>
+    </footer>
+  </div>
+</body>
+</html>
