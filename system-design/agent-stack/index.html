@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The 5-Component Agent Stack: The 80% Engineers Miss | Systems by Akshay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 60px 40px;
+    background: #f9f8f4;
+    color: #1a1a1a;
+    line-height: 1.65;
+    font-size: 16px;
+  }
+  h1 { font-size: 36px; font-weight: 800; line-height: 1.15; margin: 0; color: #0a0a0a; }
+  h2 { font-size: 24px; font-weight: 800; margin-top: 48px; margin-bottom: 14px; color: #0a0a0a; }
+  h3 { font-size: 20px; font-weight: 700; margin-top: 36px; margin-bottom: 10px; color: #0a0a0a; }
+  p { margin: 0 0 20px 0; }
+  strong { color: #0a0a0a; }
+  .header { text-align: center; border-bottom: 2px solid #e8e4dc; margin-bottom: 48px; padding-bottom: 32px; }
+  .header .brand { font-size: 14px; color: #2563eb; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px; }
+  .header .sub { font-size: 18px; color: #6e6a64; margin-top: 16px; }
+  .diagram-wrap { background: #fff; border: 1px solid #e8e4dc; border-radius: 14px; padding: 28px 20px; margin: 36px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .diagram-caption { font-size: 14px; color: #6e6a64; text-align: center; margin-top: 12px; }
+  .tip-box {
+    background: rgba(37,99,235,0.06);
+    border-left: 4px solid #2563eb;
+    border-radius: 0 10px 10px 0;
+    padding: 18px 20px;
+    margin: 28px 0;
+    font-size: 15px;
+    color: #1a1a1a;
+  }
+  .tip-box strong { color: #2563eb; }
+  .warn-box {
+    background: rgba(220,38,38,0.06);
+    border-left: 4px solid #dc2626;
+    border-radius: 0 10px 10px 0;
+    padding: 18px 20px;
+    margin: 28px 0;
+    font-size: 15px;
+    color: #1a1a1a;
+  }
+  .warn-box strong { color: #dc2626; }
+  .formula-box { background: #0a0a0a; color: #f9f8f4; padding: 28px 32px; border-radius: 12px; margin: 36px 0; text-align: center; }
+  .formula-box .label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; font-family: 'Inter', sans-serif; }
+  .formula-box .formula { font-size: 22px; color: #FFD700; font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; margin: 32px 0; }
+  th { background: #0a0a0a; color: #f9f8f4; padding: 12px 16px; text-transform: uppercase; font-size: 13px; letter-spacing: 0.06em; text-align: left; }
+  td { padding: 12px 16px; border-bottom: 1px solid #e8e4dc; vertical-align: top; }
+  tr:nth-child(even) { background: rgba(0,0,0,0.02); }
+  .conclusion-title { font-size: 24px; font-weight: 800; margin-top: 48px; margin-bottom: 14px; color: #0a0a0a; }
+  .footer { text-align: center; border-top: 2px solid #e8e4dc; margin-top: 48px; padding-top: 32px; }
+  .footer p { font-size: 14px; color: #6e6a64; margin: 8px 0; }
+  .footer .brand { color: #2563eb; font-weight: 700; }
+  .watermark { text-align: right; font-size: 12px; color: #bbb; margin-top: 8px; }
+  hr.section-divider { border: none; border-top: 2px solid #e8e4dc; margin: 40px 0; }
+  svg text { font-family: 'Inter', sans-serif; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="brand">@systemsbyakshay - No BS System Design</div>
+  <h1>The 5-Component Agent Stack: The 80% Engineers Miss</h1>
+  <div class="sub">Everyone builds the model call. Almost nobody designs the system around it.</div>
+</div>
+
+<p>Everyone builds the model call. Almost nobody designs the system around it - the orchestrator, tools, memory, policies, and observability that determine whether it actually ships.</p>
+
+<p>Walk into any system design interview and ask someone to design an AI coding assistant. The answer is almost always the same: "I'd use GPT-4 with a few tool-use prompts." That's an API call. It's not a system design.</p>
+
+<p>The LLM is stateless. It has no memory of last week's conversation, no ability to call your database, no awareness of what actions it's already taken this session, and no enforcement of what it's allowed to do. Those things don't live in the prompt. They live in the five components that make a language model into an agent - the system around it.</p>
+
+<p>This is what separates a demo that runs on localhost from an agent that ships to production. The model is 20% of the problem. Here's the other 80%.</p>
+
+<div class="formula-box">
+  <div class="label">The Core Principle</div>
+  <div class="formula">Agent = Orchestrator + Tools + Memory + Policy + Observability</div>
+</div>
+
+<hr class="section-divider">
+<h2>1. The Orchestrator: Who Decides When the Loop Stops?</h2>
+
+<p>The orchestrator is the control plane of your agent. It receives the input, plans which action comes next, invokes the LLM or a tool, processes the result, and makes exactly one decision: loop back for another step, or return the answer. Nothing in the LLM controls this loop. The LLM reasons. The orchestrator decides.</p>
+
+<p>This separation matters because the loop is where agents go wrong in production. Without a hard iteration cap, an agent chewing on a complex problem can run 40 steps, spend $8 in inference costs, and still not finish. The orchestrator owns that cap. It owns tool call sequencing - ensuring a retrieval step runs before a synthesis step, not after. It owns error recovery: if a tool times out, does the agent retry, skip it, or fail gracefully? All of that is orchestrator logic. None of it belongs in the model.</p>
+
+<p>The most important thing the orchestrator does is separate business logic from reasoning. Business rules - "always log user actions," "never call the billing API more than once per session," "escalate to a human if confidence is below 0.7" - live in the orchestrator, in code, where they're testable and deterministic. The model thinks. The orchestrator governs.</p>
+
+<div class="diagram-wrap">
+<svg width="100%" viewBox="0 0 680 210" role="img">
+  <title>Orchestrator control loop: input, plan, LLM or tool, process result, loop or return</title>
+  <defs>
+    <marker id="as-a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+    <marker id="as-a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#888" stroke-width="1.2" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <rect x="16" y="72" width="96" height="44" rx="10" fill="#EBF0FF" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="64" y="96" text-anchor="middle" font-size="11" fill="#1e40af" font-weight="600">Input</text>
+  <line x1="112" y1="94" x2="148" y2="94" stroke="#2563eb" stroke-width="1.5" marker-end="url(#as-a1)"/>
+  <rect x="150" y="72" width="106" height="44" rx="10" fill="#EBF0FF" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="203" y="96" text-anchor="middle" font-size="11" fill="#1e40af" font-weight="600">Plan Action</text>
+  <line x1="256" y1="94" x2="292" y2="94" stroke="#2563eb" stroke-width="1.5" marker-end="url(#as-a1)"/>
+  <rect x="294" y="72" width="106" height="44" rx="10" fill="#EBF0FF" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="347" y="90" text-anchor="middle" font-size="11" fill="#1e40af" font-weight="600">LLM</text>
+  <text x="347" y="107" text-anchor="middle" font-size="10" fill="#2563eb">or Tool</text>
+  <line x1="400" y1="94" x2="436" y2="94" stroke="#2563eb" stroke-width="1.5" marker-end="url(#as-a1)"/>
+  <rect x="438" y="72" width="106" height="44" rx="10" fill="#EBF0FF" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="491" y="90" text-anchor="middle" font-size="11" fill="#1e40af" font-weight="600">Process</text>
+  <text x="491" y="107" text-anchor="middle" font-size="10" fill="#2563eb">Result</text>
+  <line x1="544" y1="94" x2="580" y2="94" stroke="#2563eb" stroke-width="1.5" marker-end="url(#as-a1)"/>
+  <rect x="582" y="72" width="84" height="44" rx="10" fill="#ECFDF5" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="624" y="90" text-anchor="middle" font-size="11" fill="#065f46" font-weight="600">Return</text>
+  <text x="624" y="107" text-anchor="middle" font-size="10" fill="#16a34a">or Loop</text>
+  <path d="M491 116 Q491 170 347 170 Q203 170 203 118" fill="none" stroke="#888" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#as-a2)"/>
+  <text x="347" y="186" text-anchor="middle" font-size="9" fill="#999">↩ loop back · iteration cap enforced by orchestrator</text>
+  <text x="670" y="204" text-anchor="end" font-size="9" fill="#ccc">@systemsbyakshay</text>
+</svg>
+<p class="diagram-caption">The orchestrator owns the loop. The LLM reasons inside a single step. Iteration cap, error recovery, and tool sequencing all live in the orchestrator - not the prompt.</p>
+</div>
+
+<div class="tip-box">
+<strong>The production rule:</strong> Set a hard iteration cap of 10-20 steps in the orchestrator. An agent that loops without a bound isn't reasoning deeper - it's burning cost and accumulating risk. Cap it in code, not in the prompt.
+</div>
+
+<hr class="section-divider">
+<h2>2. The Tool Layer: The LLM Can Talk, It Can't Act</h2>
+
+<p>The LLM generates text. That's it. Every real-world action the agent takes - searching the web, querying a database, running code, calling an API, writing a file - happens through the tool layer. Tools are how the model connects to the world outside its context window. Without them, an agent is just a chatbot with long system prompts.</p>
+
+<p>Every tool needs four things, and skipping any of them creates a production incident. First, a <strong>schema</strong>: the exact parameters the tool accepts, typed and validated. The LLM generates tool calls as JSON - if the schema is loose, the calls will be malformed. Second, <strong>timeout and retry logic</strong>: tools fail. Networks drop. Databases are slow. The agent must handle failures explicitly, not inherit whatever error behavior the underlying API provides. Third, a <strong>permission gate</strong>: can this user, in this role, call this tool? Permissions must be explicit. If the check is missing, eventually the agent will try something it shouldn't. Fourth, a <strong>defined result format</strong>: structured JSON back to the model, not raw text. Structured output is easier to parse, easier to validate, and harder for the next reasoning step to misinterpret.</p>
+
+<p>The permission gate is where most teams cut corners. They build the tools, they work in testing, and they add permissions "later." Later doesn't arrive until a user does something unexpected with a capability they should never have reached.</p>
+
+<div class="diagram-wrap">
+<svg width="100%" viewBox="0 0 680 220" role="img">
+  <title>Tool layer components: schema, permission gate, timeout retry, result format</title>
+  <defs>
+    <marker id="as-b1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+    <marker id="as-b2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <rect x="20" y="84" width="92" height="46" rx="10" fill="#EBF0FF" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="66" y="111" text-anchor="middle" font-size="12" fill="#1e40af" font-weight="600">LLM</text>
+  <line x1="112" y1="107" x2="148" y2="107" stroke="#2563eb" stroke-width="1.5" marker-end="url(#as-b1)"/>
+  <text x="130" y="100" text-anchor="middle" font-size="9" fill="#2563eb">tool call</text>
+  <rect x="150" y="28" width="118" height="38" rx="8" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="1"/>
+  <text x="209" y="52" text-anchor="middle" font-size="10" fill="#333" font-weight="600">Schema validate</text>
+  <rect x="150" y="80" width="118" height="38" rx="8" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="1"/>
+  <text x="209" y="99" text-anchor="middle" font-size="10" fill="#333" font-weight="600">Permission gate</text>
+  <text x="209" y="112" text-anchor="middle" font-size="9" fill="#888">role check</text>
+  <rect x="150" y="132" width="118" height="38" rx="8" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="1"/>
+  <text x="209" y="151" text-anchor="middle" font-size="10" fill="#333" font-weight="600">Timeout + retry</text>
+  <text x="209" y="164" text-anchor="middle" font-size="9" fill="#888">max 3, backoff</text>
+  <line x1="112" y1="97" x2="148" y2="49" stroke="#2563eb" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#as-b1)"/>
+  <line x1="112" y1="117" x2="148" y2="149" stroke="#2563eb" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#as-b1)"/>
+  <rect x="308" y="74" width="126" height="68" rx="10" fill="#fff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="371" y="102" text-anchor="middle" font-size="11" fill="#1e40af" font-weight="600">Tool Execution</text>
+  <text x="371" y="118" text-anchor="middle" font-size="9" fill="#2563eb">DB · API · Code</text>
+  <text x="371" y="132" text-anchor="middle" font-size="9" fill="#888">search · query · write</text>
+  <line x1="268" y1="107" x2="306" y2="107" stroke="#2563eb" stroke-width="1.5" marker-end="url(#as-b1)"/>
+  <rect x="474" y="74" width="126" height="68" rx="10" fill="#ECFDF5" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="537" y="102" text-anchor="middle" font-size="11" fill="#065f46" font-weight="600">Result Format</text>
+  <text x="537" y="118" text-anchor="middle" font-size="9" fill="#16a34a">structured JSON</text>
+  <text x="537" y="132" text-anchor="middle" font-size="9" fill="#16a34a">→ back to LLM</text>
+  <line x1="434" y1="108" x2="472" y2="108" stroke="#16a34a" stroke-width="1.5" marker-end="url(#as-b2)"/>
+  <text x="670" y="214" text-anchor="end" font-size="9" fill="#ccc">@systemsbyakshay</text>
+</svg>
+<p class="diagram-caption">Every tool call passes schema validation, a permission check, and timeout handling before it executes. Structured JSON returns to the LLM - not raw unstructured text.</p>
+</div>
+
+<div class="tip-box">
+<strong>The production rule:</strong> If the tool can do something and no permission gate exists, the agent will eventually attempt it. Build the permission matrix before you build the tools. Not after.
+</div>
+
+<hr class="section-divider">
+<h2>3. Memory: The Context Window Is a Workspace, Not Storage</h2>
+
+<p>Every turn, your agent starts cold. The LLM has no memory of the previous session, no knowledge of what the user told you last week, and no awareness of anything outside the current context window. You have to build memory. And memory in an agent system is not one engineering problem - it's three distinct ones.</p>
+
+<p><strong>Working memory</strong> is everything in the current context window right now: the system prompt, the conversation history from this session, the tool results from recent steps. It's immediate - no retrieval needed, it's already there. But it's bounded. A 128k context window sounds massive until you're running a multi-step agent with verbose tool outputs and 40 turns of history. Working memory overflows. You need an explicit eviction strategy.</p>
+
+<p><strong>Short-term memory</strong> is the session-scoped conversation store: the last N turns of this user's interaction, persisted to a database, retrieved at the start of each request and injected into the context. This is what lets a user say "like I mentioned earlier" and have the agent know what they mentioned. Without it, every new request resets the entire conversation to zero - the agent is functionally amnesiac between calls.</p>
+
+<p><strong>Long-term memory</strong> is semantic search over a vector store: past conversations, user preferences, domain knowledge, historical decisions. Retrieved by similarity to the current query, not by recency. This is the expensive component - both to build and to evaluate - but it's what makes an agent feel persistent and intelligent over weeks and months of use.</p>
+
+<div class="diagram-wrap">
+<svg width="100%" viewBox="0 0 680 190" role="img">
+  <title>Three types of agent memory: working memory in context window, short-term in conversation DB, long-term in vector store</title>
+  <rect x="20" y="36" width="188" height="118" rx="12" fill="#EBF0FF" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="114" y="62" text-anchor="middle" font-size="12" fill="#1e40af" font-weight="700">Working Memory</text>
+  <text x="114" y="80" text-anchor="middle" font-size="10" fill="#2563eb">Context window</text>
+  <text x="114" y="97" text-anchor="middle" font-size="9" fill="#888">system prompt · history</text>
+  <text x="114" y="112" text-anchor="middle" font-size="9" fill="#888">tool results · in-flight</text>
+  <text x="114" y="130" text-anchor="middle" font-size="9" fill="#dc2626">bounded · eviction needed</text>
+  <rect x="246" y="36" width="188" height="118" rx="12" fill="#EBF0FF" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="340" y="62" text-anchor="middle" font-size="12" fill="#1e40af" font-weight="700">Short-term</text>
+  <text x="340" y="80" text-anchor="middle" font-size="10" fill="#2563eb">Conversation DB</text>
+  <text x="340" y="97" text-anchor="middle" font-size="9" fill="#888">last N turns stored</text>
+  <text x="340" y="112" text-anchor="middle" font-size="9" fill="#888">retrieved each request</text>
+  <text x="340" y="130" text-anchor="middle" font-size="9" fill="#16a34a">session-scoped</text>
+  <rect x="472" y="36" width="188" height="118" rx="12" fill="#EBF0FF" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="566" y="62" text-anchor="middle" font-size="12" fill="#1e40af" font-weight="700">Long-term</text>
+  <text x="566" y="80" text-anchor="middle" font-size="10" fill="#2563eb">Vector Store</text>
+  <text x="566" y="97" text-anchor="middle" font-size="9" fill="#888">semantic similarity search</text>
+  <text x="566" y="112" text-anchor="middle" font-size="9" fill="#888">past convos · preferences</text>
+  <text x="566" y="130" text-anchor="middle" font-size="9" fill="#16a34a">persistent across sessions</text>
+  <text x="670" y="184" text-anchor="end" font-size="9" fill="#ccc">@systemsbyakshay</text>
+</svg>
+<p class="diagram-caption">Memory is three separate engineering problems. What's in the window right now. What's in the session DB. What's retrievable via semantic search across all past interactions.</p>
+</div>
+
+<div class="warn-box">
+<strong>The context window is not memory.</strong> Storing full conversation history in the context window works in a demo. Under long sessions it overflows. Build a conversation store and a retrieval layer from day one - not when the demo breaks at 50 turns.
+</div>
+
+<hr class="section-divider">
+<h2>4. The Policy Engine: Prompts Are Suggestions, Architecture Is Law</h2>
+
+<p>The most common security mistake in agent systems is putting safety constraints in the system prompt. "Don't do harmful things." "Never access files outside the /data directory." "Only call approved tools." These are suggestions. A clever prompt injection can override them. A model behavior update can shift how they're interpreted. They are not guarantees, and you cannot rely on them for enforcement in a production system.</p>
+
+<p>The policy engine is structural enforcement. It runs before the prompt is assembled, before the LLM is called, before any tool executes. It answers exactly one question: is this action allowed for this user in this context? If no, the action doesn't happen, regardless of what the model generated or what was in the prompt.</p>
+
+<p>Concrete structural policies look like: a read-only user role cannot call write-capable tools. A specific tool is capped at three calls per session. Any action that deletes records requires explicit human confirmation before execution. No user data crosses region boundaries, regardless of what the request contains. None of these belong in a system prompt. All of them belong in code, evaluated before any LLM inference happens.</p>
+
+<div class="diagram-wrap">
+<svg width="100%" viewBox="0 0 680 188" role="img">
+  <title>Policy engine as hard gate before LLM call and tool execution</title>
+  <defs>
+    <marker id="as-c1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+    <marker id="as-c2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+    <marker id="as-c3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <rect x="20" y="70" width="98" height="46" rx="10" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="1"/>
+  <text x="69" y="97" text-anchor="middle" font-size="11" fill="#333" font-weight="600">Request</text>
+  <line x1="118" y1="93" x2="154" y2="93" stroke="#2563eb" stroke-width="1.5" marker-end="url(#as-c1)"/>
+  <rect x="156" y="52" width="148" height="82" rx="12" fill="#FCEBEB" stroke="#dc2626" stroke-width="2"/>
+  <text x="230" y="80" text-anchor="middle" font-size="12" fill="#A32D2D" font-weight="700">Policy Engine</text>
+  <text x="230" y="97" text-anchor="middle" font-size="9" fill="#dc2626">role · tool cap · region</text>
+  <text x="230" y="112" text-anchor="middle" font-size="9" fill="#dc2626">runs before LLM call</text>
+  <text x="230" y="125" text-anchor="middle" font-size="9" fill="#dc2626">runs before tool execution</text>
+  <line x1="304" y1="77" x2="360" y2="57" stroke="#16a34a" stroke-width="1.5" marker-end="url(#as-c3)"/>
+  <text x="330" y="50" text-anchor="middle" font-size="9" fill="#16a34a">allowed</text>
+  <line x1="304" y1="109" x2="360" y2="129" stroke="#dc2626" stroke-width="1.5" marker-end="url(#as-c2)"/>
+  <text x="330" y="148" text-anchor="middle" font-size="9" fill="#dc2626">blocked → 403</text>
+  <rect x="362" y="38" width="130" height="46" rx="10" fill="#EBF0FF" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="427" y="65" text-anchor="middle" font-size="11" fill="#1e40af" font-weight="600">LLM / Tool</text>
+  <line x1="492" y1="61" x2="534" y2="80" stroke="#2563eb" stroke-width="1.5" marker-end="url(#as-c1)"/>
+  <rect x="536" y="62" width="120" height="46" rx="10" fill="#ECFDF5" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="596" y="89" text-anchor="middle" font-size="11" fill="#065f46" font-weight="600">Response</text>
+  <text x="670" y="182" text-anchor="end" font-size="9" fill="#ccc">@systemsbyakshay</text>
+</svg>
+<p class="diagram-caption">Blocked actions return 403 before any model call happens. No prompt engineering bypasses the policy engine - it's code, not a language model.</p>
+</div>
+
+<div class="tip-box">
+<strong>The production rule:</strong> If a constraint needs to be guaranteed rather than merely suggested, it belongs in the policy engine, not the system prompt. Structural enforcement is code. Prompts can be jailbroken. Code cannot.
+</div>
+
+<hr class="section-divider">
+<h2>5. Observability: You Can't Debug What You Can't Trace</h2>
+
+<p>Traditional application monitoring fails completely for agents. An HTTP request returns 200. Your logs show success. But inside that request, the agent ran 8 iterations, one tool returned empty results on iteration 3, the model was called 6 times at 40 cents per call, and the final answer was derived from a hallucinated tool result on iteration 7. None of that is visible in standard request logs.</p>
+
+<p>Agent observability requires step-level tracing through the entire decision loop - not just at the HTTP boundary. That means capturing every LLM call with its full prompt, completion, latency, model used, and token count broken down as input and output. Every tool call with its input parameters, the output it returned, duration, and error state. Every orchestrator decision - which action was chosen, what iteration number, what the agent's internal reasoning state was. And cost per session, not just per request - because a single session can have wildly variable cost depending on how the agent reasoned its way to an answer.</p>
+
+<p>Step-level traces are what let you answer the two most common agent debugging questions: "why did it loop 10 times?" and "why did this session cost $3?" Without the traces, you are guessing. With them, the answer is usually visible in 30 seconds.</p>
+
+<div class="diagram-wrap">
+<svg width="100%" viewBox="0 0 680 210" role="img">
+  <title>Agent session trace showing orchestrator decision, tool call, LLM call, and cost per step</title>
+  <defs>
+    <marker id="as-d1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <rect x="20" y="20" width="640" height="162" rx="14" fill="#FAFAF8" stroke="#e0ddd5" stroke-width="1.5"/>
+  <text x="40" y="44" font-size="11" fill="#888">Session trace - step 3 of 7</text>
+  <rect x="38" y="56" width="134" height="50" rx="8" fill="#EBF0FF" stroke="#2563eb" stroke-width="1"/>
+  <text x="105" y="77" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">Orchestrator</text>
+  <text x="105" y="91" text-anchor="middle" font-size="9" fill="#2563eb">action: search_docs</text>
+  <text x="105" y="103" text-anchor="middle" font-size="8" fill="#888">iter 3 · 42ms</text>
+  <line x1="172" y1="81" x2="206" y2="81" stroke="#2563eb" stroke-width="1" marker-end="url(#as-d1)"/>
+  <rect x="208" y="56" width="134" height="50" rx="8" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="1"/>
+  <text x="275" y="77" text-anchor="middle" font-size="10" fill="#333" font-weight="600">Tool: search</text>
+  <text x="275" y="91" text-anchor="middle" font-size="9" fill="#888">input: "auth flow"</text>
+  <text x="275" y="103" text-anchor="middle" font-size="8" fill="#888">340ms · 3 results</text>
+  <line x1="342" y1="81" x2="376" y2="81" stroke="#2563eb" stroke-width="1" marker-end="url(#as-d1)"/>
+  <rect x="378" y="56" width="134" height="50" rx="8" fill="#EBF0FF" stroke="#2563eb" stroke-width="1"/>
+  <text x="445" y="77" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">LLM call</text>
+  <text x="445" y="91" text-anchor="middle" font-size="9" fill="#2563eb">1240 in / 380 out tokens</text>
+  <text x="445" y="103" text-anchor="middle" font-size="8" fill="#888">1.2s · $0.007</text>
+  <line x1="512" y1="81" x2="546" y2="81" stroke="#2563eb" stroke-width="1" marker-end="url(#as-d1)"/>
+  <rect x="548" y="56" width="100" height="50" rx="8" fill="#ECFDF5" stroke="#16a34a" stroke-width="1"/>
+  <text x="598" y="77" text-anchor="middle" font-size="10" fill="#065f46" font-weight="600">Session cost</text>
+  <text x="598" y="91" text-anchor="middle" font-size="9" fill="#16a34a">$0.031 total</text>
+  <text x="598" y="103" text-anchor="middle" font-size="8" fill="#888">7 steps · 4 tools</text>
+  <text x="340" y="154" text-anchor="middle" font-size="9" fill="#aaa">Every step traced: action · tool · LLM · cost. Not just the HTTP boundary.</text>
+  <text x="650" y="178" text-anchor="end" font-size="9" fill="#ccc">@systemsbyakshay</text>
+</svg>
+<p class="diagram-caption">Step-level traces expose what's invisible in HTTP logs: which tool was slow, which LLM call was expensive, how many iterations the agent needed to converge.</p>
+</div>
+
+<div class="tip-box">
+<strong>The production rule:</strong> Track cost per session - not per request. Roll up token counts from every LLM call within the session. A single runaway session that loops 40 times will not appear unusual in per-request metrics. It will be obvious in per-session cost data.
+</div>
+
+<hr class="section-divider">
+
+<h2>6. Production Readiness Checklist</h2>
+<table>
+  <tr><th></th><th>Practice</th><th>Why</th></tr>
+  <tr><td>&#9744;</td><td>Orchestrator has a hard iteration cap (10-20 steps max, enforced in code)</td><td>Prevents runaway loops and cost explosions.</td></tr>
+  <tr><td>&#9744;</td><td>Orchestrator owns tool call sequencing and explicit error recovery paths</td><td>Keeps multi-step execution deterministic and recoverable.</td></tr>
+  <tr><td>&#9744;</td><td>Business logic lives in the orchestrator - not in the system prompt</td><td>Makes rules testable, deterministic, and enforceable in code.</td></tr>
+  <tr><td>&#9744;</td><td>Every tool has a typed schema validated before execution</td><td>Prevents malformed tool calls and bad inputs from reaching execution.</td></tr>
+  <tr><td>&#9744;</td><td>Permission matrix defined per user role per tool - built before the tools are</td><td>Stops unauthorized actions before they reach execution.</td></tr>
+  <tr><td>&#9744;</td><td>Timeout and retry logic on every tool call (max 3 retries with exponential backoff)</td><td>Handles flaky networks and transient tool failures safely.</td></tr>
+  <tr><td>&#9744;</td><td>Conversation store in place for short-term memory - not context window stuffing</td><td>Preserves session continuity without overflowing the context window.</td></tr>
+  <tr><td>&#9744;</td><td>Eviction strategy for working memory at context window limits</td><td>Prevents context bloat from degrading reasoning quality.</td></tr>
+  <tr><td>&#9744;</td><td>Policy engine runs before any LLM call and before any tool execution</td><td>Enforces structural constraints before the model can act.</td></tr>
+  <tr><td>&#9744;</td><td>Structural policies for destructive actions: human confirmation required</td><td>Reduces risk for deletes and other irreversible operations.</td></tr>
+  <tr><td>&#9744;</td><td>Step-level traces: every LLM call, tool call, orchestrator decision logged</td><td>Makes debugging and root-cause analysis fast.</td></tr>
+  <tr><td>&#9744;</td><td>Cost tracked and alerted per session - not per HTTP request</td><td>Surfaces runaway sessions that request-level metrics can hide.</td></tr>
+</table>
+
+<h3 class="conclusion-title">The System Is the Hard Part</h3>
+
+<p>The LLM is the most legible part of an agent - it's what you see in the demo, what you show stakeholders, what gets mentioned in every engineering blog post. But it's not where production agents fail. They fail because the orchestrator has no iteration cap and loops 40 times. They fail because a tool returned an error and no recovery path exists. They fail because a user's session data wasn't retrieved and the agent had no context for what was asked. They fail because a permission wasn't checked and someone did something they shouldn't have been able to do. They fail silently at 3am in ways that only become visible in the next morning's cost report.</p>
+
+<p>The five components - orchestrator, tool layer, memory, policy engine, observability - are not architectural luxuries. They are the production architecture. An agent without them is a language model with a long system prompt and no safety net. Every fundamental limitation the model has - no memory, no real-world actions, no enforcement, no traceability - is solved by a specific component, not by a better prompt.</p>
+
+<p>The model is the easy part. Design the other 80% first.</p>
+
+<div class="footer">
+  <p>Built by <span class="brand">@systemsbyakshay</span> - No BS System Design</p>
+  <p>The model is the easy part. Design the other 80% first.</p>
+</div>
+
+</body>
+</html>
