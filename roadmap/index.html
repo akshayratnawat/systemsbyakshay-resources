@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Engineer Roadmap — @SystemsByAkshay</title>
+<meta name="description" content="Interactive roadmap for becoming an AI Engineer in 2026. LLMs, RAG, Agents, Multimodal AI, Production Systems. Original content by @SystemsByAkshay.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════
+   RESET & BASE
+   ══════════════════════════════════════════════════════════════ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #fafaf9; color: #1a1a1a; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   HEADER
+   ══════════════════════════════════════════════════════════════ */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e5e5e5;
+  padding: 16px 32px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.header-left { display: flex; flex-direction: column; gap: 2px; }
+.header-brand {
+  font-size: 11px; font-weight: 700; color: #2563eb;
+  letter-spacing: 0.12em; text-transform: uppercase;
+}
+.header h1 { font-size: 20px; font-weight: 800; color: #0a0a0a; }
+.header-sub { font-size: 12px; color: #737373; }
+.header-right { display: flex; align-items: center; gap: 16px; }
+.progress-wrap { display: flex; align-items: center; gap: 10px; }
+.progress-track { width: 140px; height: 6px; background: #e5e5e5; border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: #22c55e; border-radius: 3px; transition: width 0.4s ease; width: 0%; }
+.progress-text { font-size: 12px; font-weight: 600; color: #737373; white-space: nowrap; }
+.reset-btn {
+  font-size: 11px; font-weight: 600; color: #ef4444; background: none;
+  border: 1px solid #fecaca; border-radius: 6px; padding: 4px 10px;
+  cursor: pointer; transition: all 0.15s;
+}
+.reset-btn:hover { background: #fef2f2; border-color: #ef4444; }
+
+/* ══════════════════════════════════════════════════════════════
+   ROADMAP CONTAINER
+   ══════════════════════════════════════════════════════════════ */
+.roadmap {
+  max-width: 960px; margin: 0 auto; padding: 40px 20px 80px;
+  position: relative;
+}
+
+/* Center spine */
+.roadmap::before {
+  content: ''; position: absolute;
+  left: 50%; top: 0; bottom: 0;
+  width: 3px; background: #d4d4d4;
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PHASE HEADER
+   ══════════════════════════════════════════════════════════════ */
+.phase-header {
+  position: relative; z-index: 2;
+  display: flex; justify-content: center;
+  margin: 48px 0 32px;
+}
+.phase-header:first-child { margin-top: 0; }
+.phase-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 24px; border-radius: 10px;
+  font-size: 14px; font-weight: 700; color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.phase-pill .phase-time {
+  font-size: 11px; font-weight: 500; opacity: 0.85;
+  border-left: 1px solid rgba(255,255,255,0.3);
+  padding-left: 8px; margin-left: 4px;
+}
+.phase-pill.p1 { background: #2563eb; }
+.phase-pill.p2 { background: #16a34a; }
+.phase-pill.p3 { background: #9333ea; }
+.phase-pill.p4 { background: #dc2626; }
+
+/* ══════════════════════════════════════════════════════════════
+   ROW (one topic node + its subtopics)
+   ══════════════════════════════════════════════════════════════ */
+.row {
+  position: relative; z-index: 2;
+  display: flex; align-items: flex-start;
+  margin-bottom: 20px;
+  min-height: 56px;
+}
+.row.left { justify-content: flex-end; padding-right: calc(50% + 32px); }
+.row.right { justify-content: flex-start; padding-left: calc(50% + 32px); }
+
+/* Horizontal connector from spine to node */
+.row::before {
+  content: ''; position: absolute; top: 26px;
+  width: 30px; height: 3px; background: #d4d4d4;
+  z-index: 0;
+}
+.row.left::before { right: calc(50% - 1px); }
+.row.right::before { left: calc(50% - 1px); }
+
+/* ══════════════════════════════════════════════════════════════
+   TOPIC NODE (main clickable box)
+   ══════════════════════════════════════════════════════════════ */
+.topic-group { display: flex; flex-direction: column; gap: 8px; max-width: 380px; }
+.row.left .topic-group { align-items: flex-end; }
+.row.right .topic-group { align-items: flex-start; }
+
+.topic-node {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 18px; background: #fff;
+  border: 2px solid #e5e5e5; border-radius: 10px;
+  cursor: pointer; transition: all 0.15s ease;
+  user-select: none; position: relative;
+}
+.topic-node:hover { border-color: #2563eb; box-shadow: 0 2px 12px rgba(37,99,235,0.10); transform: translateY(-1px); }
+.topic-node.done { border-color: #22c55e; background: #f0fdf4; }
+.topic-node.in-progress { border-color: #eab308; background: #fefce8; }
+.topic-node.skip { border-color: #a3a3a3; background: #fafafa; opacity: 0.6; }
+
+.status-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  background: #d4d4d4; transition: background 0.2s;
+}
+.topic-node.done .status-dot { background: #22c55e; }
+.topic-node.in-progress .status-dot { background: #eab308; }
+.topic-node.skip .status-dot { background: #a3a3a3; }
+
+.topic-label { font-size: 14px; font-weight: 600; color: #1a1a1a; white-space: nowrap; }
+
+/* ══════════════════════════════════════════════════════════════
+   SUBTOPIC CHIPS
+   ══════════════════════════════════════════════════════════════ */
+.subtopics { display: flex; flex-wrap: wrap; gap: 6px; }
+.row.left .subtopics { justify-content: flex-end; }
+
+.sub-chip {
+  padding: 4px 12px; font-size: 11px; font-weight: 500;
+  background: #fff; border: 1px solid #e5e5e5; border-radius: 6px;
+  color: #737373; cursor: pointer; transition: all 0.15s;
+}
+.sub-chip:hover { border-color: #2563eb; color: #2563eb; }
+.sub-chip.done { border-color: #86efac; color: #16a34a; background: #f0fdf4; }
+
+/* ══════════════════════════════════════════════════════════════
+   DETAIL OVERLAY (modal)
+   ══════════════════════════════════════════════════════════════ */
+.overlay-bg {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  z-index: 200; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.overlay-bg.open { opacity: 1; pointer-events: all; }
+
+.detail-modal {
+  position: fixed; top: 0; right: -520px;
+  width: 500px; max-width: 90vw; height: 100vh;
+  background: #fff; z-index: 201;
+  box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+  overflow-y: auto; transition: right 0.3s ease;
+}
+.detail-modal.open { right: 0; }
+.detail-inner { padding: 32px; }
+
+.detail-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 36px; height: 36px; border-radius: 8px;
+  border: 1px solid #e5e5e5; background: #fff;
+  font-size: 18px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  color: #737373; transition: all 0.15s;
+}
+.detail-close:hover { background: #f5f5f5; color: #1a1a1a; }
+
+.detail-phase-tag {
+  display: inline-block; padding: 4px 12px; border-radius: 6px;
+  font-size: 11px; font-weight: 700; color: #fff; margin-bottom: 12px;
+}
+
+.detail-title { font-size: 24px; font-weight: 800; color: #0a0a0a; margin-bottom: 8px; }
+
+.detail-status-row {
+  display: flex; gap: 6px; margin-bottom: 20px;
+}
+.status-btn {
+  padding: 5px 14px; border-radius: 6px; font-size: 11px; font-weight: 600;
+  border: 1px solid #e5e5e5; background: #fff; cursor: pointer;
+  transition: all 0.15s; color: #737373;
+}
+.status-btn:hover { border-color: #a3a3a3; }
+.status-btn.active-done { background: #f0fdf4; border-color: #22c55e; color: #16a34a; }
+.status-btn.active-progress { background: #fefce8; border-color: #eab308; color: #a16207; }
+.status-btn.active-skip { background: #f5f5f5; border-color: #a3a3a3; color: #525252; }
+
+.detail-desc {
+  font-size: 15px; line-height: 1.75; color: #404040; margin-bottom: 24px;
+}
+.detail-desc strong { color: #1a1a1a; }
+.detail-desc code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 13px; background: #f5f5f4; padding: 2px 6px;
+  border-radius: 4px; color: #dc2626;
+}
+
+.detail-section-title {
+  font-size: 13px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: #737373; margin: 24px 0 12px;
+  display: flex; align-items: center; gap: 6px;
+}
+.detail-section-title::after {
+  content: ''; flex: 1; height: 1px; background: #e5e5e5;
+}
+
+.resource-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid #f5f5f4;
+}
+.resource-item:last-child { border-bottom: none; }
+.resource-item a {
+  font-size: 14px; color: #1a1a1a; text-decoration: none; transition: color 0.15s;
+}
+.resource-item a:hover { color: #2563eb; }
+.res-tag {
+  padding: 2px 8px; border-radius: 4px; font-size: 10px;
+  font-weight: 700; text-transform: uppercase; flex-shrink: 0;
+}
+.res-tag.article { background: #fef3c7; color: #92400e; }
+.res-tag.video { background: #dbeafe; color: #1e40af; }
+.res-tag.tool { background: #dcfce7; color: #166534; }
+.res-tag.paper { background: #f3e8ff; color: #7c3aed; }
+.res-tag.blog { background: #e0e7ff; color: #3730a3; }
+.res-tag.code { background: #fce7f3; color: #be185d; }
+
+.key-insight {
+  margin: 16px 0; padding: 14px 16px;
+  background: #fffbeb; border-left: 3px solid #f59e0b;
+  border-radius: 0 8px 8px 0; font-size: 14px; color: #78350f;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   FOOTER
+   ══════════════════════════════════════════════════════════════ */
+.footer {
+  text-align: center; padding: 24px; border-top: 1px solid #e5e5e5;
+  font-size: 13px; color: #737373; background: #fff;
+}
+.footer a { color: #2563eb; text-decoration: none; }
+.footer a:hover { text-decoration: underline; }
+
+/* ══════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .roadmap::before { left: 24px; }
+  .row.left, .row.right { padding-left: 56px; padding-right: 16px; justify-content: flex-start; }
+  .row.left .topic-group { align-items: flex-start; }
+  .row.left .subtopics { justify-content: flex-start; }
+  .row::before { left: 22px !important; right: auto !important; }
+  .phase-header { justify-content: flex-start; padding-left: 56px; }
+  .header { padding: 12px 16px; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .header h1 { font-size: 16px; }
+  .detail-modal { width: 100vw; }
+  .topic-label { white-space: normal; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<div class="header">
+  <div class="header-left">
+    <div class="header-brand">@SystemsByAkshay</div>
+    <h1>AI Engineer Roadmap</h1>
+    <div class="header-sub">Click any topic to learn more &amp; track your progress</div>
+  </div>
+  <div class="header-right">
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span class="progress-text" id="progressText">0 / 0</span>
+    </div>
+    <button class="reset-btn" onclick="resetProgress()">Reset</button>
+  </div>
+</div>
+
+<!-- ═══ OVERLAY ═══ -->
+<div class="overlay-bg" id="overlayBg" onclick="closeDetail()"></div>
+<div class="detail-modal" id="detailModal">
+  <button class="detail-close" onclick="closeDetail()">✕</button>
+  <div class="detail-inner" id="detailInner"></div>
+</div>
+
+<!-- ═══ ROADMAP ═══ -->
+<div class="roadmap" id="roadmap"></div>
+
+<!-- ═══ FOOTER ═══ -->
+<div class="footer">
+  Built by <strong>@SystemsByAkshay</strong> ·
+  <a href="https://instagram.com/systemsbyakshay" target="_blank">Instagram</a> ·
+  <a href="../">All Resources</a> ·
+  <a href="https://systemsbyakshay.kit.com/roadmap" target="_blank">Get the Full PDF</a>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   ROADMAP DATA
+   ══════════════════════════════════════════════════════════════ */
+const PHASES = [
+  {
+    id: 's1', label: 'Introduction', time: 'Start here', cls: 'p1',
+    topics: [
+      {
+        id: 'what-is-ai-engineer', label: 'What is an AI Engineer?',
+        subs: ['Product integration', 'Model APIs', 'Production reliability'],
+        desc: `<strong>An AI engineer turns model capability into user-facing software.</strong> They usually are not inventing new architectures or training giant models; they are taking pre-trained systems and making them useful inside real products. The work feels closer to backend and product engineering than to research because the hard part is often orchestration, reliability, and UX.<br><br>A practical AI engineer thinks in terms of <code>input → model → tools → output → feedback</code>. They care about latency, cost, guardrails, observability, and whether the feature actually solves a business problem instead of just looking clever in a demo.`,
+        insight: 'If you are not shipping measurable product behavior, you are probably doing AI experimentation — not AI engineering.',
+        resources: [
+          { type: 'blog', label: 'Anthropic: Building Effective Agents', url: 'https://www.anthropic.com/engineering/building-effective-agents' },
+          { type: 'tool', label: 'OpenAI Platform Overview', url: 'https://platform.openai.com/docs/overview' },
+        ],
+      },
+      {
+        id: 'ai-vs-ml-engineer', label: 'AI Engineer vs ML Engineer',
+        subs: ['Using vs training models', 'Different workflows', 'Different tooling'],
+        desc: `<strong>ML engineers and AI engineers solve different layers of the stack.</strong> ML engineers spend more time on datasets, training loops, feature pipelines, offline evaluation, and model deployment for custom models. AI engineers spend more time on prompting, retrieval, tool use, workflow design, response quality, and production behavior with external or pre-trained models.<br><br>The day-to-day difference is simple: an ML engineer asks <code>How do we train a better model?</code>, while an AI engineer asks <code>How do we build a better system around this model?</code>. In many teams the roles overlap, but the skill emphasis, debugging style, and success metrics are still meaningfully different.`,
+        insight: 'Hiring gets easier when you stop treating AI engineer and ML engineer as interchangeable titles.',
+        resources: [
+          { type: 'article', label: 'Google Machine Learning Crash Course', url: 'https://developers.google.com/machine-learning/crash-course' },
+          { type: 'tool', label: 'OpenAI Platform Overview', url: 'https://platform.openai.com/docs/overview' },
+        ],
+      },
+      {
+        id: 'roles-responsibilities', label: 'Roles & Responsibilities',
+        subs: ['Prompts and workflows', 'RAG and agents', 'Evals and cost control'],
+        desc: `<strong>The daily job is mostly systems work around a probabilistic core.</strong> That includes writing prompts, building RAG pipelines, defining tool schemas, shaping agent loops, creating eval datasets, and instrumenting failures. You also spend real time on boring but crucial problems like retries, caching, rate limits, auth, logging, and budget control.<br><br>In production, an AI engineer owns the full loop: <code>prototype → evaluate → harden → monitor → improve</code>. The strongest engineers are usually the ones who can move from product requirement to stable workflow without getting distracted by model hype.`,
+        insight: 'Your real job is not generating text — it is engineering predictable behavior from an unpredictable component.',
+        resources: [
+          { type: 'article', label: 'OpenAI Evals Guide', url: 'https://platform.openai.com/docs/guides/evals' },
+          { type: 'tool', label: 'Promptfoo', url: 'https://www.promptfoo.dev/' },
+          { type: 'blog', label: 'Anthropic: Building Effective Agents', url: 'https://www.anthropic.com/engineering/building-effective-agents' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 's2', label: 'Common Terminology', time: 'Core concepts', cls: 'p1',
+    topics: [
+      {
+        id: 'how-llms-work', label: 'How LLMs Work',
+        subs: ['Next-token prediction', 'Transformers', 'Attention mental model'],
+        desc: `<strong>An LLM is a machine trained to predict the next token extremely well.</strong> Under the hood, the transformer reads all tokens in context, builds internal representations, and estimates which token is most likely to come next. Self-attention is the key trick: each token can look at other tokens and decide which ones matter for interpreting its meaning.<br><br>The mental model for engineers is <code>compress context, weigh relevance, predict next step</code>. You do not need to memorize matrix math to build with LLMs, but you do need to understand that outputs are pattern completions shaped by context rather than database lookups or symbolic reasoning.`,
+        insight: 'Treat an LLM like a very capable pattern engine, not a truth engine.',
+        resources: [
+          { type: 'blog', label: 'The Illustrated Transformer', url: 'https://jalammar.github.io/illustrated-transformer/' },
+          { type: 'paper', label: 'Attention Is All You Need', url: 'https://arxiv.org/abs/1706.03762' },
+        ],
+      },
+      {
+        id: 'tokens-context', label: 'Tokens & Context Windows',
+        subs: ['Token budgets', 'Window limits', 'Architecture implications'],
+        desc: `<strong>Tokens are the billing unit, memory unit, and failure unit of LLM apps.</strong> Models do not read raw words; they read tokenized chunks, which means prompt size directly affects cost, latency, and whether your input fits at all. In 2026, practical context windows range from roughly <code>128K</code> on many standard models up to <code>1M–2M</code> on long-context systems, but a bigger window does not magically make bad context useful.<br><br>Long context changes architecture, yet it does not remove the need for retrieval, ranking, and summarization. The winning pattern is usually to send less but better context, because irrelevant tokens are expensive noise, not free intelligence.`,
+        insight: 'The cheapest quality improvement in many AI apps is cutting context, not adding more of it.',
+        resources: [
+          { type: 'tool', label: 'OpenAI Tokenizer', url: 'https://platform.openai.com/tokenizer' },
+          { type: 'article', label: 'How to Count Tokens with tiktoken', url: 'https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken' },
+          { type: 'article', label: 'Anthropic Token Counting', url: 'https://docs.anthropic.com/en/docs/build-with-claude/token-counting' },
+        ],
+      },
+      {
+        id: 'inference-training', label: 'Inference vs Training',
+        subs: ['Using models', 'Building models', 'Fine-tuning middle ground'],
+        desc: `<strong>Inference is using a model; training is changing the model.</strong> Most AI engineers live almost entirely on the inference side, where the job is to design prompts, retrieval, tools, and application logic around an existing model. Training large models is expensive, data-hungry, and operationally heavy, which is why most teams should not start there.<br><br>Fine-tuning sits in the middle and can be useful when prompts alone cannot reliably shape style, structure, or narrow task behavior. A good rule is <code>prompt first, retrieval second, fine-tune third, full training almost never</code>.`,
+        insight: 'If your first instinct is to train, you are usually paying model costs to avoid doing systems thinking.',
+        resources: [
+          { type: 'tool', label: 'OpenAI Fine-Tuning Guide', url: 'https://platform.openai.com/docs/guides/fine-tuning' },
+          { type: 'paper', label: 'LoRA: Low-Rank Adaptation of Large Language Models', url: 'https://arxiv.org/abs/2106.09685' },
+          { type: 'article', label: 'AWS: What Is Model Inference?', url: 'https://aws.amazon.com/what-is/model-inference/' },
+        ],
+      },
+      {
+        id: 'what-are-embeddings', label: 'What are Embeddings?',
+        subs: ['Dense vectors', 'Semantic similarity', 'Bridge to search'],
+        desc: `<strong>Embeddings convert text into dense vectors that machines can compare mathematically.</strong> The point is not readability; the point is that semantically similar items land near each other in vector space even when the wording is different. That makes embeddings the workhorse for semantic search, clustering, classification, recommendations, and retrieval.<br><br>The simplest mental model is <code>text in, coordinates out</code>. Once you have coordinates, you can rank by closeness instead of exact keyword overlap, which is why embeddings are the bridge between language and scalable software systems.`,
+        insight: 'Embeddings are where AI stops being a chat trick and starts becoming an information system.',
+        resources: [
+          { type: 'article', label: 'OpenAI Embeddings Guide', url: 'https://platform.openai.com/docs/guides/embeddings' },
+          { type: 'article', label: 'Pinecone: Vector Embeddings', url: 'https://www.pinecone.io/learn/vector-embeddings/' },
+          { type: 'tool', label: 'Sentence Transformers', url: 'https://www.sbert.net/' },
+        ],
+      },
+      {
+        id: 'what-is-rag', label: 'What is RAG?',
+        subs: ['Retrieve then generate', 'Grounded answers', 'Production default pattern'],
+        desc: `<strong>RAG means retrieving relevant information first and then giving it to the model as context for generation.</strong> Instead of hoping the model memorized your company docs, policies, tickets, or knowledge base, you fetch the right material at request time and ground the answer in it. This is the default production pattern because it improves freshness, traceability, and enterprise usefulness without retraining the model.<br><br>A minimal RAG system is <code>query → retrieve → rank → prompt → answer</code>. Real-world quality depends less on the word RAG and more on chunking, metadata, retrieval quality, citation design, and evals on failure cases.`,
+        insight: 'Most bad RAG systems are really bad retrieval systems wearing an LLM badge.',
+        resources: [
+          { type: 'paper', label: 'Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks', url: 'https://arxiv.org/abs/2005.11401' },
+          { type: 'article', label: 'Pinecone: Retrieval-Augmented Generation', url: 'https://www.pinecone.io/learn/retrieval-augmented-generation/' },
+          { type: 'article', label: 'LangChain RAG Concepts', url: 'https://python.langchain.com/docs/concepts/rag/' },
+        ],
+      },
+      {
+        id: 'what-are-agents', label: 'What are AI Agents?',
+        subs: ['Tool-using loops', 'Think-act-observe', 'Workflow autonomy'],
+        desc: `<strong>An AI agent is a program that lets an LLM choose actions in a loop.</strong> The model observes the current state, decides what to do next, calls a tool or sub-step, sees the result, and continues until it reaches a goal or hits a stop condition. Some agents are just structured tool-calling; others are complex multi-step systems with planning, memory, and handoffs.<br><br>The practical model is <code>state → decide → act → observe → repeat</code>. Agents are powerful, but they are also easier to overbuild than most teams realize, so disciplined scoping and strong evals matter more than fancy autonomy language.`,
+        insight: 'Start with a workflow and earn your way to an agent — never the other way around.',
+        resources: [
+          { type: 'blog', label: 'Anthropic: Building Effective Agents', url: 'https://www.anthropic.com/engineering/building-effective-agents' },
+          { type: 'tool', label: 'LangGraph', url: 'https://langchain-ai.github.io/langgraph/' },
+          { type: 'tool', label: 'Model Context Protocol', url: 'https://modelcontextprotocol.io/introduction' },
+        ],
+      },
+      {
+        id: 'prompt-engineering-intro', label: 'Prompt Engineering',
+        subs: ['Instruction design', 'Few-shot examples', 'Output control'],
+        desc: `<strong>Prompt engineering is structured communication with a stochastic system.</strong> Good prompts define role, task, constraints, format, and examples clearly enough that the model can produce useful behavior consistently. The craft is less about secret phrasing and more about technical writing, interface design, and understanding how models respond to context.<br><br>In practice, you are designing a contract like <code>system prompt + user input + examples + tools + output schema</code>. The best prompt engineers are usually the people who can remove ambiguity, not the people who write the longest prompts.`,
+        insight: 'A prompt should read like a spec, not like you are trying to hypnotize the model.',
+        resources: [
+          { type: 'article', label: 'Anthropic Prompt Engineering Overview', url: 'https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview' },
+          { type: 'article', label: 'OpenAI Prompt Engineering Guide', url: 'https://platform.openai.com/docs/guides/prompt-engineering' },
+          { type: 'paper', label: 'Chain-of-Thought Prompting Elicits Reasoning', url: 'https://arxiv.org/abs/2201.11903' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 's3', label: 'Popular AI Models', time: 'Know the landscape', cls: 'p1',
+    topics: [
+      {
+        id: 'openai-models', label: 'OpenAI (GPT Series)',
+        subs: ['GPT-4o family', 'Reasoning models', 'Structured outputs'],
+        desc: `<strong>OpenAI models are often the default choice when teams want strong tooling and fast time to production.</strong> The GPT-4o family is popular for general multimodal work, while the reasoning line is better when you need deeper step-by-step problem solving and are willing to pay extra latency or cost. The ecosystem is mature, especially around function calling, structured outputs, and developer ergonomics.<br><br>The trade-off is familiar: <code>high capability + polished APIs + closed weights + premium pricing</code>. For many startups that is a good bargain early on, but you should still benchmark rather than assuming the brand name wins your use case.`,
+        insight: 'OpenAI is often the fastest path to a working prototype, but not automatically the cheapest path to scale.',
+        resources: [
+          { type: 'tool', label: 'OpenAI Models', url: 'https://platform.openai.com/docs/models' },
+          { type: 'article', label: 'OpenAI Function Calling Guide', url: 'https://platform.openai.com/docs/guides/function-calling' },
+          { type: 'article', label: 'OpenAI Structured Outputs Guide', url: 'https://platform.openai.com/docs/guides/structured-outputs' },
+        ],
+      },
+      {
+        id: 'anthropic-claude', label: 'Anthropic Claude',
+        subs: ['Long context', 'Strong coding', 'Instruction following'],
+        desc: `<strong>Claude models are widely respected for nuance, writing quality, and strong coding assistance.</strong> Sonnet is a common production favorite because it balances quality, speed, and cost well, while Haiku is better for cheaper high-volume tasks and Opus is the premium option for harder reasoning. Claude is also known for long context, careful instruction following, and a safety posture that many teams prefer in enterprise settings.<br><br>Anthropic has also influenced the broader tooling ecosystem through ideas like <code>tool use</code> and the <code>Model Context Protocol</code>. The main trade-off is that, like OpenAI, you are still building on a closed provider and need to evaluate price-performance on your exact workload.`,
+        insight: 'Claude tends to shine when the task rewards nuance and disciplined instruction following, not just raw benchmark bravado.',
+        resources: [
+          { type: 'tool', label: 'Anthropic Claude Models', url: 'https://docs.anthropic.com/en/docs/about-claude/models' },
+          { type: 'article', label: 'Anthropic Tool Use', url: 'https://docs.anthropic.com/en/docs/build-with-claude/tool-use' },
+          { type: 'tool', label: 'Model Context Protocol', url: 'https://modelcontextprotocol.io/introduction' },
+        ],
+      },
+      {
+        id: 'google-gemini', label: 'Google Gemini',
+        subs: ['Massive context', 'Native multimodality', 'Google ecosystem'],
+        desc: `<strong>Gemini is especially attractive when long context and multimodal inputs are central to the product.</strong> Google has pushed hard on context windows in the <code>1M–2M token</code> range, which opens up new patterns for document-heavy and media-heavy workflows. Gemini is also deeply connected to the broader Google ecosystem, which can be a real advantage if your stack already lives there.<br><br>The caveat is that great headline specs do not remove the need for careful product testing. API ergonomics, model consistency, and ecosystem maturity have historically been less predictable than the strongest competitors, so you should validate operational fit before committing heavily.`,
+        insight: 'Gemini is worth serious attention when context length is the bottleneck, but giant windows do not excuse weak system design.',
+        resources: [
+          { type: 'tool', label: 'Gemini API Models', url: 'https://ai.google.dev/gemini-api/docs/models' },
+          { type: 'article', label: 'Gemini Long Context', url: 'https://ai.google.dev/gemini-api/docs/long-context' },
+          { type: 'article', label: 'Gemini Vision', url: 'https://ai.google.dev/gemini-api/docs/vision' },
+        ],
+      },
+      {
+        id: 'open-source-models', label: 'Open Source Models',
+        subs: ['Control and privacy', 'Self-hosting', 'Fast-moving ecosystem'],
+        desc: `<strong>Open-source models trade some frontier quality for control, flexibility, and cost leverage.</strong> Families like Llama, Mistral, Qwen, and DeepSeek have made self-hosted or local deployment increasingly practical for teams that care about privacy, customization, or avoiding per-token API dependence. The ecosystem moves fast, which means the gap with top closed models is often smaller than people assume for narrow product tasks.<br><br>The operational reality is that <code>free weights does not mean free system</code>. You take on infra, scaling, quantization choices, GPU economics, and more hands-on evaluation, but in return you get real ownership over the stack.`,
+        insight: 'Open source wins when control is strategic and your team is willing to operate the machinery, not just admire the ideology.',
+        resources: [
+          { type: 'tool', label: 'Llama', url: 'https://www.llama.com/' },
+          { type: 'tool', label: 'Mistral Docs', url: 'https://docs.mistral.ai/' },
+          { type: 'tool', label: 'Ollama Model Library', url: 'https://ollama.com/library' },
+        ],
+      },
+      {
+        id: 'choosing-right-model', label: 'Choosing the Right Model',
+        subs: ['Quality vs cost', 'Latency vs context', 'Eval your task'],
+        desc: `<strong>There is no best model in the abstract; there is only the best model for a specific workload.</strong> The real decision variables are quality, cost, latency, context size, tool use, safety behavior, and operational stability under your traffic patterns. A model that looks brilliant on a public benchmark can still fail at your formatting rules, retrieval workload, or customer support tone.<br><br>The only defensible approach is <code>define task → build eval set → compare outputs → price the system</code>. Choose with evidence from your product, not with screenshots from a leaderboard or vibes from social media.`,
+        insight: 'If you have not built task-specific evals, you are not choosing a model — you are choosing a brand.',
+        resources: [
+          { type: 'article', label: 'OpenAI Evals Guide', url: 'https://platform.openai.com/docs/guides/evals' },
+          { type: 'tool', label: 'LMArena', url: 'https://lmarena.ai/' },
+          { type: 'code', label: 'OpenAI Evals', url: 'https://github.com/openai/evals' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 's4', label: 'Working with LLM APIs', time: 'Hands-on skills', cls: 'p2',
+    topics: [
+      {
+        id: 'chat-completions', label: 'Chat Completions API',
+        subs: ['System messages', 'Conversation turns', 'Response parsing'],
+        desc: `Most teams meet LLMs through a chat endpoint, but the real skill is learning to treat it like a repeatable interface instead of a magic textbox. A solid request usually starts with a tight <strong>system message</strong>, then a controlled sequence of user and assistant turns that preserve only the context you actually need.<br><br>In production, you also care about <code>stream=true</code>, token counting, retries, and how you parse the response back into your app because the model gives you text, not guarantees. If you can reliably build, inspect, and replay chat requests, you have the core primitive behind copilots, support bots, and internal AI workflows.`,
+        insight: 'If you cannot log and replay a chat request end-to-end, you are not debugging an LLM system — you are guessing.',
+        resources: [
+          { type: 'article', label: 'OpenAI Chat API Reference', url: 'https://platform.openai.com/docs/api-reference/chat' },
+          { type: 'article', label: 'Anthropic Messages API', url: 'https://docs.anthropic.com/en/api/messages' },
+          { type: 'tool', label: 'OpenAI Tokenizer', url: 'https://platform.openai.com/tokenizer' },
+        ],
+      },
+      {
+        id: 'structured-outputs', label: 'Structured Outputs',
+        subs: ['JSON mode', 'Pydantic + Instructor', 'Schema validation'],
+        desc: `Free-form text is fine for demos, but production systems usually need output that fits a known shape. With <strong>structured outputs</strong>, you ask the model for JSON that matches a schema, then validate it with tools like <code>Pydantic</code> or libraries like Instructor before your app trusts it.<br><br>This reduces brittle regex parsing, makes failures explicit, and lets you recover cleanly when the model returns something incomplete. The jump from hobby project to real product often starts the moment you stop treating model output as prose and start treating it as typed data.`,
+        insight: 'The fastest way to make LLM apps less flaky is to stop parsing vibes and start validating schemas.',
+        resources: [
+          { type: 'article', label: 'OpenAI Structured Outputs Guide', url: 'https://platform.openai.com/docs/guides/structured-outputs' },
+          { type: 'tool', label: 'Instructor', url: 'https://python.useinstructor.com/' },
+          { type: 'tool', label: 'Pydantic', url: 'https://docs.pydantic.dev/latest/' },
+        ],
+      },
+      {
+        id: 'function-calling', label: 'Function / Tool Calling',
+        subs: ['Tool schemas', 'Permissions', 'Safe tool design'],
+        desc: `Tool calling lets the model decide when outside action is needed instead of forcing it to hallucinate an answer from memory. You define a schema for actions like <code>search_web</code>, <code>query_orders</code>, or <code>send_email</code>, and the model returns a structured tool request rather than pretending it already did the work.<br><br>Your application then executes the tool, feeds the result back, and lets the model continue with better context. This is the backbone of modern agents, but the engineering work is less about clever prompting and more about permissions, validation, and safe tool design.`,
+        insight: 'Agents become useful when tools are narrow, typed, and permissioned — not when the prompt sounds more autonomous.',
+        resources: [
+          { type: 'article', label: 'OpenAI Function Calling Guide', url: 'https://platform.openai.com/docs/guides/function-calling' },
+          { type: 'article', label: 'Anthropic Tool Use Overview', url: 'https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview' },
+          { type: 'code', label: 'LangGraph', url: 'https://github.com/langchain-ai/langgraph' },
+        ],
+      },
+      {
+        id: 'sampling-params', label: 'Sampling Parameters',
+        subs: ['Temperature', 'Top-p / Top-k', 'Penalties'],
+        desc: `Sampling settings control how adventurous or conservative the model is when choosing the next token. Parameters like <code>temperature</code>, <code>top_p</code>, and penalties change whether the model sticks to the most likely answer or explores more unusual continuations.<br><br>For creative writing, variety can help; for extraction, classification, and tool use, randomness usually hurts more than it helps. That is why many production systems pin <code>temperature=0</code> and only loosen it when they have a measured reason to do so.`,
+        insight: 'Change sampling only when you can name the failure mode you are fixing; otherwise leave it boring and deterministic.',
+        resources: [
+          { type: 'article', label: 'OpenAI Text Generation Guide', url: 'https://platform.openai.com/docs/guides/text-generation' },
+          { type: 'blog', label: 'Hugging Face: How to Generate Text', url: 'https://huggingface.co/blog/how-to-generate' },
+          { type: 'paper', label: 'The Curious Case of Neural Text Degeneration', url: 'https://arxiv.org/abs/1904.09751' },
+        ],
+      },
+      {
+        id: 'streaming-responses', label: 'Streaming Responses',
+        subs: ['Server-sent events', 'Time-to-first-token', 'Partial rendering'],
+        desc: `Streaming sends tokens as they are generated instead of waiting for the full answer to finish. That usually means a user sees useful output in under a second, even when total completion time is still several seconds.<br><br>Under the hood, this is often handled with <strong>server-sent events</strong> and chunked updates that your frontend assembles into a live response. Good streaming UX also means handling partial text, cancellations, and tool events cleanly instead of assuming the model replies in one neat block.`,
+        insight: 'Users judge speed by time-to-first-token more than time-to-last-token, so streaming is a product feature, not just an API feature.',
+        resources: [
+          { type: 'article', label: 'Anthropic Streaming Messages', url: 'https://docs.anthropic.com/en/api/messages-streaming' },
+          { type: 'article', label: 'MDN: Server-Sent Events', url: 'https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events' },
+          { type: 'article', label: 'OpenAI Streaming Guide', url: 'https://platform.openai.com/docs/guides/streaming-responses' },
+        ],
+      },
+      {
+        id: 'managing-costs', label: 'Managing Costs',
+        subs: ['Token budgets', 'Model routing', 'Prompt caching'],
+        desc: `LLM bills are mostly driven by tokens, so cost control starts with understanding how much context you send and how verbose you let the model be. Practical teams route simple work to cheaper models, reserve premium models for hard cases, and cache repeated prompts or context instead of paying to regenerate the same answer.<br><br>Batching, truncation, prompt compression, and response length caps matter more than most people expect. Mature systems also set budget alerts and per-feature thresholds so cost spikes are caught by monitoring, not by finance at the end of the month.`,
+        insight: 'The cheapest token is the one you never send, so trim context before you start shopping for cheaper models.',
+        resources: [
+          { type: 'article', label: 'OpenAI API Pricing', url: 'https://openai.com/api/pricing/' },
+          { type: 'article', label: 'Anthropic Pricing', url: 'https://www.anthropic.com/pricing#api' },
+          { type: 'article', label: 'OpenAI Prompt Caching Guide', url: 'https://platform.openai.com/docs/guides/prompt-caching' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 's5', label: 'AI Safety & Ethics', time: 'Non-negotiable', cls: 'p4',
+    topics: [
+      {
+        id: 'prompt-injection', label: 'Prompt Injection Attacks',
+        subs: ['Instruction override', 'Data exfiltration', 'Indirect injection'],
+        desc: `Prompt injection happens when untrusted content tells the model to ignore its original instructions or reveal data it should never expose. The uncomfortable truth is that models do not reliably separate developer intent from user-supplied text, especially when both arrive in the same context window.<br><br>That means you cannot solve this with a clever prompt alone; you need <strong>least-privilege tools</strong>, strict output validation, and isolation between trusted instructions and untrusted content. Treat every retrieved document, web page, and user message as potentially adversarial.`,
+        insight: 'Never let the model be the final authority on whether incoming text is safe — make the surrounding system enforce safety.',
+        resources: [
+          { type: 'article', label: 'OWASP LLM Prompt Injection Prevention', url: 'https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html' },
+          { type: 'blog', label: 'Simon Willison on Prompt Injection', url: 'https://simonwillison.net/tags/prompt-injection/' },
+          { type: 'paper', label: 'Prompt Injection Attacks Against LLM-Integrated Applications', url: 'https://arxiv.org/abs/2306.05499' },
+        ],
+      },
+      {
+        id: 'content-moderation', label: 'Content Moderation',
+        subs: ['Input filtering', 'Output checks', 'Escalation paths'],
+        desc: `If users can type anything and the model can say anything back, moderation is part of the product whether you planned for it or not. A production system usually checks both input and output for harmful content, policy violations, and risky edge cases before the answer is shown or an action is executed.<br><br>You can use provider tools, custom classifiers, or a layered pipeline, but the important part is consistency and clear escalation paths. Moderation is not censorship theater; it is basic risk management for public-facing AI.`,
+        insight: 'Moderate both directions: what goes into the model and what comes out of it.',
+        resources: [
+          { type: 'article', label: 'OpenAI Moderation Guide', url: 'https://platform.openai.com/docs/guides/moderation' },
+          { type: 'article', label: 'Anthropic Safety Center', url: 'https://www.anthropic.com/safety' },
+          { type: 'tool', label: 'Perspective API', url: 'https://perspectiveapi.com/' },
+        ],
+      },
+      {
+        id: 'bias-fairness', label: 'Bias & Fairness',
+        subs: ['Demographic testing', 'Output auditing', 'Legal exposure'],
+        desc: `Models learn patterns from human-generated data, which means they also absorb distortions, stereotypes, and historical imbalances. In practice, fairness work means testing outputs across demographic groups, tracking where performance degrades, and auditing real usage instead of assuming benchmark scores tell the whole story.<br><br>This is not just an abstract ethics topic; biased systems damage trust, create legal exposure, and quietly fail the people who most need them to work. If your app makes decisions or recommendations, fairness has to be an engineering routine, not a press-release value.`,
+        insight: 'You do not discover bias by believing your intentions are good — you discover it by measuring behavior across groups.',
+        resources: [
+          { type: 'paper', label: 'Gender Shades', url: 'https://proceedings.mlr.press/v81/buolamwini18a.html' },
+          { type: 'article', label: 'Google ML Fairness Course', url: 'https://developers.google.com/machine-learning/crash-course/fairness' },
+          { type: 'article', label: 'NIST AI Risk Management Framework', url: 'https://www.nist.gov/itl/ai-risk-management-framework' },
+        ],
+      },
+      {
+        id: 'security-privacy', label: 'Security & Privacy',
+        subs: ['PII handling', 'Data retention', 'Compliance (GDPR/HIPAA)'],
+        desc: `Every prompt is a data handling decision, which means privacy starts long before the API call. If you send raw customer messages, medical notes, or internal documents to a model without understanding retention, logging, and vendor policy, you are making a security choice whether you meant to or not.<br><br>Practical teams minimize sensitive data, redact <code>PII</code>, isolate secrets from prompts, and map model usage to rules like GDPR or HIPAA before launch. The right question is not "Can the model do this?" but "Can our system do this safely and compliantly?"`,
+        insight: 'Assume every prompt could end up in logs, dashboards, or incident reviews, and design your data flow accordingly.',
+        resources: [
+          { type: 'article', label: 'OpenAI Data Controls FAQ', url: 'https://openai.com/policies/how-your-data-is-used-to-improve-model-performance/' },
+          { type: 'article', label: 'NIST Privacy Framework', url: 'https://www.nist.gov/privacy-framework' },
+          { type: 'article', label: 'GDPR Overview', url: 'https://gdpr.eu/what-is-gdpr/' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 's6', label: 'Embeddings & Vector Databases', time: 'The search layer', cls: 'p2',
+    topics: [
+      {
+        id: 'embedding-models', label: 'Embedding Models',
+        subs: ['OpenAI', 'Cohere', 'Sentence Transformers'],
+        desc: `Embedding models turn text into vectors so your system can compare meaning instead of just matching exact words. You will see hosted options like OpenAI and Cohere, plus open-source choices such as <strong>Sentence Transformers</strong> and <strong>BGE</strong> that give you more control over hosting and tuning.<br><br>In real projects, model choice matters less than people think at the start; chunking quality, metadata, and evaluation usually dominate early results. Start with a cheap, solid default and only upgrade when your retrieval evals prove embeddings are the bottleneck.`,
+        insight: 'Do not upgrade your embedding model because it sounds smarter — upgrade it because your retrieval metrics say it is the limiting factor.',
+        resources: [
+          { type: 'article', label: 'OpenAI Embeddings Guide', url: 'https://platform.openai.com/docs/guides/embeddings' },
+          { type: 'article', label: 'Cohere Embeddings Docs', url: 'https://docs.cohere.com/docs/embeddings' },
+          { type: 'code', label: 'Sentence Transformers', url: 'https://www.sbert.net/' },
+        ],
+      },
+      {
+        id: 'vector-databases', label: 'Vector Databases',
+        subs: ['Pinecone', 'Qdrant', 'pgvector'],
+        desc: `A vector database is built to store embeddings and retrieve nearby vectors quickly, even when you have millions of them. Hosted platforms like Pinecone and Weaviate reduce operational work, while self-hosted tools like Qdrant or <code>pgvector</code> fit teams that want more control or already live in their own infrastructure.<br><br>For early products, the database choice is rarely the main source of quality. Retrieval quality usually depends more on chunking, metadata filters, and evaluation discipline than on which logo is on the database homepage.`,
+        insight: 'Pick the vector store your team can operate confidently; your chunking strategy will matter more than your vendor choice.',
+        resources: [
+          { type: 'article', label: 'Pinecone: What Is a Vector Database?', url: 'https://www.pinecone.io/learn/vector-database/' },
+          { type: 'article', label: 'Qdrant Documentation', url: 'https://qdrant.tech/documentation/' },
+          { type: 'code', label: 'pgvector', url: 'https://github.com/pgvector/pgvector' },
+        ],
+      },
+      {
+        id: 'indexing-embeddings', label: 'Indexing & Storing Embeddings',
+        subs: ['Batch processing', 'Metadata', 'Incremental updates'],
+        desc: `Indexing is the unglamorous pipeline work that makes retrieval systems actually usable. You split documents into chunks, generate vectors in batches, attach metadata like source, section, and timestamp, and store everything in a form that can be updated without rebuilding the world.<br><br>As your corpus grows, you also need incremental refreshes, deduplication, backfills, and index settings that trade memory, speed, and recall. This is why strong AI products often feel like data engineering projects wearing an LLM badge.`,
+        insight: 'Bad indexing silently poisons good models, so treat your embedding pipeline like production data infrastructure.',
+        resources: [
+          { type: 'blog', label: 'Pinecone Chunking Strategies', url: 'https://www.pinecone.io/learn/chunking-strategies/' },
+          { type: 'article', label: 'OpenAI Cookbook: QA Using Embeddings', url: 'https://cookbook.openai.com/examples/question_answering_using_embeddings' },
+          { type: 'article', label: 'Qdrant Concepts', url: 'https://qdrant.tech/documentation/concepts/' },
+        ],
+      },
+      {
+        id: 'similarity-search', label: 'Performing Similarity Search',
+        subs: ['Approximate nearest neighbor', 'Hybrid search', 'Filtering'],
+        desc: `Similarity search takes a query, converts it into an embedding, and finds the nearest stored vectors based on a distance metric such as cosine similarity. Exact search is simple but expensive at scale, so most real systems use approximate nearest neighbor indexes that trade a tiny amount of recall for a massive speedup.<br><br>The best systems also combine vector search with filters and keyword signals, because meaning alone is not always enough. Hybrid search is often what turns "kind of relevant" results into "actually useful" results.`,
+        insight: 'Pure vector search is rarely the finish line; the best retrieval systems blend semantic similarity with metadata and keywords.',
+        resources: [
+          { type: 'code', label: 'FAISS', url: 'https://github.com/facebookresearch/faiss' },
+          { type: 'article', label: 'Weaviate Hybrid Search', url: 'https://weaviate.io/developers/weaviate/search/hybrid' },
+          { type: 'article', label: 'Elasticsearch kNN Search', url: 'https://www.elastic.co/guide/en/elasticsearch/reference/current/knn-search.html' },
+        ],
+      },
+      {
+        id: 'embedding-usecases', label: 'Embedding Use Cases',
+        subs: ['Semantic search', 'Classification', 'Recommendations'],
+        desc: `Embeddings are useful anywhere you need a system to reason about similarity, grouping, or meaning without hard-coded rules. That includes semantic search, recommendation, clustering, deduplication, anomaly detection, and lightweight classification where nearest-neighbor baselines can be surprisingly strong.<br><br>The reason embeddings feel like a Swiss Army knife is that one representation can support many downstream tasks with very little extra modeling. Before training something custom, it is often worth asking whether a good embedding space plus a simple retrieval or ranking layer already solves the problem.`,
+        insight: 'Try the embedding baseline before inventing a complex model — simple vector workflows beat overengineered pipelines more often than people admit.',
+        resources: [
+          { type: 'code', label: 'Sentence Transformers Examples', url: 'https://www.sbert.net/examples/applications/README.html' },
+          { type: 'article', label: 'OpenAI Cookbook', url: 'https://cookbook.openai.com/' },
+          { type: 'article', label: 'Cohere Embeddings Overview', url: 'https://docs.cohere.com/docs/embeddings' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 's7', label: 'RAG (Retrieval-Augmented Generation)', time: 'The production workhorse', cls: 'p2',
+    topics: [
+      {
+        id: 'rag-usecases', label: 'RAG Use Cases',
+        subs: ['Support bots', 'Knowledge search', 'Document Q&A'],
+        desc: `Retrieval-augmented generation is the pattern I reach for when the answer already exists somewhere in the business, but nobody can reliably find it fast. Instead of stuffing knowledge into the model once, you fetch the right evidence at request time and let the model synthesize it.<br><br>That makes RAG a strong fit for customer support bots, internal knowledge search, document Q&A, legal research, and code documentation assistants. <strong>In production, RAG is the workhorse</strong> because it handles changing information, private data, and source citations without retraining a model every week.`,
+        insight: 'If the answer should come with proof, use RAG before you even think about fine-tuning.',
+        resources: [
+          { type: 'paper', label: 'Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks', url: 'https://arxiv.org/abs/2005.11401' },
+          { type: 'article', label: 'Pinecone: What is Retrieval-Augmented Generation?', url: 'https://www.pinecone.io/learn/retrieval-augmented-generation/' },
+          { type: 'tool', label: 'LangChain RAG Tutorial', url: 'https://python.langchain.com/docs/tutorials/rag/' },
+        ],
+      },
+      {
+        id: 'rag-vs-finetuning', label: 'RAG vs Fine-Tuning',
+        subs: ['Dynamic data', 'Behavior tuning', 'Cost tradeoffs'],
+        desc: `Use <code>RAG</code> when the hard problem is knowledge access: fresh documents, private files, changing policies, or anything users will ask about tomorrow that did not exist today. Use fine-tuning when the hard problem is consistent behavior: output style, tool selection habits, domain-specific formatting, or a repeatable voice.<br><br>RAG is usually cheaper, faster to iterate, and easier to debug because you can inspect what was retrieved. Fine-tuning is more permanent, slower to update, and easy to misuse when the real issue is bad retrieval or weak prompts.`,
+        insight: 'Most teams should start with RAG, then fine-tune only after they can clearly name the behavior gap retrieval cannot solve.',
+        resources: [
+          { type: 'tool', label: 'OpenAI Fine-Tuning Guide', url: 'https://platform.openai.com/docs/guides/fine-tuning' },
+          { type: 'paper', label: 'Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks', url: 'https://arxiv.org/abs/2005.11401' },
+        ],
+      },
+      {
+        id: 'chunking-strategies', label: 'Chunking Strategies',
+        subs: ['Fixed-size chunks', 'Semantic splits', 'Structure-aware chunking'],
+        desc: `Chunking decides what your retriever is allowed to see, which means it quietly controls answer quality long before the model starts writing. Fixed-size chunks are fast and simple, but real systems often improve when you split by headings, markdown sections, speaker turns, or semantic boundaries.<br><br>Bad chunks create a chain reaction: the wrong text gets retrieved, the reranker has nothing good to rescue, and the model confidently answers from weak context. <strong>No amount of model tuning fixes broken chunks</strong>; if retrieval starts with garbage, generation just makes prettier garbage.`,
+        insight: 'Treat chunking like schema design for your knowledge base, not like a preprocessing afterthought.',
+        resources: [
+          { type: 'tool', label: 'LangChain Text Splitters', url: 'https://python.langchain.com/docs/concepts/text_splitters/' },
+          { type: 'tool', label: 'LlamaIndex Node Parsers', url: 'https://docs.llamaindex.ai/en/stable/module_guides/loading/node_parsers/' },
+        ],
+      },
+      {
+        id: 'retrieval-patterns', label: 'Retrieval Process',
+        subs: ['Hybrid search', 'Reranking', 'Query rewriting'],
+        desc: `Production retrieval is rarely a single vector search call and done. The strong baseline is <code>hybrid retrieve → rerank → generate</code>: combine dense and sparse search, rerank the candidates with a stronger model, then send only the best evidence forward.<br><br>Query rewriting helps when users ask vague, shorthand, or context-poor questions that do not match the source material well. If you skip reranking or hybrid search too early, you usually end up blaming the model for a retrieval problem.`,
+        insight: 'When answers feel randomly smart or dumb, the culprit is usually retrieval ranking, not the LLM.',
+        resources: [
+          { type: 'tool', label: 'Pinecone Hybrid Search Guide', url: 'https://docs.pinecone.io/guides/search/hybrid-search' },
+          { type: 'tool', label: 'Cohere Rerank Documentation', url: 'https://docs.cohere.com/docs/reranking-with-cohere' },
+          { type: 'tool', label: 'LangChain Self-Query Retriever', url: 'https://python.langchain.com/docs/how_to/self_query/' },
+        ],
+      },
+      {
+        id: 'rag-generation', label: 'Generation Layer',
+        subs: ['Context injection', 'Citations', 'Hallucination checks'],
+        desc: `The generation layer is where the system turns retrieved evidence into something a human can actually use. This is where prompt structure, context ordering, citation extraction, and refusal behavior matter because the model now has to answer, not just search.<br><br>A good generator knows how to say <strong>"I do not have enough evidence"</strong>, point to sources, and separate grounded facts from inferred guesses. It is the last 20% of the pipeline technically, but it is the 100% users remember emotionally.`,
+        insight: 'Users judge your whole RAG system by the final answer format, not by how elegant the retriever was.',
+        resources: [
+          { type: 'tool', label: 'OpenAI Prompt Engineering Guide', url: 'https://platform.openai.com/docs/guides/prompt-engineering' },
+          { type: 'tool', label: 'LlamaIndex Citation Query Engine', url: 'https://docs.llamaindex.ai/en/stable/examples/query_engine/citation_query_engine/' },
+        ],
+      },
+      {
+        id: 'rag-evaluation', label: 'RAG Evaluation',
+        subs: ['Retrieval metrics', 'Groundedness', 'Latency'],
+        desc: `RAG evaluation needs two scoreboards: one for retrieval quality and one for final answers. Measure whether the right documents were found, whether the answer is correct and grounded, and whether latency is still acceptable for real users.<br><br>The most useful starting point is a test set of 50–100 real queries pulled from support tickets, team Slack messages, or search logs. Run those evals on every change, because <code>one tiny tweak</code> to chunking or prompts can quietly improve one class of questions while breaking another.`,
+        insight: 'If you are not evaluating retrieval separately from generation, you are debugging with a blindfold on.',
+        resources: [
+          { type: 'tool', label: 'RAGAS Documentation', url: 'https://docs.ragas.io/' },
+          { type: 'tool', label: 'LangSmith Evaluation Docs', url: 'https://docs.smith.langchain.com/evaluation' },
+          { type: 'code', label: 'OpenAI Evals', url: 'https://github.com/openai/evals' },
+        ],
+      },
+      {
+        id: 'rag-frameworks', label: 'RAG Frameworks',
+        subs: ['LangChain', 'LlamaIndex', 'Haystack'],
+        desc: `Frameworks are great for getting a first RAG system running without rebuilding loaders, retrievers, caches, and prompt plumbing from scratch. LangChain, LlamaIndex, and Haystack all help you iterate quickly, compare patterns, and avoid reinventing basic infrastructure.<br><br>The downside is that abstractions can hide the exact failure mode you need to inspect when quality drops in production. My rule is simple: use frameworks to move fast, but make sure you can still see the raw <code>chunks, scores, prompts, and outputs</code> underneath.`,
+        insight: 'A framework is helpful until it becomes a wall between you and the failure you need to understand.',
+        resources: [
+          { type: 'tool', label: 'LangChain Documentation', url: 'https://python.langchain.com/docs/introduction/' },
+          { type: 'tool', label: 'LlamaIndex Documentation', url: 'https://docs.llamaindex.ai/' },
+          { type: 'tool', label: 'Haystack Documentation', url: 'https://docs.haystack.deepset.ai/' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 's8', label: 'AI Agents', time: 'The automation layer', cls: 'p3',
+    topics: [
+      {
+        id: 'agent-usecases', label: 'Agent Use Cases',
+        subs: ['Tool use', 'Multi-step tasks', 'Workflow automation'],
+        desc: `Agents create value when the task is not just "answer a question" but "figure out what to do next, use tools, and keep going until the job is done." That is why they show up in customer support escalations, code generation, data analysis, research assistants, and workflow automation.<br><br>The common thread is multi-step reasoning plus action: search, call an API, inspect the result, try again, and then summarize for the user. If there is no real tool use or stateful decision-making, a simple prompt pipeline is usually cheaper and more reliable.`,
+        insight: 'Use agents for open-ended work loops, not as a fancy wrapper around a single prompt.',
+        resources: [
+          { type: 'blog', label: 'Anthropic: Building Effective Agents', url: 'https://www.anthropic.com/engineering/building-effective-agents' },
+          { type: 'paper', label: 'ReAct: Synergizing Reasoning and Acting in Language Models', url: 'https://arxiv.org/abs/2210.03629' },
+        ],
+      },
+      {
+        id: 'react-pattern', label: 'ReAct Pattern',
+        subs: ['Think', 'Act', 'Observe'],
+        desc: `The ReAct loop is the core agent pattern: think about the next step, act with a tool, observe the result, then repeat. Nearly every modern agent framework is an abstraction over this same cycle, even if it hides it behind cleaner APIs.<br><br>That is why I recommend building one yourself first with a plain <code>while</code> loop and a few tools. Once you understand the loop directly, frameworks feel like leverage instead of magic.`,
+        insight: 'If you cannot explain your agent as a think-act-observe loop, you probably do not understand why it fails.',
+        resources: [
+          { type: 'paper', label: 'ReAct Paper', url: 'https://arxiv.org/abs/2210.03629' },
+          { type: 'tool', label: 'LangGraph Documentation', url: 'https://langchain-ai.github.io/langgraph/' },
+        ],
+      },
+      {
+        id: 'tool-calling-agents', label: 'Tool Calling for Agents',
+        subs: ['Schemas', 'Validation', 'Error handling'],
+        desc: `Tool calling works best when tools are defined like APIs, not vague suggestions in a prompt. Give the model a schema, let it choose the tool, validate every argument before execution, and return structured results it can reason over.<br><br>In real systems, tools fail all the time: bad inputs, timeouts, missing permissions, stale data, and flaky downstream services. A robust agent handles those failures as part of normal operation instead of collapsing the moment one function call goes sideways.`,
+        insight: 'The fastest way to make agents safer is to distrust tool arguments by default.',
+        resources: [
+          { type: 'tool', label: 'OpenAI Function Calling Guide', url: 'https://platform.openai.com/docs/guides/function-calling' },
+          { type: 'tool', label: 'Anthropic Tool Use Overview', url: 'https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/overview' },
+        ],
+      },
+      {
+        id: 'agent-frameworks', label: 'Agent Frameworks',
+        subs: ['LangGraph', 'Assistants APIs', 'Crew orchestration'],
+        desc: `Agent frameworks matter most when you need memory, retries, branching, checkpoints, or human review in the loop. LangGraph is strong when your agent behaves like a state machine, OpenAI's agent tooling is handy for simpler hosted workflows, and CrewAI or AutoGen can help when you want role-based collaboration.<br><br>Still, a surprising number of good agents are just a well-instrumented loop plus clean tools. Start simple, then earn framework complexity when the workflow actually demands it.`,
+        insight: 'Choose the smallest abstraction that still lets you debug every step.',
+        resources: [
+          { type: 'tool', label: 'LangGraph Documentation', url: 'https://langchain-ai.github.io/langgraph/' },
+          { type: 'tool', label: 'OpenAI Agents Guide', url: 'https://platform.openai.com/docs/guides/agents' },
+          { type: 'tool', label: 'CrewAI Documentation', url: 'https://docs.crewai.com/' },
+        ],
+      },
+      {
+        id: 'multi-agent', label: 'Multi-Agent Systems',
+        subs: ['Router pattern', 'Pipelines', 'Debate systems'],
+        desc: `Multi-agent systems are useful when one agent really does not have the right shape for every step of the job. Common patterns include a router that sends tasks to specialists, a pipeline where each agent owns a stage, or a debate setup where multiple agents critique a draft before a final answer is produced.<br><br>The tradeoff is brutal: more agents means more prompts, more context passing, more latency, and more places for responsibility to get fuzzy. Use multiple agents only when specialization clearly beats a single well-designed agent with tools.`,
+        insight: 'Most multi-agent systems fail not because the models are weak, but because the coordination logic is vague.',
+        resources: [
+          { type: 'paper', label: 'AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation', url: 'https://arxiv.org/abs/2308.08155' },
+          { type: 'blog', label: 'Anthropic: Building Effective Agents', url: 'https://www.anthropic.com/engineering/building-effective-agents' },
+          { type: 'tool', label: 'AutoGen Documentation', url: 'https://microsoft.github.io/autogen/' },
+        ],
+      },
+      {
+        id: 'mcp-protocol', label: 'Model Context Protocol (MCP)',
+        subs: ['Open standard', 'Tool interoperability', 'Shared integrations'],
+        desc: `Model Context Protocol is an open standard for connecting models to tools, data sources, and actions in a consistent way. The big idea is simple but powerful: build one MCP server and multiple AI clients can use it without bespoke glue code for each platform.<br><br>That makes MCP feel like <strong>USB for AI tooling</strong> — one interface, many compatible devices. For teams building internal developer tools or enterprise integrations, that interoperability is a huge force multiplier.`,
+        insight: 'If you are building the same tool integration twice for different AI clients, you probably want MCP.',
+        resources: [
+          { type: 'tool', label: 'Model Context Protocol Introduction', url: 'https://modelcontextprotocol.io/introduction' },
+          { type: 'code', label: 'MCP Specification', url: 'https://github.com/modelcontextprotocol/specification' },
+          { type: 'tool', label: 'Anthropic MCP Docs', url: 'https://docs.anthropic.com/en/docs/agents-and-tools/mcp' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 's9', label: 'Multimodal AI', time: 'Beyond text', cls: 'p3',
+    topics: [
+      {
+        id: 'multimodal-overview', label: 'Multimodal AI Overview',
+        subs: ['Text + image', 'Audio + video', 'Unified interfaces'],
+        desc: `Multimodal models can reason over more than text, which means the interface to AI stops being a chat box and starts becoming a general-purpose input layer. Modern systems can combine text, images, audio, and sometimes video in a single workflow without stitching together five separate models by hand.<br><br>That unlocks practical product ideas: screen-aware copilots, visual QA, voice assistants, document processors, and media search. <strong>The shift is not just better models</strong>; it is a wider surface area for software design.`,
+        insight: 'Once a model can see and hear, product design becomes less about prompts and more about input orchestration.',
+        resources: [
+          { type: 'tool', label: 'OpenAI Vision Guide', url: 'https://platform.openai.com/docs/guides/vision' },
+          { type: 'tool', label: 'Gemini API Documentation', url: 'https://ai.google.dev/gemini-api/docs' },
+          { type: 'tool', label: 'Anthropic Vision Docs', url: 'https://docs.anthropic.com/en/docs/build-with-claude/vision' },
+        ],
+      },
+      {
+        id: 'image-understanding', label: 'Image Understanding',
+        subs: ['OCR', 'Charts', 'Scene analysis'],
+        desc: `Image understanding is what happens when you stop treating pictures as files and start treating them as input data the model can reason about. Vision models can read screenshots, parse charts, extract text, describe scenes, and connect visual evidence to a text instruction in one request.<br><br>The practical move is simple: send the image alongside a precise prompt about what matters. Better prompts still matter here, but the winning habit is being explicit about the task — <code>read this chart</code>, <code>extract these fields</code>, <code>compare these two screenshots</code>.`,
+        insight: 'Vision models are most useful when you ask for a job, not a description.',
+        resources: [
+          { type: 'tool', label: 'OpenAI Vision Guide', url: 'https://platform.openai.com/docs/guides/vision' },
+          { type: 'tool', label: 'Gemini Vision Documentation', url: 'https://ai.google.dev/gemini-api/docs/vision' },
+        ],
+      },
+      {
+        id: 'image-generation', label: 'Image Generation',
+        subs: ['Text-to-image', 'Mockups', 'Creative iteration'],
+        desc: `Image generation turns language into drafts, concepts, and assets faster than most design workflows can start from scratch. That makes it useful for content creation, product mockups, ad concepts, storyboarding, and fast visual prototyping long before a final designer-polished version exists.<br><br>The real engineering skill is not writing poetic prompts forever; it is building systems around generation: templates, style controls, approvals, and versioning. Treat generated images like creative infrastructure, not party tricks.`,
+        insight: 'The best use of image generation is compressing iteration time, not replacing taste.',
+        resources: [
+          { type: 'tool', label: 'OpenAI Images Guide', url: 'https://platform.openai.com/docs/guides/images' },
+          { type: 'code', label: 'Stable Diffusion Repository', url: 'https://github.com/CompVis/stable-diffusion' },
+          { type: 'tool', label: 'Stability AI API Docs', url: 'https://platform.stability.ai/docs/api-reference' },
+        ],
+      },
+      {
+        id: 'audio-processing', label: 'Audio Processing',
+        subs: ['Speech-to-text', 'Text-to-speech', 'Voice UX'],
+        desc: `Audio AI covers both sides of the interface: turning speech into text and turning text back into natural audio. That powers transcription, meeting notes, voice assistants, call analytics, accessibility features, and hands-free products where typing is the wrong interface.<br><br>In practice, the hard parts are not just accuracy but interruptions, accents, background noise, timing, and latency. The best voice systems feel less like magic and more like disciplined engineering around <code>streaming, retries, buffering, and fallbacks</code>.`,
+        insight: 'Voice products win or lose on latency and interruption handling more than raw transcription quality.',
+        resources: [
+          { type: 'code', label: 'OpenAI Whisper', url: 'https://github.com/openai/whisper' },
+          { type: 'tool', label: 'OpenAI Text-to-Speech Guide', url: 'https://platform.openai.com/docs/guides/text-to-speech' },
+          { type: 'tool', label: 'ElevenLabs Documentation', url: 'https://elevenlabs.io/docs' },
+        ],
+      },
+      {
+        id: 'video-understanding', label: 'Video Understanding',
+        subs: ['Frame extraction', 'Summarization', 'Search'],
+        desc: `Video understanding is image understanding stretched across time. You can either sample frames and analyze them with vision models, or use models that handle video more natively for tasks like summarization, moderation, indexing, and semantic search.<br><br>The main engineering trick is deciding what to preserve from the timeline: key frames, transcripts, scene changes, or motion cues. If you ignore time structure, your system often answers correctly about what appeared, but poorly about what happened.`,
+        insight: 'For video systems, temporal context is the difference between recognition and understanding.',
+        resources: [
+          { type: 'tool', label: 'Gemini Video Understanding', url: 'https://ai.google.dev/gemini-api/docs/video-understanding' },
+          { type: 'tool', label: 'FFmpeg Documentation', url: 'https://ffmpeg.org/ffmpeg.html' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 's10', label: 'Production & Dev Tools', time: 'Ship & maintain', cls: 'p4',
+    topics: [
+      {
+        id: 'eval-systems', label: 'Evaluation Systems',
+        subs: ['Offline evals', 'Online evals', 'Human review'],
+        desc: `Good AI products use three layers of evaluation because no single metric catches every failure. Offline evals in CI catch regressions before release, online evals sample real production behavior, and human review spots the subtle quality issues metrics miss.<br><br>That layered system is what turns demos into dependable products. Without evals, every model change feels like hope disguised as engineering.`,
+        insight: 'If you only evaluate in production, you are shipping experiments; if you only evaluate offline, you are missing reality.',
+        resources: [
+          { type: 'code', label: 'OpenAI Evals', url: 'https://github.com/openai/evals' },
+          { type: 'tool', label: 'LangSmith Evaluation Docs', url: 'https://docs.smith.langchain.com/evaluation' },
+          { type: 'tool', label: 'Braintrust Documentation', url: 'https://www.braintrust.dev/docs' },
+        ],
+      },
+      {
+        id: 'observability', label: 'Observability & Tracing',
+        subs: ['Traces', 'Cost tracking', 'Latency alerts'],
+        desc: `AI observability means tracing every important step: model calls, retrieved context, tool executions, agent decisions, token usage, latency, and cost. When something breaks, you need to inspect the full path from user input to final output, not just the final message.<br><br>Tools like LangSmith, Langfuse, and Braintrust help you see those traces and compare system behavior over time. In production, the winning habit is simple: log enough detail to debug quality problems without waiting for a user to write a bug report.`,
+        insight: 'If you cannot replay a bad answer with its exact context, you do not have observability — you have vibes.',
+        resources: [
+          { type: 'tool', label: 'LangSmith Documentation', url: 'https://docs.smith.langchain.com/' },
+          { type: 'tool', label: 'Langfuse Documentation', url: 'https://langfuse.com/docs' },
+          { type: 'tool', label: 'Braintrust Documentation', url: 'https://www.braintrust.dev/docs' },
+        ],
+      },
+      {
+        id: 'ai-code-editors', label: 'AI Code Editors',
+        subs: ['Cursor', 'Windsurf', 'Claude Code'],
+        desc: `AI-native code editors change development by making context retrieval part of the environment instead of something you manually curate in a browser tab. They can inspect files, suggest edits, explain diffs, refactor code, and keep more of the local codebase in working memory than copy-paste workflows ever could.<br><br>That does not remove the need for engineering judgment; it amplifies it. The best developers use these tools as force multipliers for navigation, iteration, and debugging — not as permission to stop thinking.`,
+        insight: 'AI editors are strongest when you use them to compress the boring parts of coding, not outsource responsibility.',
+        resources: [
+          { type: 'tool', label: 'Cursor', url: 'https://cursor.com/' },
+          { type: 'tool', label: 'Windsurf Editor', url: 'https://windsurf.com/editor' },
+          { type: 'tool', label: 'Claude Code Documentation', url: 'https://docs.anthropic.com/en/docs/claude-code' },
+        ],
+      },
+      {
+        id: 'context-engineering', label: 'Context Engineering',
+        subs: ['Prompt design', 'Window management', 'Information routing'],
+        desc: `Context engineering is the discipline of deciding what the model should see, in what order, and in what format, for a specific task. That includes prompt design, retrieval, memory selection, tool results, conversation trimming, and managing the finite context window like a scarce resource.<br><br>This is the real craft behind reliable AI systems because models do not fail only from weak intelligence; they fail from bad inputs. Strong context beats clever prompting almost every time.`,
+        insight: 'The highest-leverage AI skill is not prompt writing — it is deciding what deserves to be in the prompt at all.',
+        resources: [
+          { type: 'tool', label: 'OpenAI Prompt Engineering Guide', url: 'https://platform.openai.com/docs/guides/prompt-engineering' },
+          { type: 'tool', label: 'Anthropic Prompt Engineering Overview', url: 'https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview' },
+          { type: 'tool', label: 'Gemini Long Context Guide', url: 'https://ai.google.dev/gemini-api/docs/long-context' },
+        ],
+      },
+      {
+        id: 'deployment-scaling', label: 'Deployment & Scaling',
+        subs: ['Model serving', 'Rate limiting', 'Autoscaling'],
+        desc: `Shipping AI to production means solving normal backend problems again, but with more expensive requests and weirder latency patterns. You need model serving, API gateways, caching, rate limiting, retries, batching, autoscaling, and cost controls before a prototype becomes a dependable system.<br><br>Tools like vLLM and TGI help with self-hosted serving, while gateway layers help manage traffic, quotas, and provider fallback. The big lesson is that AI systems do not magically escape infrastructure — they just make infrastructure more visible.`,
+        insight: 'The moment usage grows, your AI app becomes an ops problem faster than it becomes a modeling problem.',
+        resources: [
+          { type: 'tool', label: 'vLLM Documentation', url: 'https://docs.vllm.ai/' },
+          { type: 'tool', label: 'Hugging Face Text Generation Inference', url: 'https://huggingface.co/docs/text-generation-inference/en/index' },
+          { type: 'tool', label: 'LiteLLM Documentation', url: 'https://docs.litellm.ai/docs/' },
+        ],
+      },
+    ],
+  },
+];
+
+/* ══════════════════════════════════════════════════════════════
+   RENDER ENGINE
+   ══════════════════════════════════════════════════════════════ */
+const roadmapEl = document.getElementById('roadmap');
+let allTopicIds = [];
+
+function render() {
+  roadmapEl.innerHTML = '';
+  let side = 'right';
+
+  PHASES.forEach(phase => {
+    // Phase header
+    const phHeader = document.createElement('div');
+    phHeader.className = 'phase-header';
+    phHeader.innerHTML = `<div class="phase-pill ${phase.cls}">${phase.label}<span class="phase-time">${phase.time}</span></div>`;
+    roadmapEl.appendChild(phHeader);
+
+    phase.topics.forEach(topic => {
+      allTopicIds.push(topic.id);
+      const status = getStatus(topic.id);
+      const row = document.createElement('div');
+      row.className = `row ${side}`;
+      row.innerHTML = `
+        <div class="topic-group">
+          <div class="topic-node ${status}" onclick="openDetail('${topic.id}')" data-id="${topic.id}">
+            <div class="status-dot"></div>
+            <div class="topic-label">${topic.label}</div>
+          </div>
+          ${topic.subs && topic.subs.length ? `<div class="subtopics">${topic.subs.map(s => `<div class="sub-chip">${s}</div>`).join('')}</div>` : ''}
+        </div>
+      `;
+      roadmapEl.appendChild(row);
+      side = side === 'right' ? 'left' : 'right';
+    });
+  });
+
+  updateProgress();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PROGRESS (localStorage)
+   ══════════════════════════════════════════════════════════════ */
+function getStatus(id) {
+  return localStorage.getItem('rm_' + id) || '';
+}
+function setStatus(id, status) {
+  if (status) localStorage.setItem('rm_' + id, status);
+  else localStorage.removeItem('rm_' + id);
+}
+function updateProgress() {
+  const done = allTopicIds.filter(id => getStatus(id) === 'done').length;
+  const total = allTopicIds.length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${done} / ${total} Done`;
+
+  // Update node classes
+  document.querySelectorAll('.topic-node').forEach(node => {
+    const id = node.dataset.id;
+    node.className = 'topic-node ' + getStatus(id);
+  });
+}
+function resetProgress() {
+  if (!confirm('Reset all progress? This cannot be undone.')) return;
+  allTopicIds.forEach(id => localStorage.removeItem('rm_' + id));
+  updateProgress();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DETAIL PANEL
+   ══════════════════════════════════════════════════════════════ */
+function findTopic(id) {
+  for (const phase of PHASES) {
+    for (const t of phase.topics) {
+      if (t.id === id) return { topic: t, phase };
+    }
+  }
+  return null;
+}
+
+function openDetail(id) {
+  const found = findTopic(id);
+  if (!found) return;
+  const { topic, phase } = found;
+  const status = getStatus(id);
+
+  let html = `
+    <div class="detail-phase-tag ${phase.cls}">${phase.label}</div>
+    <h2 class="detail-title">${topic.label}</h2>
+    <div class="detail-status-row">
+      <button class="status-btn ${status === 'done' ? 'active-done' : ''}" onclick="toggleStatus('${id}','done')">✓ Done</button>
+      <button class="status-btn ${status === 'in-progress' ? 'active-progress' : ''}" onclick="toggleStatus('${id}','in-progress')">◐ In Progress</button>
+      <button class="status-btn ${status === 'skip' ? 'active-skip' : ''}" onclick="toggleStatus('${id}','skip')">⊘ Skip</button>
+    </div>
+    <div class="detail-desc">${topic.desc}</div>
+  `;
+
+  if (topic.insight) {
+    html += `<div class="key-insight">💡 <strong>Key insight:</strong> ${topic.insight}</div>`;
+  }
+
+  if (topic.resources && topic.resources.length) {
+    html += `<div class="detail-section-title">Resources</div>`;
+    topic.resources.forEach(r => {
+      html += `<div class="resource-item"><span class="res-tag ${r.type}">${r.type}</span><a href="${r.url}" target="_blank" rel="noopener">${r.label}</a></div>`;
+    });
+  }
+
+  document.getElementById('detailInner').innerHTML = html;
+  document.getElementById('overlayBg').classList.add('open');
+  document.getElementById('detailModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDetail() {
+  document.getElementById('overlayBg').classList.remove('open');
+  document.getElementById('detailModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function toggleStatus(id, newStatus) {
+  const current = getStatus(id);
+  if (current === newStatus) setStatus(id, '');
+  else setStatus(id, newStatus);
+  updateProgress();
+  openDetail(id); // refresh panel
+}
+
+// Close on Escape
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+
+// Init
+render();
+</script>
+</body>
+</html>
