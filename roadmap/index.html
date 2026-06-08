@@ -36,7 +36,71 @@ a { color: #2563eb; text-decoration: none; }
 .phase-header + p { font-style: italic; color: #6e6a64; font-size: 10.5pt; margin-top: 16px; }
 .page-header { font-size: 15pt !important; color: #2563eb !important; border-bottom: 2px solid #2563eb !important; margin-top: 36px; }
 @media print { body { font-size: 10pt; padding: 0; } pre, table, blockquote { page-break-inside: avoid; } h1, h2, h3 { page-break-after: avoid; } }
-</style></head><body><div class="cover-page"><h1>The Agentic AI Engineer Roadmap</h1><div class="subtitle">The practical playbook for engineers shipping production agentic AI<br>- without a PhD or a $5k bootcamp.</div><div class="author">By Akshay &middot; @SystemsByAkshay &middot; v1.0 &middot; 2026</div></div><h1 id="the-agentic-ai-engineer-roadmap">The Agentic AI Engineer Roadmap</h1>
+
+.toc-container { max-width: 700px; margin: 40px auto; padding: 32px 36px; background: #fafaf8; border: 1px solid #e8e4dc; border-radius: 10px; }
+.toc-title { font-size: 16pt; font-weight: 800; color: #0a0a0a; margin-bottom: 20px; border-bottom: 2px solid #2563eb; padding-bottom: 10px; }
+.toc-list { list-style: none; counter-reset: toc-counter; margin: 0; padding: 0; }
+.toc-list li { margin: 0; padding: 0; }
+.toc-list li a { text-decoration: none; color: #1a1a1a; display: block; padding: 6px 0; border-bottom: 1px solid #f0ece6; transition: color 0.15s; }
+.toc-list li a:hover { color: #2563eb; }
+.toc-phase { margin-top: 18px; }
+.toc-phase a { font-weight: 800; font-size: 11.5pt; color: #0a0a0a !important; padding: 10px 14px !important; background: #0a0a0a; color: #fff !important; border-radius: 6px; border-bottom: none !important; margin-bottom: 4px; }
+.toc-phase a:hover { background: #2563eb; }
+.toc-section a { font-weight: 500; font-size: 10.5pt; padding-left: 18px !important; }
+</style></head><body><div class="cover-page"><h1>The Agentic AI Engineer Roadmap</h1><div class="subtitle">The practical playbook for engineers shipping production agentic AI<br>- without a PhD or a $5k bootcamp.</div><div class="author">By Akshay &middot; @SystemsByAkshay &middot; v1.0 &middot; 2026</div></div>
+<div class="toc-container">
+<h2 class="toc-title">Table of Contents</h2>
+<ol class="toc-list">
+<li class="toc-section"><a href="#who-this-is-for">Who This Is For</a></li>
+<li class="toc-section"><a href="#the-4-phase-learning-path">The 4-Phase Learning Path</a></li>
+<li class="toc-section"><a href="#what-this-role-actually-is">What This Role Actually Is</a></li>
+<li class="toc-section"><a href="#a-day-in-the-life">A Day in the Life</a></li>
+<li class="toc-section"><a href="#what-this-pays-usa-2026">What This Pays (USA, 2026)</a></li>
+<li class="toc-phase"><a href="#phase-1-foundations">PHASE 1 - FOUNDATIONS</a></li>
+<li class="toc-section"><a href="#the-non-determinism-reality">The Non-Determinism Reality</a></li>
+<li class="toc-section"><a href="#structured-outputs-the-one-pattern-that-matters-most">Structured Outputs: The One Pattern That Matters Most</a></li>
+<li class="toc-section"><a href="#the-4-production-failures-in-the-order-they-hit-you">The 4 Production Failures (In the Order They Hit You)</a></li>
+<li class="toc-section"><a href="#the-non-determinism-aware-llm-client-drop-in-code">The Non-Determinism-Aware LLM Client (Drop-In Code)</a></li>
+<li class="toc-section"><a href="#provider-tradeoffs-when-to-use-which">Provider Tradeoffs (When to Use Which)</a></li>
+<li class="toc-section"><a href="#phase-1-recap-what-to-internalize-what-to-skip">Phase 1 Recap: What to Internalize, What to Skip</a></li>
+<li class="toc-phase"><a href="#phase-2-production-rag">PHASE 2 - PRODUCTION RAG</a></li>
+<li class="toc-section"><a href="#what-rag-actually-is-and-when-not-to-use-it">What RAG Actually Is (and When NOT to Use It)</a></li>
+<li class="toc-section"><a href="#chunking-the-most-underrated-step">Chunking: The Most Underrated Step</a></li>
+<li class="toc-section"><a href="#embeddings-choose-pragmatically-not-aspirationally">Embeddings: Choose Pragmatically, Not Aspirationally</a></li>
+<li class="toc-section"><a href="#retrieval-patterns-beyond-top-k-cosine">Retrieval Patterns: Beyond Top-K Cosine</a></li>
+<li class="toc-section"><a href="#vector-db-choice-the-controversial-page">Vector DB Choice (The Controversial Page)</a></li>
+<li class="toc-section"><a href="#rag-evals-the-page-that-determines-whether-you-ship">RAG Evals: The Page That Determines Whether You Ship</a></li>
+<li class="toc-section"><a href="#rag-anti-patterns-i-see-all-the-time">RAG Anti-Patterns I See All The Time</a></li>
+<li class="toc-phase"><a href="#phase-3-agents-orchestration">PHASE 3 - AGENTS &amp; ORCHESTRATION</a></li>
+<li class="toc-section"><a href="#what-an-agent-actually-is-not-the-demo-version">What an Agent Actually Is (Not the Demo Version)</a></li>
+<li class="toc-section"><a href="#tool-calling-the-bridge-between-the-llm-and-your-code">Tool Calling: The Bridge Between the LLM and Your Code</a></li>
+<li class="toc-section"><a href="#the-agent-loop-drop-in-code">The Agent Loop (Drop-In Code)</a></li>
+<li class="toc-section"><a href="#the-agent-harness-from-script-to-production-infrastructure">The Agent Harness: From Script to Production Infrastructure</a></li>
+<li class="toc-section"><a href="#memory-when-you-need-it-when-you-dont">Memory: When You Need It, When You Don't</a></li>
+<li class="toc-section"><a href="#frameworks-when-to-use-when-to-write-your-own">Frameworks: When to Use, When to Write Your Own</a></li>
+<li class="toc-section"><a href="#multi-agent-human-in-the-loop-and-production-patterns">Multi-Agent, Human-in-the-Loop, and Production Patterns</a></li>
+<li class="toc-section"><a href="#the-5-agent-failure-modes-named-so-you-can-diagnose-them">The 5 Agent Failure Modes (Named So You Can Diagnose Them)</a></li>
+<li class="toc-section"><a href="#mcp-the-protocol-you-need-to-know">MCP: The Protocol You Need to Know</a></li>
+<li class="toc-section"><a href="#phase-3-recap-what-to-internalize-what-to-skip">Phase 3 Recap: What to Internalize, What to Skip</a></li>
+<li class="toc-phase"><a href="#phase-4-production-systems">PHASE 4 - PRODUCTION SYSTEMS</a></li>
+<li class="toc-section"><a href="#the-eval-stack-why-vibes-dont-scale">The Eval Stack: Why Vibes Don't Scale</a></li>
+<li class="toc-section"><a href="#observability-seeing-inside-the-black-box">Observability: Seeing Inside the Black Box</a></li>
+<li class="toc-section"><a href="#cost-engineering-the-math-that-determines-whether-you-ship">Cost Engineering: The Math That Determines Whether You Ship</a></li>
+<li class="toc-section"><a href="#latency-optimization-the-user-experience-layer">Latency Optimization: The User Experience Layer</a></li>
+<li class="toc-section"><a href="#security-and-red-teaming-the-basics-that-prevent-embarrassment">Security and Red-Teaming: The Basics That Prevent Embarrassment</a></li>
+<li class="toc-section"><a href="#inference-optimization-and-production-metrics">Inference Optimization and Production Metrics</a></li>
+<li class="toc-section"><a href="#phase-4-recap-what-to-internalize-what-to-skip">Phase 4 Recap: What to Internalize, What to Skip</a></li>
+<li class="toc-section"><a href="#the-production-readiness-checklist">The Production Readiness Checklist</a></li>
+<li class="toc-phase"><a href="#closing-pages">CLOSING PAGES</a></li>
+<li class="toc-section"><a href="#the-what-to-skip-list">The "What to Skip" List</a></li>
+<li class="toc-section"><a href="#curated-reading-list-20-resources-annotated">Curated Reading List (20 Resources, Annotated)</a></li>
+<li class="toc-section"><a href="#my-honest-take-on-whats-hard">My Honest Take on What's Hard</a></li>
+<li class="toc-section"><a href="#whats-coming-and-what-isnt">What's Coming (And What Isn't)</a></li>
+<li class="toc-section"><a href="#whats-next-your-next-steps">What's Next (Your Next Steps)</a></li>
+</ol>
+</div>
+
+<h1 id="the-agentic-ai-engineer-roadmap">The Agentic AI Engineer Roadmap</h1>
 <p><strong>The practical playbook for engineers shipping production agentic AI - without a PhD or a $5k bootcamp.</strong></p>
 <p>By Akshay · @SystemsByAkshay · v1.0 · 2026</p>
 <hr />
