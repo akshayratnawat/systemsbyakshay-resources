@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Context Engineering: The 5-Layer Stack Behind Every LLM Call | Systems by Akshay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 60px 40px;
+    background: #f9f8f4;
+    color: #1a1a1a;
+    line-height: 1.65;
+    font-size: 16px;
+  }
+  h1 { font-size: 36px; font-weight: 800; line-height: 1.15; margin: 0; color: #0a0a0a; }
+  h2 { font-size: 24px; font-weight: 800; margin-top: 48px; margin-bottom: 14px; color: #0a0a0a; }
+  h3 { font-size: 20px; font-weight: 700; margin-top: 36px; margin-bottom: 10px; color: #0a0a0a; }
+  p { margin: 0 0 20px 0; }
+  strong { color: #0a0a0a; }
+  .header { text-align: center; border-bottom: 2px solid #e8e4dc; margin-bottom: 48px; padding-bottom: 32px; }
+  .header .brand { font-size: 14px; color: #2563eb; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px; }
+  .header .sub { font-size: 18px; color: #6e6a64; margin-top: 16px; }
+  .diagram-wrap { background: #fff; border: 1px solid #e8e4dc; border-radius: 14px; padding: 28px 20px; margin: 36px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .diagram-caption { font-size: 14px; color: #6e6a64; text-align: center; margin-top: 12px; }
+  .tip-box {
+    background: rgba(37,99,235,0.06);
+    border-left: 4px solid #2563eb;
+    border-radius: 0 10px 10px 0;
+    padding: 18px 20px;
+    margin: 28px 0;
+    font-size: 15px;
+    color: #1a1a1a;
+  }
+  .tip-box strong { color: #2563eb; }
+  .warn-box {
+    background: rgba(220,38,38,0.06);
+    border-left: 4px solid #dc2626;
+    border-radius: 0 10px 10px 0;
+    padding: 18px 20px;
+    margin: 28px 0;
+    font-size: 15px;
+    color: #1a1a1a;
+  }
+  .warn-box strong { color: #dc2626; }
+  .formula-box { background: #0a0a0a; color: #f9f8f4; padding: 28px 32px; border-radius: 12px; margin: 36px 0; text-align: center; }
+  .formula-box .label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; font-family: 'Inter', sans-serif; }
+  .formula-box .formula { font-size: 20px; color: #FFD700; font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; margin: 32px 0; }
+  th { background: #0a0a0a; color: #f9f8f4; padding: 12px 16px; text-transform: uppercase; font-size: 13px; letter-spacing: 0.06em; text-align: left; }
+  td { padding: 12px 16px; border-bottom: 1px solid #e8e4dc; vertical-align: top; }
+  tr:nth-child(even) { background: rgba(0,0,0,0.02); }
+  .mono { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #2563eb; }
+  .warn { color: #dc2626; font-weight: 600; }
+  .good { color: #16a34a; font-weight: 600; }
+  .conclusion-title { font-size: 24px; font-weight: 800; margin-top: 48px; margin-bottom: 14px; color: #0a0a0a; }
+  .footer { text-align: center; border-top: 2px solid #e8e4dc; margin-top: 48px; padding-top: 32px; }
+  .footer p { font-size: 14px; color: #6e6a64; margin: 8px 0; }
+  .footer .brand { color: #2563eb; font-weight: 700; }
+  hr.section-divider { border: none; border-top: 2px solid #e8e4dc; margin: 40px 0; }
+  svg text { font-family: 'Inter', sans-serif; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="brand">@systemsbyakshay - No BS System Design</div>
+  <h1>Context Engineering: The 5-Layer Stack Behind Every LLM Call</h1>
+  <div class="sub">Most engineers optimize the prompt. The ones building production agents manage the entire context window.</div>
+</div>
+
+<p>The answer your model gives is decided before it generates a single token. By the time inference starts, the outcome is already shaped by what sits in the context window: your instructions, your examples, the retrieved chunks, the conversation history, and the agent's own scratchpad. The model does not reason in a vacuum. It reasons over whatever you assembled and handed it.</p>
+
+<p>This is why prompt engineering hits a ceiling. Your system prompt might be a few hundred well-crafted tokens. But it is sharing the window with retrieval results, prior turns, and tool outputs that add up to tens of thousands of tokens. Tuning the 5% you wrote while ignoring the other 95% is optimizing the label on a bottle while ignoring what is inside it.</p>
+
+<p>Context engineering is the discipline of managing all of it. Every LLM call is a context assembly problem: which layers get to contribute, how many tokens each is allowed, and what gets trimmed when the budget runs out. Get this right and a mediocre prompt still ships. Get it wrong and a perfect prompt still hallucinates.</p>
+
+<div class="formula-box">
+  <div class="label">The Core Principle</div>
+  <div class="formula">Context = Instructions + Examples + Retrieved + History + State</div>
+</div>
+
+<hr class="section-divider">
+<h2>1. What Actually Fills the Context Window</h2>
+
+<p>Open up a single call to a production agent and look at the token breakdown. It rarely matches anyone's intuition. The part you wrote and tested - the system prompt - is almost always the smallest slice of the input. Everything else is dynamic, assembled at request time, and changing on every call.</p>
+
+<p>A representative agent turn looks like this: a <strong>system prompt of around 500 tokens</strong>, the part you authored and the only stable piece. A <strong>set of retrieved chunks at around 3,000 tokens</strong> - RAG results, search hits, database lookups - different on every call, and treated by the model as ground truth. And a <strong>conversation history plus tool output of 8,000 tokens or more</strong>, growing with every interaction, that nobody is trimming. The 500 tokens you obsess over are roughly 4% of what the model actually reads.</p>
+
+<div class="diagram-wrap">
+<svg width="100%" viewBox="0 0 680 150" role="img">
+  <title>Token budget breakdown of a typical agent call: system prompt small, retrieval medium, history large</title>
+  <text x="20" y="34" font-size="12" fill="#6e6a64">A typical agent call - where the tokens actually go</text>
+  <rect x="20" y="50" width="48" height="40" fill="#2563eb"/>
+  <rect x="68" y="50" width="180" height="40" fill="#7ba0f4"/>
+  <rect x="248" y="50" width="412" height="40" fill="#c9d6f7"/>
+  <text x="44" y="116" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">~500</text>
+  <text x="44" y="130" text-anchor="middle" font-size="9" fill="#888">prompt</text>
+  <text x="158" y="116" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">~3,000</text>
+  <text x="158" y="130" text-anchor="middle" font-size="9" fill="#888">retrieval</text>
+  <text x="454" y="116" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">~8,000+</text>
+  <text x="454" y="130" text-anchor="middle" font-size="9" fill="#888">history + tool output</text>
+  <text x="660" y="146" text-anchor="end" font-size="9" fill="#ccc">@systemsbyakshay</text>
+</svg>
+<p class="diagram-caption">The system prompt is the smallest and most stable slice. The dynamic layers - retrieval and history - dominate the window and decide the output.</p>
+</div>
+
+<div class="tip-box">
+<strong>Key insight:</strong> Prompt engineering tunes the wrapper. Context engineering tunes the full input. If you can only improve one, improve the layer that consumes the most tokens, not the one you find easiest to edit.
+</div>
+
+<hr class="section-divider">
+<h2>2. The 5-Layer Context Stack</h2>
+
+<p>Every LLM call is assembled from five distinct layers. Two are static - written once and rarely touched. Three are dynamic - rebuilt on every single call. Naming them is the first step to managing them, because you cannot budget what you have not separated.</p>
+
+<table>
+  <tr><th>#</th><th>Layer</th><th>What lands here</th><th>Typical budget</th></tr>
+  <tr><td class="mono">01</td><td><strong>System Instructions</strong></td><td>Task, role, constraints, output format - what you write directly</td><td class="mono">5-15%</td></tr>
+  <tr><td class="mono">02</td><td><strong>Few-Shot Examples</strong></td><td>Demonstrations of the target output format and behavior</td><td class="mono">5-10%</td></tr>
+  <tr><td class="mono">03</td><td><strong>Retrieved Knowledge</strong></td><td>RAG chunks, search results, tool outputs, DB lookups</td><td class="mono">20-60%</td></tr>
+  <tr><td class="mono">04</td><td><strong>Conversation History</strong></td><td>Prior turns - the biggest budget consumer over time</td><td class="mono">30-80%</td></tr>
+  <tr><td class="mono">05</td><td><strong>State and Scratchpad</strong></td><td>Agent reasoning, tool call chains, intermediate outputs</td><td class="mono">variable</td></tr>
+</table>
+
+<div class="diagram-wrap">
+<svg width="100%" viewBox="0 0 680 300" role="img">
+  <title>Five layers fan into the context window, which is then sent to the LLM</title>
+  <defs>
+    <marker id="ce-a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+    <marker id="ce-a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <rect x="20" y="20" width="190" height="40" rx="8" fill="#EBF0FF" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="34" y="45" font-size="11" fill="#1e40af" font-weight="600">01 System Instructions</text>
+  <rect x="20" y="70" width="190" height="40" rx="8" fill="#EBF0FF" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="34" y="95" font-size="11" fill="#1e40af" font-weight="600">02 Few-Shot Examples</text>
+  <rect x="20" y="120" width="190" height="40" rx="8" fill="#EBF0FF" stroke="#2563eb" stroke-width="2.2"/>
+  <text x="34" y="145" font-size="11" fill="#1e40af" font-weight="700">03 Retrieved Knowledge</text>
+  <rect x="20" y="170" width="190" height="40" rx="8" fill="#EBF0FF" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="34" y="195" font-size="11" fill="#1e40af" font-weight="600">04 Conversation History</text>
+  <rect x="20" y="220" width="190" height="40" rx="8" fill="#EBF0FF" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="34" y="245" font-size="11" fill="#1e40af" font-weight="600">05 State and Scratchpad</text>
+  <path d="M210 40 C300 40 320 130 360 140" fill="none" stroke="#2563eb" stroke-width="1.2" marker-end="url(#ce-a1)"/>
+  <path d="M210 90 C300 90 320 134 360 140" fill="none" stroke="#2563eb" stroke-width="1.2" marker-end="url(#ce-a1)"/>
+  <path d="M210 140 L360 140" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#ce-a1)"/>
+  <path d="M210 190 C300 190 320 150 360 142" fill="none" stroke="#2563eb" stroke-width="1.2" marker-end="url(#ce-a1)"/>
+  <path d="M210 240 C300 240 320 152 360 144" fill="none" stroke="#2563eb" stroke-width="1.2" marker-end="url(#ce-a1)"/>
+  <rect x="362" y="86" width="150" height="112" rx="12" fill="#fff" stroke="#0a0a0a" stroke-width="1.8"/>
+  <text x="437" y="120" text-anchor="middle" font-size="11" fill="#888" letter-spacing="2">CONTEXT WINDOW</text>
+  <text x="437" y="150" text-anchor="middle" font-size="22" fill="#0a0a0a" font-weight="700">128K</text>
+  <text x="437" y="170" text-anchor="middle" font-size="10" fill="#888">assembled each call</text>
+  <line x1="512" y1="142" x2="556" y2="142" stroke="#16a34a" stroke-width="2" marker-end="url(#ce-a2)"/>
+  <rect x="558" y="116" width="100" height="52" rx="10" fill="#ECFDF5" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="608" y="140" text-anchor="middle" font-size="12" fill="#065f46" font-weight="700">LLM</text>
+  <text x="608" y="156" text-anchor="middle" font-size="9" fill="#16a34a">generates</text>
+  <text x="660" y="290" text-anchor="end" font-size="9" fill="#ccc">@systemsbyakshay</text>
+</svg>
+<p class="diagram-caption">Five layers fan into one window. Layer 3 carries the highest variance and the highest leverage. The model only ever sees the assembled result.</p>
+</div>
+
+<hr class="section-divider">
+<h2>3. Layers 1 and 2: The Control Plane</h2>
+
+<p>System instructions and few-shot examples are the static layers. You write them once, they rarely change between calls, and together they usually consume well under 1,000 tokens. They are small. They are also the easiest layer to get quietly wrong, because their mistakes do not stay contained - they cascade.</p>
+
+<p><strong>System instructions</strong> define the task, the role, the constraints, and the output format. This is the part everyone calls "the prompt." It is high-leverage precisely because it is small: a single ambiguous constraint here does not just produce one bad answer, it breaks how every downstream layer is interpreted. A vague instruction about output format makes retrieval harder to use and history harder to trim, because nothing downstream knows what "done" looks like.</p>
+
+<p><strong>Few-shot examples</strong> are demonstrations of the behavior you want. Three concise examples of your target output can anchor structure in under 300 tokens, where two paragraphs of prose describing the same format consistently underperform. Models imitate examples more reliably than they follow descriptions. When output structure matters, show, do not tell.</p>
+
+<div class="tip-box">
+<strong>Key insight:</strong> The static layers anchor behavior. The dynamic layers - 3 through 5 - determine quality per call. Spend real effort on layers 1 and 2 once, then stop touching them and move your attention to where the tokens actually live.
+</div>
+
+<hr class="section-divider">
+<h2>4. Layer 3: Retrieved Knowledge Is Where Quality Is Won or Lost</h2>
+
+<p>Layer 3 is the most variable layer in the entire stack. RAG chunks, search results, tool outputs, database lookups - it is different on every single call, and the model treats whatever lands here as ground truth. This is the single highest-leverage surface in context engineering, and it is where most debugging effort belongs.</p>
+
+<p>The asymmetry is the whole point. The right retrieved content can compensate for a weak prompt - if the model is handed the exact passage it needs, even a mediocre instruction produces a good answer. The reverse is never true. No amount of prompt polishing fixes retrieval that surfaced the wrong document. A perfect system prompt sitting next to last quarter's pricing sheet will produce a confident, well-formatted, completely wrong answer about the price.</p>
+
+<p>That confident-wrong failure mode is what makes Layer 3 dangerous. The model does not hedge when retrieval is bad. It reads the stale document, treats it as fact, and defends the wrong answer with full fluency. Which is why for Layer 3, retrieval precision beats retrieval recall: one exactly-right chunk is worth more than ten loosely-related ones, because the loosely-related ones dilute attention and invite the model to anchor on the wrong detail.</p>
+
+<div class="warn-box">
+<strong>Warning:</strong> When a model with a good system prompt still produces bad answers, debug retrieval before you touch the prompt. A stale or wrong chunk in Layer 3 overrides good instructions every time. The model follows what it reads, not what you told it.
+</div>
+
+<hr class="section-divider">
+<h2>5. Layers 4 and 5: History and State, Where Agents Break Over Time</h2>
+
+<p>Here is the failure every agent builder eventually meets: the agent works perfectly at turn 5 and falls apart at turn 20. Nothing about the prompt changed. Nothing about the model changed. What changed is the context window filled up.</p>
+
+<p>By turn 20, the conversation history that started at 1,000 tokens has grown to 15,000. Prior turns, tool call results, and the agent's own backtracking now consume most of the window. Your carefully written 500-token system prompt is no longer near the top of the input - it is sandwiched in the middle, between thousands of tokens of old conversation. And models attend less reliably to the middle of a long context than to its edges, the well-documented "lost in the middle" effect. The instructions are technically still there. The model has effectively stopped reading them.</p>
+
+<p>The fix is not a better prompt. The fix is a trimming strategy. A sliding window keeps the most recent N turns verbatim. Older turns get summarized into a compact running summary rather than carried in full. Each layer gets an explicit token budget, and when the budget is exceeded, something is dropped or compressed on purpose rather than by accident. Context window management is memory management with a hard cap - and like all memory management, doing nothing is itself a decision, just a bad one.</p>
+
+<table>
+  <tr><th>State</th><th>History size</th><th>What happens to the system prompt</th></tr>
+  <tr><td><strong>Turn 5</strong></td><td class="good">~1K tokens</td><td>Near the top of the window, fully attended</td></tr>
+  <tr><td><strong>Turn 20 (no trimming)</strong></td><td class="warn">~15K tokens</td><td>Buried in the middle, effectively ignored</td></tr>
+  <tr><td><strong>Turn 20 (with trimming)</strong></td><td class="good">~4K tokens</td><td>Still near the top, recent turns summarized</td></tr>
+</table>
+
+<div class="tip-box">
+<strong>Key insight:</strong> An agent that degrades as the conversation gets longer almost never has a prompt problem. It has a trimming problem. Add a sliding window and turn summarization before you rewrite a single instruction.
+</div>
+
+<hr class="section-divider">
+<h2>6. The Three Failure Modes</h2>
+
+<p>Context engineering fails in production in three recognizable ways. Naming them turns vague "the agent got worse" reports into a specific layer to go fix.</p>
+
+<table>
+  <tr><th>Failure mode</th><th>What goes wrong</th><th>The fix</th></tr>
+  <tr><td><strong>Context stuffing</strong></td><td>Raw documents dumped into the window. Attention dilutes across noise and the model acts on the wrong parts. A support agent retrieves 10 FAQ pages instead of the 1 relevant answer.</td><td class="good">Chunk compression and MMR reranking. Maximize signal density, not token count.</td></tr>
+  <tr><td><strong>History bloat</strong></td><td>No trimming strategy. A coding agent at turn 30 carries 20K tokens of old tool output nobody needs, and the system prompt lands in the forgotten middle.</td><td class="good">Sliding window plus turn summarization with a per-layer token budget.</td></tr>
+  <tr><td><strong>Layer interference</strong></td><td>A single 40K-token tool result pushes the system instructions out of prime attention. The model follows the tool output instead of your rules.</td><td class="good">Priority ordering by recency times relevance, and a hard cap on any single layer.</td></tr>
+</table>
+
+<div class="warn-box">
+<strong>Warning:</strong> More context only helps while signal density stays high. Past that point, every extra token of low-signal context actively dilutes attention and makes the output worse. Bigger context windows did not end this problem - they raised the ceiling on how badly you can stuff one.
+</div>
+
+<hr class="section-divider">
+<h2>7. The System Design Consequence</h2>
+
+<p>Once you see the stack, the standard agent components stop looking like separate features and start looking like what they actually are: machinery for deciding what goes in each layer. Every component in an agent architecture is, underneath, a context router.</p>
+
+<p><strong>Memory</strong> decides which prior turns stay in the window and which get summarized or dropped. It is not "store more history" - it is selective history, a Layer 4 budget manager. <strong>Retrieval</strong> is a Layer 3 budget optimizer whose real job is maximizing signal density per token, not dumping every match it finds into the window. And the <strong>orchestrator</strong> is the thing that assembles the final context for each LLM call - its core question, every single turn, is "what goes in each layer this turn?"</p>
+
+<p>This reframes the model itself. The LLM is a function. Context engineering is how you write the input to that function. Memory stores context, retrieval selects context, orchestration assembles context - and the quality of the output is mostly decided by that assembly, not by the function.</p>
+
+<hr class="section-divider">
+<h2>8. Interview Readiness</h2>
+
+<p>Context engineering questions are increasingly common in ML system design rounds because they separate people who have shipped agents from people who have only prompted them. The junior answer reaches for a better prompt. The senior answer names the failing layer.</p>
+
+<table>
+  <tr><th>Question</th><th>The answer that signals seniority</th></tr>
+  <tr><td><strong>What is context engineering, and how is it different from prompt engineering?</strong></td><td>Prompt engineering optimizes one layer - the instructions, roughly 5% of the context. Context engineering manages all five layers (instructions, examples, retrieval, history, state), each with a token budget and a trimming strategy. Senior signal: "I think about each LLM call as a context assembly problem, not a prompt."</td></tr>
+  <tr><td><strong>An agent works fine at turn 5 but starts failing at turn 20. What is happening?</strong></td><td>History bloat. Prior turns and tool outputs grew from roughly 1K to 15K+ tokens, pushing the system instructions into the lost-in-the-middle zone. Fix: sliding window trimming, turn summarization, and a per-layer token budget - not a prompt rewrite.</td></tr>
+  <tr><td><strong>Why would a perfect system prompt still produce bad answers?</strong></td><td>Layer 3 failure. If retrieval surfaces the wrong chunks, the model follows retrieved content over prompt instructions. A stale document in the window beats a perfect prompt every time. Debug retrieval precision first.</td></tr>
+</table>
+
+<hr class="section-divider">
+<h2>9. Production Readiness Checklist</h2>
+<table>
+  <tr><th></th><th>Practice</th><th>Why</th></tr>
+  <tr><td>&#9744;</td><td>Separate the five layers explicitly in your context assembly code</td><td>You cannot budget or trim what you have not named and isolated.</td></tr>
+  <tr><td>&#9744;</td><td>Assign each layer an explicit token budget per call</td><td>Prevents any one layer from silently crowding out the others.</td></tr>
+  <tr><td>&#9744;</td><td>Anchor output structure with 3 few-shot examples, not prose descriptions</td><td>Examples beat descriptions for reliable formatting at fewer tokens.</td></tr>
+  <tr><td>&#9744;</td><td>Optimize Layer 3 for precision over recall - rerank and compress chunks</td><td>One exact chunk beats ten loose ones and avoids attention dilution.</td></tr>
+  <tr><td>&#9744;</td><td>Add a sliding window plus turn summarization for conversation history</td><td>Stops history bloat from burying the system prompt over long sessions.</td></tr>
+  <tr><td>&#9744;</td><td>Order layers by recency times relevance, with a hard cap on any single layer</td><td>Prevents one large tool result from pushing instructions out of attention.</td></tr>
+  <tr><td>&#9744;</td><td>When the model misbehaves, identify the failing layer before editing the prompt</td><td>Most failures are retrieval or history problems, not instruction problems.</td></tr>
+  <tr><td>&#9744;</td><td>Treat memory, retrieval, and orchestration as context routers, not standalone features</td><td>Aligns the whole architecture around the real job: per-call context assembly.</td></tr>
+</table>
+
+<h3 class="conclusion-title">The Input Is the System</h3>
+
+<p>The model is the part everyone optimizes because it is the part everyone can see. But the model is fixed - you call the same API everyone else calls. What you actually control is the input: which of the five layers contributes, how many tokens each gets, and what is trimmed when the window fills. That assembly is where production agents are won or lost.</p>
+
+<p>The next time an LLM system misbehaves, resist the reflex to rewrite the prompt. Ask which layer failed instead. Was the retrieval wrong? Did history bury the instructions? Did one giant tool output drown out everything else? Name the layer, fix that layer, and you will spend far less time tuning prompts that were never the problem.</p>
+
+<p>The model is a function. Context engineering is how you write its input. Manage all five layers.</p>
+
+<div class="footer">
+  <p>Built by <span class="brand">@systemsbyakshay</span> - No BS System Design</p>
+  <p>The model is a function. The system wins or loses on input assembly.</p>
+</div>
+
+</body>
+</html>
