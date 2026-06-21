@@ -64,6 +64,18 @@
   .footer .brand { color: #2563eb; font-weight: 700; }
   hr.section-divider { border: none; border-top: 2px solid #e8e4dc; margin: 40px 0; }
   svg text { font-family: 'Inter', sans-serif; }
+  /* ── EMAIL OPT-IN ── */
+  .optin-box { background: #0a0a0a; color: #f9f8f4; border-radius: 16px; padding: 38px 32px; margin: 48px 0 8px; text-align: center; }
+  .optin-eyebrow { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #7ba0f4; font-weight: 700; margin-bottom: 10px; }
+  .optin-title { font-size: 26px; font-weight: 800; color: #fff; margin: 0 0 10px; line-height: 1.2; }
+  .optin-sub { font-size: 16px; color: #c9c6c0; max-width: 620px; margin: 0 auto 24px; line-height: 1.6; }
+  .optin-form { display: flex; gap: 10px; max-width: 540px; margin: 0 auto; flex-wrap: wrap; justify-content: center; }
+  .optin-input { flex: 1; min-width: 220px; padding: 14px 18px; border-radius: 10px; border: 1px solid #333; background: #161616; color: #fff; font-size: 16px; font-family: 'Inter', sans-serif; }
+  .optin-input::placeholder { color: #888; }
+  .optin-btn { padding: 14px 26px; border-radius: 10px; border: none; background: #2563eb; color: #fff; font-size: 16px; font-weight: 700; font-family: 'Inter', sans-serif; cursor: pointer; white-space: nowrap; }
+  .optin-btn:hover { background: #1d4ed8; }
+  .optin-fineprint { font-size: 13px; color: #888; margin-top: 14px; }
+  .optin-ok { display: none; font-size: 17px; color: #4ade80; font-weight: 600; padding: 18px 0; }
 </style>
 </head>
 <body>
@@ -270,6 +282,30 @@
 <p>The next time an LLM system misbehaves, resist the reflex to rewrite the prompt. Ask which layer failed instead. Was the retrieval wrong? Did history bury the instructions? Did one giant tool output drown out everything else? Name the layer, fix that layer, and you will spend far less time tuning prompts that were never the problem.</p>
 
 <p>The model is a function. Context engineering is how you write its input. Manage all five layers.</p>
+
+<div class="optin-box">
+  <div class="optin-eyebrow">Free Resource</div>
+  <div class="optin-title">Get the Agentic AI Engineer Roadmap</div>
+  <p class="optin-sub">The full path from Foundations → RAG → Agents → Production. 42 sections, zero fluff, straight to your inbox.</p>
+  <form id="ck-roadmap" class="optin-form" action="https://app.kit.com/forms/9592219/subscriptions" method="post">
+    <input class="optin-input" type="email" name="email_address" placeholder="you@email.com" aria-label="Email address" required>
+    <button class="optin-btn" type="submit">Send me the roadmap →</button>
+  </form>
+  <div id="ck-roadmap-ok" class="optin-ok">Success. Check your email to confirm and get the roadmap.</div>
+  <div class="optin-fineprint">No spam. Unsubscribe anytime.</div>
+</div>
+<script>
+(function(){
+  var f = document.getElementById('ck-roadmap');
+  if (!f) return;
+  f.addEventListener('submit', function(e){
+    e.preventDefault();
+    fetch(f.action, { method: 'POST', body: new FormData(f), mode: 'cors' })
+      .then(function(){ f.style.display = 'none'; document.getElementById('ck-roadmap-ok').style.display = 'block'; })
+      .catch(function(){ f.submit(); });
+  });
+})();
+</script>
 
 <div class="footer">
   <p>Built by <span class="brand">@systemsbyakshay</span> - No BS System Design</p>
