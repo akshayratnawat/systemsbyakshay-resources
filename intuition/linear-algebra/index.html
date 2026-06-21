@@ -440,6 +440,20 @@
   }
 
 </style>
+<style id="ck-optin-css">
+  .optin-box{background:#0a0a0a;color:#f9f8f4;border-radius:16px;padding:34px 30px;margin:44px 0;text-align:center;font-family:'Inter',system-ui,sans-serif;}
+  .optin-box .optin-eyebrow{font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#7ba0f4;font-weight:700;margin-bottom:10px;}
+  .optin-box .optin-title{font-size:25px;font-weight:800;color:#fff;margin:0 0 10px;line-height:1.2;}
+  .optin-box .optin-sub{font-size:16px;color:#c9c6c0;max-width:600px;margin:0 auto 22px;line-height:1.6;}
+  .optin-box .optin-form{display:flex;gap:10px;max-width:540px;margin:0 auto;flex-wrap:wrap;justify-content:center;}
+  .optin-box .optin-input{flex:1;min-width:220px;padding:14px 18px;border-radius:10px;border:1px solid #333;background:#161616;color:#fff;font-size:16px;font-family:inherit;}
+  .optin-box .optin-input::placeholder{color:#888;}
+  .optin-box .optin-btn{padding:14px 26px;border-radius:10px;border:none;background:#2563eb;color:#fff;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;}
+  .optin-box .optin-btn:hover{background:#1d4ed8;}
+  .optin-box .optin-fineprint{font-size:13px;color:#888;margin-top:14px;}
+  .optin-box .optin-ok{display:none;font-size:17px;color:#4ade80;font-weight:600;line-height:1.6;padding:8px 0;}
+  .optin-box .optin-ok a{color:#7ba0f4;font-weight:700;}
+</style>
 </head>
 <body>
   <div class="page">
@@ -825,6 +839,20 @@ clip_grad_norm_(model.parameters(), max_norm=<span class="str">1.0</span>)</pre>
       </div>
     </section>
 
+<!-- ck-optin -->
+<div class="optin-box">
+  <div class="optin-eyebrow">Free Resource</div>
+  <div class="optin-title">Get the Agentic AI Engineer Roadmap</div>
+  <p class="optin-sub">The full path from Foundations to RAG to Agents to Production. 42 sections, zero fluff, straight to your inbox.</p>
+  <form class="optin-form ck-roadmap-form" action="https://app.kit.com/forms/9592219/subscriptions" method="post">
+    <input class="optin-input" type="email" name="email_address" placeholder="you@email.com" aria-label="Email address" required>
+    <button class="optin-btn" type="submit">Send me the roadmap &#8594;</button>
+  </form>
+  <div class="optin-ok">You are in. Opening your roadmap now - check your email to confirm. <a href="https://akshayratnawat.github.io/systemsbyakshay-resources/roadmap/" target="_blank" rel="noopener">Open the roadmap &#8594;</a></div>
+  <div class="optin-fineprint">No spam. Unsubscribe anytime.</div>
+</div>
+<!-- /ck-optin -->
+
     <section class="section" id="transforms">
       <div class="section-header">
         <div class="section-number">Concept 06 of 08</div>
@@ -1053,10 +1081,42 @@ X_reduced = <span class="fn">pca.fit_transform</span>(X.<span class="fn">numpy</
       </div>
     </section>
 
-    <footer class="doc-footer">
+    <!-- ck-optin -->
+<div class="optin-box">
+  <div class="optin-eyebrow">Free Resource</div>
+  <div class="optin-title">Want the full path, not just this one piece?</div>
+  <p class="optin-sub">Get the free Agentic AI Engineer Roadmap. 42 sections from Foundations to Production. One email, instant access.</p>
+  <form class="optin-form ck-roadmap-form" action="https://app.kit.com/forms/9592219/subscriptions" method="post">
+    <input class="optin-input" type="email" name="email_address" placeholder="you@email.com" aria-label="Email address" required>
+    <button class="optin-btn" type="submit">Send me the roadmap &#8594;</button>
+  </form>
+  <div class="optin-ok">You are in. Opening your roadmap now - check your email to confirm. <a href="https://akshayratnawat.github.io/systemsbyakshay-resources/roadmap/" target="_blank" rel="noopener">Open the roadmap &#8594;</a></div>
+  <div class="optin-fineprint">No spam. Unsubscribe anytime.</div>
+</div>
+<!-- /ck-optin -->
+
+<footer class="doc-footer">
       <div class="footer-handle">@systemsbyakshay</div>
       <div class="footer-copy">This guide is from @systemsbyakshay - follow for the intuition behind the math.<br>Part of the No BS Intuition series.</div>
     </footer>
   </div>
+<script id="ck-optin-js">
+(function(){
+  var R="https://akshayratnawat.github.io/systemsbyakshay-resources/roadmap/";
+  var forms=document.querySelectorAll(".ck-roadmap-form");
+  forms.forEach(function(f){
+    f.addEventListener("submit",function(e){
+      e.preventDefault();
+      var win=window.open("about:blank","_blank");
+      fetch(f.action,{method:"POST",body:new FormData(f),mode:"cors"}).then(function(){
+        if(win){win.location=R;}
+        var box=f.closest(".optin-box");
+        f.style.display="none";
+        var ok=box.querySelector(".optin-ok"); if(ok){ok.style.display="block";}
+      }).catch(function(){ if(win){win.close();} f.submit(); });
+    });
+  });
+})();
+</script>
 </body>
 </html>
