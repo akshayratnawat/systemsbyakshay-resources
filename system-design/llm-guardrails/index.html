@@ -82,16 +82,16 @@
 <body>
 
 <div class="header">
-  <div class="brand">@systemsbyakshay — No BS System Design Series</div>
+  <div class="brand">@systemsbyakshay - No BS System Design Series</div>
   <h1>LLM Guardrails Architecture</h1>
-  <div class="sub">Why "Don't Do Harmful Things" isn't enough — the 3-layer architecture that actually enforces safety</div>
+  <div class="sub">Why "Don't Do Harmful Things" isn't enough - the 3-layer architecture that actually enforces safety</div>
 </div>
 
 <!-- SECTION 1: THE PROBLEM -->
 <h2>1. The Core Problem</h2>
 <p>"How do you prevent your AI system from being manipulated into producing harmful content?" It's a standard system design interview question. Most candidates answer with a system prompt: "I add safety instructions to tell the model what not to do."</p>
 
-<p>Senior engineers describe an architecture. Not because the prompt doesn't matter — it does — but because they understand something fundamental about how LLMs process inputs. The model you're trying to protect against manipulation is not a reliable defender against it. The system prompt and the attacker's injected instruction sit in the same context window, processed in the same attention pass. One of them wins. You cannot know in advance which one.</p>
+<p>Senior engineers describe an architecture. Not because the prompt doesn't matter - it does - but because they understand something fundamental about how LLMs process inputs. The model you're trying to protect against manipulation is not a reliable defender against it. The system prompt and the attacker's injected instruction sit in the same context window, processed in the same attention pass. One of them wins. You cannot know in advance which one.</p>
 
 <div class="formula-box">
   <div class="label">The Fundamental Constraint</div>
@@ -101,21 +101,21 @@
 <p>Real guardrails are not instructions to the model. They're structural components that run before the model and after it, implemented in code that cannot be jailbroken.</p>
 
 <div class="warn-box">
-  <strong>7 of the OWASP LLM Top 10 (2025 v2.0)</strong> security risks are guardrail problems — not model problems. You can't prompt-engineer your way out of them. They require architectural defense.
+  <strong>7 of the OWASP LLM Top 10 (2025 v2.0)</strong> security risks are guardrail problems - not model problems. You can't prompt-engineer your way out of them. They require architectural defense.
 </div>
 
 <hr class="section-divider">
 
 <!-- SECTION 2: INPUT GUARD -->
-<h2>2. Input Guard — Stop the Attack Before the Model Sees It</h2>
+<h2>2. Input Guard - Stop the Attack Before the Model Sees It</h2>
 
-<p>The Input Guard is your first line of defense, and the most important. It runs before the LLM ever sees the user's message. It does not involve the main model — it's fast, independent, deterministic code. Three checks, in order:</p>
+<p>The Input Guard is your first line of defense, and the most important. It runs before the LLM ever sees the user's message. It does not involve the main model - it's fast, independent, deterministic code. Three checks, in order:</p>
 
 <table>
   <tr><th>Check</th><th>Mechanism</th><th>Latency</th><th>What It Prevents</th></tr>
   <tr><td><strong>PII Detection</strong></td><td>Pattern + NER classifier</td><td class="mono">~5ms</td><td>Names, emails, SSNs, credit cards entering the context. Scrub (consumer) or block (HIPAA).</td></tr>
   <tr><td><strong>Injection Classifier</strong></td><td class="good">ML classifier (not regex)</td><td class="mono">~20ms</td><td>"Ignore previous instructions," novel prompt injection patterns. Generalizes beyond known attacks.</td></tr>
-  <tr><td><strong>Topic Scope</strong></td><td>Domain classifier</td><td class="mono">~10ms</td><td>Out-of-scope requests. Rejected before model call — costs zero inference tokens.</td></tr>
+  <tr><td><strong>Topic Scope</strong></td><td>Domain classifier</td><td class="mono">~10ms</td><td>Out-of-scope requests. Rejected before model call - costs zero inference tokens.</td></tr>
 </table>
 
 <div class="diagram-wrap">
@@ -153,7 +153,7 @@
   <text x="390" y="56" text-anchor="middle" font-size="9" fill="#dc2626">↑ blocked requests never reach here</text>
   <text x="670" y="214" text-anchor="end" font-size="9" fill="#ccc">@systemsbyakshay</text>
 </svg>
-<p class="diagram-caption">Three checks run before the LLM sees anything. None involve the main model. All are code — they cannot be bypassed by clever prompting.</p>
+<p class="diagram-caption">Three checks run before the LLM sees anything. None involve the main model. All are code - they cannot be bypassed by clever prompting.</p>
 </div>
 
 <div class="tip-box">
@@ -163,13 +163,13 @@
 <hr class="section-divider">
 
 <!-- SECTION 3: PROMPT GUARD -->
-<h2>3. Prompt Guard — Constrain Execution, Not Just Output</h2>
+<h2>3. Prompt Guard - Constrain Execution, Not Just Output</h2>
 
-<p>The Prompt Guard sits between the Input Guard and the LLM. Its job is not to filter bad content — that's the Input Guard's job. The Prompt Guard constrains what the LLM is structurally capable of doing during this request.</p>
+<p>The Prompt Guard sits between the Input Guard and the LLM. Its job is not to filter bad content - that's the Input Guard's job. The Prompt Guard constrains what the LLM is structurally capable of doing during this request.</p>
 
 <table>
   <tr><th>Constraint</th><th>Where Enforced</th><th>What It Prevents</th></tr>
-  <tr><td><strong>Tool Permissions</strong></td><td class="mono">Orchestrator</td><td>Read-only user gets an orchestrator that won't call write-capable tools. Model can't "get around" it — the permission isn't in the model's reach.</td></tr>
+  <tr><td><strong>Tool Permissions</strong></td><td class="mono">Orchestrator</td><td>Read-only user gets an orchestrator that won't call write-capable tools. Model can't "get around" it - the permission isn't in the model's reach.</td></tr>
   <tr><td><strong>Context Window Budget</strong></td><td class="mono">Gateway</td><td>Hard limit (e.g. 8K tokens) on user input. Prevents pushing system prompt to low-attention positions via extremely long inputs.</td></tr>
   <tr><td><strong>Output Format</strong></td><td class="mono">Schema validator</td><td>Requiring structured JSON with a defined schema prevents format confusion attacks on downstream systems.</td></tr>
 </table>
@@ -210,24 +210,24 @@
   <text x="600" y="129" text-anchor="middle" font-size="9" fill="#6e6a64">regardless of LLM output</text>
   <text x="670" y="204" text-anchor="end" font-size="9" fill="#ccc">@systemsbyakshay</text>
 </svg>
-<p class="diagram-caption">The Prompt Guard constrains what can happen, not just what's requested. Tool permissions live in the orchestrator — the model can't reach tools it hasn't been granted.</p>
+<p class="diagram-caption">The Prompt Guard constrains what can happen, not just what's requested. Tool permissions live in the orchestrator - the model can't reach tools it hasn't been granted.</p>
 </div>
 
 <div class="tip-box">
-  <strong>The production rule:</strong> If the model can't call the tool, it doesn't matter what it generates. Tool permission enforcement lives in the orchestrator, checked before execution — not in the system prompt, where it's just advice.
+  <strong>The production rule:</strong> If the model can't call the tool, it doesn't matter what it generates. Tool permission enforcement lives in the orchestrator, checked before execution - not in the system prompt, where it's just advice.
 </div>
 
 <hr class="section-divider">
 
 <!-- SECTION 4: OUTPUT GUARD -->
-<h2>4. Output Guard — After the Model, Before the User</h2>
+<h2>4. Output Guard - After the Model, Before the User</h2>
 
-<p>The Output Guard is your last line of defense. Even with a strong Input Guard and tight Prompt Guard, edge cases reach the model. Novel jailbreaks. Unusual inputs that slip past the injection classifier. The Output Guard exists to catch what the earlier layers missed — and to do so before the response ever reaches the user.</p>
+<p>The Output Guard is your last line of defense. Even with a strong Input Guard and tight Prompt Guard, edge cases reach the model. Novel jailbreaks. Unusual inputs that slip past the injection classifier. The Output Guard exists to catch what the earlier layers missed - and to do so before the response ever reaches the user.</p>
 
 <table>
   <tr><th>Check</th><th>Mechanism</th><th>Latency</th><th>What It Catches</th></tr>
   <tr><td><strong>Harm Classifier</strong></td><td class="good">External (Llama Guard / Azure Content Safety)</td><td class="mono">~50ms</td><td>Harmful content the model was manipulated into producing. <span class="warn">Never the main model self-assessing.</span></td></tr>
-  <tr><td><strong>PII Leakage</strong></td><td>Pattern + NER on output</td><td class="mono">~5ms</td><td>Model hallucinating or leaking personal data — even when input PII was scrubbed at Layer 1.</td></tr>
+  <tr><td><strong>PII Leakage</strong></td><td>Pattern + NER on output</td><td class="mono">~5ms</td><td>Model hallucinating or leaking personal data - even when input PII was scrubbed at Layer 1.</td></tr>
   <tr><td><strong>Faithfulness Check</strong></td><td>RAG grounding verifier</td><td class="mono">~200ms</td><td>Hallucinated claims in RAG outputs. Does the response actually derive from retrieved context?</td></tr>
 </table>
 
@@ -268,7 +268,7 @@
   <text x="512" y="178" text-anchor="middle" font-size="9" fill="#dc2626">block + log</text>
   <text x="670" y="214" text-anchor="end" font-size="9" fill="#ccc">@systemsbyakshay</text>
 </svg>
-<p class="diagram-caption">The Output Guard uses an external classifier — never the main model self-assessing. Flagged outputs are blocked and logged. Never retried for harm violations.</p>
+<p class="diagram-caption">The Output Guard uses an external classifier - never the main model self-assessing. Flagged outputs are blocked and logged. Never retried for harm violations.</p>
 </div>
 
 <div class="warn-box">
@@ -294,16 +294,16 @@
 <!-- SECTION 5: OWASP MAPPING -->
 <h2>5. OWASP LLM Top 10 (2025 v2.0) Mapping</h2>
 
-<p>The OWASP LLM Top 10 is the industry's standard taxonomy of LLM security risks. Seven of the ten are explicitly guardrail problems — risks that cannot be mitigated by model selection, fine-tuning, or better prompts.</p>
+<p>The OWASP LLM Top 10 is the industry's standard taxonomy of LLM security risks. Seven of the ten are explicitly guardrail problems - risks that cannot be mitigated by model selection, fine-tuning, or better prompts.</p>
 
 <table>
   <tr><th>OWASP Risk</th><th>Guard Layer</th><th>Mechanism</th></tr>
-  <tr><td><strong>LLM01</strong> Prompt Injection</td><td class="mono">Input Guard</td><td>Injection classifier runs before the model — code that cannot itself be injected.</td></tr>
+  <tr><td><strong>LLM01</strong> Prompt Injection</td><td class="mono">Input Guard</td><td>Injection classifier runs before the model - code that cannot itself be injected.</td></tr>
   <tr><td><strong>LLM02</strong> Sensitive Info Disclosure</td><td class="mono">Input + Output</td><td>PII detection on input (scrub/block) + PII leakage detection on output.</td></tr>
   <tr><td><strong>LLM05</strong> Improper Output Handling</td><td class="mono">Output Guard</td><td>Schema validation and format enforcement prevent downstream misprocessing.</td></tr>
   <tr><td><strong>LLM06</strong> Excessive Agency</td><td class="mono">Prompt Guard</td><td>Tool permission matrix enforced at orchestrator level per user role.</td></tr>
   <tr><td><strong>LLM07</strong> System Prompt Leakage</td><td class="mono">Output Guard</td><td>Detects system prompt content in responses before they reach the user.</td></tr>
-  <tr><td><strong>LLM09</strong> Misinformation</td><td class="mono">Output Guard</td><td>Faithfulness check — synchronous verification response is grounded in retrieved context.</td></tr>
+  <tr><td><strong>LLM09</strong> Misinformation</td><td class="mono">Output Guard</td><td>Faithfulness check - synchronous verification response is grounded in retrieved context.</td></tr>
   <tr><td><strong>LLM10</strong> Unbounded Consumption</td><td class="mono">Prompt Guard</td><td>Context budget enforcement + rate limiting in gateway. Model not involved.</td></tr>
 </table>
 
@@ -318,17 +318,17 @@
 
 <table>
   <tr><th></th><th>Practice</th><th>Why</th></tr>
-  <tr><td>&#9744;</td><td>Input Guard runs before every LLM call — not inside the prompt</td><td>Code cannot be jailbroken. System prompts can.</td></tr>
+  <tr><td>&#9744;</td><td>Input Guard runs before every LLM call - not inside the prompt</td><td>Code cannot be jailbroken. System prompts can.</td></tr>
   <tr><td>&#9744;</td><td>PII detection covers names, emails, SSNs, financial data</td><td>Scrub or block based on regulatory context (HIPAA → block).</td></tr>
   <tr><td>&#9744;</td><td>Injection classifier is ML-based, not regex-only</td><td>Regex catches known patterns. Classifiers generalize to novel attacks.</td></tr>
   <tr><td>&#9744;</td><td>Topic scope classifier rejects out-of-scope requests</td><td>Zero inference tokens for out-of-domain requests.</td></tr>
   <tr><td>&#9744;</td><td>Tool permission matrix enforced at orchestrator level</td><td>Model can't reach tools it hasn't been granted.</td></tr>
-  <tr><td>&#9744;</td><td>Context window budget enforced — hard max input token limit</td><td>Prevents system prompt attention dilution attacks.</td></tr>
+  <tr><td>&#9744;</td><td>Context window budget enforced - hard max input token limit</td><td>Prevents system prompt attention dilution attacks.</td></tr>
   <tr><td>&#9744;</td><td>Output format schema enforced</td><td>Any unexpected structure can break downstream parsers.</td></tr>
   <tr><td>&#9744;</td><td>External harm classifier (Llama Guard / Azure Content Safety)</td><td>Never the main model. Independence is the point.</td></tr>
   <tr><td>&#9744;</td><td>PII leakage detection on output</td><td>Model can include PII even when input was scrubbed.</td></tr>
-  <tr><td>&#9744;</td><td>Faithfulness check for RAG outputs — synchronous</td><td>200ms latency prevents hallucinated medical/legal claims.</td></tr>
-  <tr><td>&#9744;</td><td>Flagged outputs blocked and logged — never retried</td><td>Do not send harmful content twice hoping the second attempt is better.</td></tr>
+  <tr><td>&#9744;</td><td>Faithfulness check for RAG outputs - synchronous</td><td>200ms latency prevents hallucinated medical/legal claims.</td></tr>
+  <tr><td>&#9744;</td><td>Flagged outputs blocked and logged - never retried</td><td>Do not send harmful content twice hoping the second attempt is better.</td></tr>
   <tr><td>&#9744;</td><td>Total guardrail latency budget: &lt;250ms</td><td>Acceptable for most production applications.</td></tr>
 </table>
 
@@ -337,11 +337,11 @@
 <!-- SECTION 7: THE CLOSING INSIGHT -->
 <h2>7. Why This Is an Architecture Problem</h2>
 
-<p>The reason most LLM safety approaches fail in production is a fundamental misunderstanding of what a system prompt actually is. It's a text instruction. It lives in the context window alongside everything else the model processes — including whatever an attacker puts in the user input. The outcome depends on which instruction the model finds more persuasive in that moment.</p>
+<p>The reason most LLM safety approaches fail in production is a fundamental misunderstanding of what a system prompt actually is. It's a text instruction. It lives in the context window alongside everything else the model processes - including whatever an attacker puts in the user input. The outcome depends on which instruction the model finds more persuasive in that moment.</p>
 
-<p>Structural guardrails don't have that problem. Code that runs before the model doesn't care what the model thinks. A classifier that blocks prompt injections runs regardless of how sophisticated the injection is. A permission gate that prevents tool calls operates at the infrastructure level — outside the model's awareness entirely. An external harm classifier evaluates output independently of the process that generated it.</p>
+<p>Structural guardrails don't have that problem. Code that runs before the model doesn't care what the model thinks. A classifier that blocks prompt injections runs regardless of how sophisticated the injection is. A permission gate that prevents tool calls operates at the infrastructure level - outside the model's awareness entirely. An external harm classifier evaluates output independently of the process that generated it.</p>
 
-<p>The three layers — input guard, prompt guard, output guard — are what separate a system that's mostly safe from one that's reliably safe at scale.</p>
+<p>The three layers - input guard, prompt guard, output guard - are what separate a system that's mostly safe from one that's reliably safe at scale.</p>
 
 <!-- ck-optin -->
 <div class="optin-box">
@@ -358,7 +358,7 @@
 <!-- /ck-optin -->
 
 <div class="footer">
-  <p>Built by <span class="brand">@systemsbyakshay</span> — No BS System Design Series</p>
+  <p>Built by <span class="brand">@systemsbyakshay</span> - No BS System Design Series</p>
   <p>Guardrails are in the architecture, not the prompt.</p>
 </div>
 
