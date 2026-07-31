@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tokenization: How LLMs Actually Read Text | @systemsbyakshay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f9f8f4; font-family: 'Inter', sans-serif;
+    padding: 60px 40px; max-width: 1080px; margin: 0 auto;
+    color: #1a1a1a; line-height: 1.65;
+  }
+
+  .header { text-align: center; margin-bottom: 48px; padding-bottom: 32px; border-bottom: 2px solid #e8e4dc; }
+  .header h1 { font-size: 36px; font-weight: 800; margin-bottom: 8px; color: #0a0a0a; }
+  .header .sub { font-size: 18px; color: #6e6a64; }
+  .header .brand { font-size: 14px; color: #2563eb; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 12px; }
+
+  h2 { font-size: 24px; font-weight: 800; margin-top: 48px; margin-bottom: 16px; color: #0a0a0a; }
+  h3 { font-size: 18px; font-weight: 700; margin-top: 32px; margin-bottom: 12px; color: #1a1a1a; }
+  p { margin: 0 0 20px 0; font-size: 16px; }
+  strong { color: #0a0a0a; }
+
+  .formula-box {
+    background: #0a0a0a; color: #f9f8f4; border-radius: 12px;
+    padding: 28px 32px; margin: 24px 0; font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; text-align: center; letter-spacing: 0.5px;
+  }
+  .formula-box .label { font-size: 12px; color: #6e6a64; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 8px; font-family: 'Inter', sans-serif; }
+  .formula-box .formula { font-size: 20px; color: #FFD700; font-weight: 600; }
+
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px 0; font-size: 15px; }
+  th { background: #0a0a0a; color: #f9f8f4; padding: 12px 16px; text-align: left; font-weight: 600; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
+  td { padding: 12px 16px; border-bottom: 1px solid #e8e4dc; vertical-align: top; }
+  tr:nth-child(even) { background: rgba(0,0,0,0.02); }
+  .mono { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #2563eb; }
+  .warn { color: #dc2626; font-weight: 600; }
+  .good { color: #16a34a; font-weight: 600; }
+
+  .section-divider { border: none; border-top: 2px solid #e8e4dc; margin: 40px 0; }
+
+  .tip-box {
+    background: rgba(37,99,235,0.06); border-left: 4px solid #2563eb;
+    border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 20px 0;
+    font-size: 15px; color: #1a1a1a;
+  }
+  .tip-box strong { color: #2563eb; }
+
+  .warn-box {
+    background: rgba(220,38,38,0.06); border-left: 4px solid #dc2626;
+    border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 20px 0;
+    font-size: 15px;
+  }
+  .warn-box strong { color: #dc2626; }
+
+  .diagram-wrap { background: #fff; border: 1px solid #e8e4dc; border-radius: 12px; padding: 28px 20px; margin: 24px 0; }
+  .diagram-caption { font-size: 13px; color: #6e6a64; text-align: center; margin-top: 12px; }
+
+  .footer { text-align: center; margin-top: 48px; padding-top: 24px; border-top: 2px solid #e8e4dc; color: #6e6a64; font-size: 14px; }
+  .footer .brand { color: #2563eb; font-weight: 700; }
+
+  svg text { font-family: 'Inter', sans-serif; }
+</style>
+<style id="ck-optin-css">
+  .optin-box{background:#0a0a0a;color:#f9f8f4;border-radius:16px;padding:34px 30px;margin:44px 0;text-align:center;font-family:'Inter',system-ui,sans-serif;}
+  .optin-box .optin-eyebrow{font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#7ba0f4;font-weight:700;margin-bottom:10px;}
+  .optin-box .optin-title{font-size:25px;font-weight:800;color:#fff;margin:0 0 10px;line-height:1.2;}
+  .optin-box .optin-sub{font-size:16px;color:#c9c6c0;max-width:600px;margin:0 auto 22px;line-height:1.6;}
+  .optin-box .optin-form{display:flex;gap:10px;max-width:540px;margin:0 auto;flex-wrap:wrap;justify-content:center;}
+  .optin-box .optin-input{flex:1;min-width:220px;padding:14px 18px;border-radius:10px;border:1px solid #333;background:#161616;color:#fff;font-size:16px;font-family:inherit;}
+  .optin-box .optin-input::placeholder{color:#888;}
+  .optin-box .optin-btn{padding:14px 26px;border-radius:10px;border:none;background:#2563eb;color:#fff;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;}
+  .optin-box .optin-btn:hover{background:#1d4ed8;}
+  .optin-box .optin-fineprint{font-size:13px;color:#888;margin-top:14px;}
+  .optin-box .optin-ok{display:none;font-size:17px;color:#4ade80;font-weight:600;line-height:1.6;padding:8px 0;}
+  .optin-box .optin-ok a{color:#7ba0f4;font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">@systemsbyakshay - No BS Intuition Series</div>
+  <h1>Tokenization: How LLMs Actually Read Text</h1>
+  <div class="sub">The compression step before the model does any thinking - and the source of half the "AI bugs" that aren't model bugs at all</div>
+</div>
+
+<!-- SECTION 1: THE MECHANISM -->
+<h2>1. The Core Mechanism</h2>
+<p>An LLM never sees your words. It sees integers. Before a single weight in the model does any work, your text is run through a separate, much dumber system called a tokenizer, which chops it into chunks and maps each chunk to an integer ID from a fixed vocabulary. That vocabulary - usually 128K to 200K entries - was learned once, offline, by a completely different process than the one that trains the model.</p>
+
+<p>The algorithm behind almost every production tokenizer is byte-pair encoding (BPE). It starts from raw bytes and repeatedly merges whichever adjacent pair of symbols is most frequent in the training corpus, growing a vocabulary of chunks until it hits the target size. Text that looked like this training corpus a lot - common English words, common code patterns - collapses into very few tokens. Text that looked nothing like it - rare words, most non-English languages, unusual formatting - shatters into many.</p>
+
+<div class="formula-box">
+  <div class="label">Byte-Pair Encoding, One Line</div>
+  <div class="formula">bytes &rarr; merge(most_frequent_pair) &times; N &rarr; vocab (128K-200K) &rarr; token_ids</div>
+</div>
+
+<p>That single compression step, run before the model exists in the pipeline at all, is the hidden variable behind almost every property people attribute to "the model": cost, latency, how much context you actually get, why arithmetic is unreliable, and why the same product costs more to run in some languages than others.</p>
+
+<div class="diagram-wrap">
+<svg width="100%" viewBox="0 0 680 160" role="img">
+  <title>Text to tokens to integer IDs to model, the tokenization pipeline</title>
+  <defs>
+    <marker id="tk-a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+    <marker id="tk-a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <rect x="10" y="58" width="120" height="44" rx="10" fill="#f0f0ec" stroke="#b4b2a9" stroke-width="1"/>
+  <text x="70" y="85" text-anchor="middle" font-size="11" fill="#333" font-weight="600">"strawberry"</text>
+  <line x1="130" y1="80" x2="168" y2="80" stroke="#2563eb" stroke-width="1.5" marker-end="url(#tk-a1)"/>
+  <rect x="170" y="52" width="150" height="56" rx="10" fill="rgba(37,99,235,0.08)" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="245" y="76" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">BPE Tokenizer</text>
+  <text x="245" y="92" text-anchor="middle" font-size="9" fill="#2563eb">"str" + "awberry"</text>
+  <line x1="320" y1="80" x2="358" y2="80" stroke="#2563eb" stroke-width="1.5" marker-end="url(#tk-a1)"/>
+  <rect x="360" y="52" width="130" height="56" rx="10" fill="rgba(37,99,235,0.08)" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="425" y="76" text-anchor="middle" font-size="10" fill="#1e40af" font-weight="600">Token IDs</text>
+  <text x="425" y="92" text-anchor="middle" font-size="9" fill="#2563eb" font-family="JetBrains Mono">[496, 675]</text>
+  <line x1="490" y1="80" x2="528" y2="80" stroke="#16a34a" stroke-width="1.5" marker-end="url(#tk-a2)"/>
+  <rect x="530" y="52" width="120" height="56" rx="10" fill="rgba(22,163,74,0.08)" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="590" y="76" text-anchor="middle" font-size="10" fill="#15803d" font-weight="600">Model</text>
+  <text x="590" y="92" text-anchor="middle" font-size="9" fill="#15803d">never sees letters</text>
+  <text x="670" y="150" text-anchor="end" font-size="9" fill="#ccc">@systemsbyakshay</text>
+</svg>
+<p class="diagram-caption">The individual letters "s-t-r-a-w-b-e-r-r-y" are never in the model's input. Only the two chunk IDs are. That is the whole reason it fumbles letter-counting.</p>
+</div>
+
+<hr class="section-divider">
+
+<!-- SECTION 2: THE MISCONCEPTION -->
+<h2>2. Why "Count the R's in Strawberry" Isn't a Model Bug</h2>
+
+<p>"The model reads my words" is the assumption almost everyone brings to an LLM, and it's wrong in a way that explains a specific, famous failure. Ask a model to count the letters in "strawberry" and it often gets it wrong - not because it can't count, but because it's counting over the wrong representation. "Strawberry" doesn't arrive as nine letters. It arrives as two or three chunks, something like <span class="mono">str</span> + <span class="mono">awberry</span>. The letters inside those chunks were never separate symbols the model could attend to individually.</p>
+
+<div class="tip-box">
+  <strong>The reframe:</strong> spelling, letter-counting, and string-reversal aren't "reasoning" failures. They're representation failures - you're asking a model to operate on information that was thrown away before the model ever ran. No amount of prompting fixes a missing input.
+</div>
+
+<hr class="section-divider">
+
+<!-- SECTION 3: THE INSIDER FACTS -->
+<h2>3. Five Things About Tokenizers Most Posts Skip</h2>
+
+<p>These don't show up in the average "what is tokenization" explainer, but they're the ones that actually bite you in production.</p>
+
+<table>
+  <tr><th>Fact</th><th>What It Means</th><th>Source</th></tr>
+  <tr><td><strong>The 15x language tax</strong></td><td>The same sentence can cost up to <span class="warn">15x more tokens</span> in a poorly-tokenized language than in English. That's 15x the cost, 15x the latency, and 1/15th of the effective context window for identical meaning. A "128K context" model can be an ~8K-context model for some markets.</td><td class="mono">Petrov et al., NeurIPS 2023</td></tr>
+  <tr><td><strong>Digits fragment inconsistently</strong></td><td>Older tokenizers could split "380" into one token and "381" into two ("3" + "81"). Multi-digit numbers land unpredictably, which is a direct cause of arithmetic errors. Modern tokenizers (Llama 3, o200k) force digits into fixed 1-3 digit groups specifically to fix this.</td><td class="mono">CS336 L1 / tokenizer configs</td></tr>
+  <tr><td><strong>Trailing spaces are real tokens</strong></td><td>"Hello" and "Hello " are different token sequences. A prompt that ends in a stray space pushes the model off the distribution it was trained on - completion quality drops and few-shot formats break, silently.</td><td class="mono">tiktoken (measured below)</td></tr>
+  <tr><td><strong>The 3x throughput cliff</strong></td><td>Vocab size isn't just a modeling choice - it's a GPU efficiency choice. Netflix's post-training team padded vocab size to a GPU-friendly multiple of 64/128 to avoid a ~3x embedding-layer training slowdown from bad tensor-core tiling.</td><td class="mono">Netflix TechBlog</td></tr>
+  <tr><td><strong>Glitch tokens</strong></td><td>Tokens like <span class="mono">" SolidGoldMagikarp"</span> existed in GPT-2/3's vocab - artifacts from Reddit usernames in the tokenizer's training data that never showed up meaningfully in the model's training data. Their embeddings were essentially untrained, and prompting them produced bizarre, unstable output.</td><td class="mono">Rumbelow &amp; Watkins, 2023</td></tr>
+</table>
+
+<div class="warn-box">
+  <strong>The pattern underneath all five:</strong> the tokenizer is trained separately from the model, on its own objective (compress this corpus well) with no awareness of what the model will later need to do with the result. Every one of these facts is a symptom of that split.
+</div>
+
+<!-- ck-optin -->
+<div class="optin-box">
+  <div class="optin-eyebrow">Free Resource</div>
+  <div class="optin-title">Get the Agentic AI Engineer Roadmap</div>
+  <p class="optin-sub">The full path from Foundations to RAG to Agents to Production. 42 sections, zero fluff, straight to your inbox.</p>
+  <form class="optin-form ck-roadmap-form" action="https://app.kit.com/forms/9592219/subscriptions" method="post">
+    <input class="optin-input" type="email" name="email_address" placeholder="you@email.com" aria-label="Email address" required>
+    <button class="optin-btn" type="submit">Send me the roadmap &#8594;</button>
+  </form>
+  <div class="optin-ok">You are in. Opening your roadmap now - check your email to confirm. <a href="https://akshayratnawat.github.io/systemsbyakshay-resources/roadmap/" target="_blank" rel="noopener">Open the roadmap &#8594;</a></div>
+  <div class="optin-fineprint">No spam. Unsubscribe anytime.</div>
+</div>
+<!-- /ck-optin -->
+
+<hr class="section-divider">
+
+<!-- SECTION 4: MEASURED NUMBERS -->
+<h2>4. Measured on o200k, Not Copied Off a Blog</h2>
+
+<p>The numbers below are not the usual recycled rules of thumb. They were run through <span class="mono">tiktoken</span>'s <span class="mono">o200k_base</span> encoding (the GPT-4o family tokenizer) directly - cite them as "measured on o200k."</p>
+
+<table>
+  <tr><th>Measurement</th><th>Result</th><th>Takeaway</th></tr>
+  <tr><td>English prose baseline</td><td class="mono">5.07 chars/token, 0.83 words/token</td><td>The "~4 chars/token, ~0.75 words/token" rule of thumb holds, roughly.</td></tr>
+  <tr><td>Vocab size</td><td class="mono">GPT-4o ~200K &middot; Llama 3 ~128K</td><td>Bigger vocab, shorter sequences, more embedding parameters. A tradeoff, not a free win.</td></tr>
+  <tr><td>Pretty JSON, long keys (5 fields)</td><td class="warn">63 tokens</td><td>What most logging/debug payloads look like when copy-pasted into a prompt.</td></tr>
+  <tr><td>Minified JSON, short keys (same object)</td><td class="good">38 tokens</td><td>40% fewer tokens, same information, on every single call.</td></tr>
+  <tr><td>"Answer:" vs "Answer: "</td><td class="mono">2 tokens &rarr; 3 tokens</td><td>The trailing space is its own token. It is not cosmetic.</td></tr>
+  <tr><td>"1234"</td><td class="mono">2 tokens</td><td>Multi-digit numbers split unevenly - the direct cause of arithmetic mistakes.</td></tr>
+  <tr><td>Fixed chat overhead</td><td class="mono">~3-4 tokens / message</td><td>Role markers and separators cost tokens before your content does. Multiply by turns.</td></tr>
+</table>
+
+<hr class="section-divider">
+
+<!-- SECTION 5: PRODUCTION FAILURES -->
+<h2>5. Where This Breaks In Production</h2>
+
+<h3>The multilingual bill shock</h3>
+<p>A product launches in a new market - say, Tamil or Hindi. Same user behavior, same feature usage. The token bill multiplies and the latency SLA blows up, because output tokens stream one at a time and there are simply 5-15x more of them for the same meaning. Nobody changed the model. The tokenizer was never fair across languages to begin with.</p>
+
+<h3>The whitespace regression</h3>
+<p>A prompt template gets refactored. Somewhere in the diff, a trailing newline or space is added or removed. Eval scores drop a few points. On-call spends a day chasing a "model regression" that doesn't exist - it's one invisible character that shifted every downstream token in the sequence.</p>
+
+<h3>The pretty-print tax</h3>
+<p>Debug-friendly, indented JSON with descriptive keys gets copy-pasted straight into a system prompt because it's what the logs already look like. It reads great for humans. It costs roughly 40% more tokens than it needs to, on every call, forever, for no benefit the model can use.</p>
+
+<hr class="section-divider">
+
+<!-- SECTION 6: PRODUCTION CHECKLIST -->
+<h2>6. Production Checklist</h2>
+
+<table>
+  <tr><th></th><th>Practice</th><th>Why</th></tr>
+  <tr><td>&#9744;</td><td>Measure token counts on your own domain text, not the rule of thumb</td><td>Code, non-English text, and structured data all break "4 chars/token."</td></tr>
+  <tr><td>&#9744;</td><td>Minify JSON in prompts and shorten keys</td><td>~40% fewer tokens for identical information, measured above.</td></tr>
+  <tr><td>&#9744;</td><td>Diff prompt templates on every eval regression</td><td>A trailing space is a real token. Whitespace edits silently shift the distribution.</td></tr>
+  <tr><td>&#9744;</td><td>Budget context in tokens per language/market</td><td>A 128K window is not 128K tokens of meaning for every user.</td></tr>
+  <tr><td>&#9744;</td><td>Route arithmetic to tools, not the raw model</td><td>Digit fragmentation makes multi-digit math unreliable by construction.</td></tr>
+  <tr><td>&#9744;</td><td>Normalize/trim prompts before caching</td><td>"Hello" and " Hello" tokenize differently, which silently kills cache hit rates.</td></tr>
+  <tr><td>&#9744;</td><td>Alert on tokens-per-request per endpoint</td><td>A prompt refactor or a new locale can 2-15x token spend with zero code-review signal.</td></tr>
+  <tr><td>&#9744;</td><td>Pin your tokenizer version</td><td>Vocab changes between model versions change counts and can break few-shot formats.</td></tr>
+</table>
+
+<div class="tip-box">
+  <strong>Want the copy-paste code for each of these eight checks,</strong> plus the raw o200k measurement script? That's the exclusive extra in this week's <strong>Weekly Decode</strong> newsletter - the roadmap opt-in below gets you on the list.
+</div>
+
+<hr class="section-divider">
+
+<!-- SECTION 7: CLOSING -->
+<h2>7. Why This Is the First Lecture, Not a Footnote</h2>
+
+<p>Stanford's CS336 opens its LLM systems course with tokenization before it touches attention, training, or scaling laws - and that ordering is the point. Everything downstream of the tokenizer inherits its decisions. Cost, latency, effective context length, arithmetic reliability, and multilingual fairness aren't separate model properties you tune later. They're consequences of a compression step that already happened by the time the model sees anything.</p>
+
+<p>Treat the tokenizer like the versioned, measurable production dependency it is - not an invisible preprocessing step you never have to think about. The teams that measure it stop being surprised by their bills, their evals, and their arithmetic bugs.</p>
+
+<!-- ck-optin -->
+<div class="optin-box">
+  <div class="optin-eyebrow">Free Resource</div>
+  <div class="optin-title">Want the full path, not just this one piece?</div>
+  <p class="optin-sub">Get the free Agentic AI Engineer Roadmap. 42 sections from Foundations to Production. One email, instant access.</p>
+  <form class="optin-form ck-roadmap-form" action="https://app.kit.com/forms/9592219/subscriptions" method="post">
+    <input class="optin-input" type="email" name="email_address" placeholder="you@email.com" aria-label="Email address" required>
+    <button class="optin-btn" type="submit">Send me the roadmap &#8594;</button>
+  </form>
+  <div class="optin-ok">You are in. Opening your roadmap now - check your email to confirm. <a href="https://akshayratnawat.github.io/systemsbyakshay-resources/roadmap/" target="_blank" rel="noopener">Open the roadmap &#8594;</a></div>
+  <div class="optin-fineprint">No spam. Unsubscribe anytime.</div>
+</div>
+<!-- /ck-optin -->
+
+<div class="footer">
+  <p>Built by <span class="brand">@systemsbyakshay</span> - No BS Intuition Series</p>
+  <p>The tokenizer decided your bill before the model said a word.</p>
+</div>
+
+<script id="ck-optin-js">
+(function(){
+  var R="https://akshayratnawat.github.io/systemsbyakshay-resources/roadmap/";
+  var forms=document.querySelectorAll(".ck-roadmap-form");
+  forms.forEach(function(f){
+    f.addEventListener("submit",function(e){
+      e.preventDefault();
+      var win=window.open("about:blank","_blank");
+      fetch(f.action,{method:"POST",body:new FormData(f),mode:"cors"}).then(function(){
+        if(win){win.location=R;}
+        var box=f.closest(".optin-box");
+        f.style.display="none";
+        var ok=box.querySelector(".optin-ok"); if(ok){ok.style.display="block";}
+      }).catch(function(){ if(win){win.close();} f.submit(); });
+    });
+  });
+})();
+</script>
+</body>
+</html>
