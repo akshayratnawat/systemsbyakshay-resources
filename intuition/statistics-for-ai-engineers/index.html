@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Only Statistics You Need to Become an AI Engineer | @systemsbyakshay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f9f8f4; font-family: 'Inter', sans-serif;
+    padding: 60px 40px; max-width: 1080px; margin: 0 auto;
+    color: #1a1a1a; line-height: 1.65;
+  }
+
+  .header { text-align: center; margin-bottom: 48px; padding-bottom: 32px; border-bottom: 2px solid #e8e4dc; }
+  .header h1 { font-size: 34px; font-weight: 800; margin-bottom: 10px; color: #0a0a0a; line-height: 1.25; }
+  .header .sub { font-size: 18px; color: #6e6a64; }
+  .header .brand { font-size: 14px; color: #2563eb; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 12px; }
+
+  h2 { font-size: 24px; font-weight: 800; margin-top: 48px; margin-bottom: 8px; color: #0a0a0a; }
+  h2 .num { color: #2563eb; }
+  h3 { font-size: 18px; font-weight: 700; margin-top: 26px; margin-bottom: 10px; color: #1a1a1a; }
+  p { margin: 0 0 18px 0; font-size: 16px; }
+  strong { color: #0a0a0a; }
+
+  .used-for { font-size: 14px; color: #6e6a64; font-style: italic; margin-bottom: 18px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px 0; font-size: 15px; }
+  th { background: #0a0a0a; color: #f9f8f4; padding: 12px 16px; text-align: left; font-weight: 600; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
+  td { padding: 12px 16px; border-bottom: 1px solid #e8e4dc; vertical-align: top; }
+  tr:nth-child(even) { background: rgba(0,0,0,0.02); }
+  .mono { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #2563eb; }
+
+  .section-divider { border: none; border-top: 2px solid #e8e4dc; margin: 36px 0; }
+
+  .tip-box {
+    background: rgba(37,99,235,0.06); border-left: 4px solid #2563eb;
+    border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 18px 0;
+    font-size: 15px; color: #1a1a1a;
+  }
+  .tip-box strong { color: #2563eb; }
+  .tip-box .label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #2563eb; display: block; margin-bottom: 6px; }
+
+  .use-box {
+    background: rgba(22,163,74,0.06); border-left: 4px solid #16a34a;
+    border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 18px 0;
+    font-size: 15px; color: #1a1a1a;
+  }
+  .use-box strong { color: #15803d; }
+  .use-box .label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #16a34a; display: block; margin-bottom: 6px; }
+
+  .learn-box {
+    background: #fff; border: 1px solid #e8e4dc; border-radius: 12px;
+    padding: 14px 20px; margin: 12px 0 8px; font-size: 14.5px; color: #444;
+  }
+  .learn-box .label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #6e6a64; display: block; margin-bottom: 6px; }
+  .learn-box a { color: #2563eb; text-decoration: none; }
+  .learn-box a:hover { text-decoration: underline; }
+
+  .footer { text-align: center; margin-top: 48px; padding-top: 24px; border-top: 2px solid #e8e4dc; color: #6e6a64; font-size: 14px; }
+  .footer .brand { color: #2563eb; font-weight: 700; }
+</style>
+<style id="ck-optin-css">
+  .optin-box{background:#0a0a0a;color:#f9f8f4;border-radius:16px;padding:34px 30px;margin:44px 0;text-align:center;font-family:'Inter',system-ui,sans-serif;}
+  .optin-box .optin-eyebrow{font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#7ba0f4;font-weight:700;margin-bottom:10px;}
+  .optin-box .optin-title{font-size:25px;font-weight:800;color:#fff;margin:0 0 10px;line-height:1.2;}
+  .optin-box .optin-sub{font-size:16px;color:#c9c6c0;max-width:600px;margin:0 auto 22px;line-height:1.6;}
+  .optin-box .optin-form{display:flex;gap:10px;max-width:540px;margin:0 auto;flex-wrap:wrap;justify-content:center;}
+  .optin-box .optin-input{flex:1;min-width:220px;padding:14px 18px;border-radius:10px;border:1px solid #333;background:#161616;color:#fff;font-size:16px;font-family:inherit;}
+  .optin-box .optin-input::placeholder{color:#888;}
+  .optin-box .optin-btn{padding:14px 26px;border-radius:10px;border:none;background:#2563eb;color:#fff;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;}
+  .optin-box .optin-btn:hover{background:#1d4ed8;}
+  .optin-box .optin-fineprint{font-size:13px;color:#888;margin-top:14px;}
+  .optin-box .optin-ok{display:none;font-size:17px;color:#4ade80;font-weight:600;line-height:1.6;padding:8px 0;}
+  .optin-box .optin-ok a{color:#7ba0f4;font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">@systemsbyakshay - AI/ML Intuition Series</div>
+  <h1>The Only Statistics You Need to Become an AI Engineer</h1>
+  <div class="sub">Not a prerequisite checklist. This is what's already running under your model - explained via the 20% of each concept that does 80% of the work.</div>
+</div>
+
+<p>Most "statistics for ML" content teaches it as a gate you have to pass before the real work starts. That's backwards. The concepts below aren't prerequisites - they're descriptions of what your model is already doing, whether you've studied them or not. This is the Pareto cut of each one: the small slice that explains almost everything you'll actually touch as an AI engineer, plus exactly where it shows up in code you run.</p>
+
+<hr class="section-divider">
+
+<h2><span class="num">1.</span> Expectation, Variance, Covariance</h2>
+<p>The three numbers that summarize any distribution: where it's centered (expectation), how spread out it is (variance), and how two variables move together (covariance).</p>
+<div class="tip-box">
+  <span class="label">The Pareto Cut</span>
+  Skip the formal proofs. The only intuition you need: expectation is a weighted average, variance is "how wrong is the average as a summary," and covariance is "do these two things go up together, down together, or independently."
+</div>
+<div class="use-box">
+  <span class="label">Where It Shows Up</span>
+  Batch normalization subtracts the batch mean and divides by batch variance - literally this concept, live, in every forward pass. Covariance is the backbone of PCA and why embedding dimensions end up correlated with each other.
+</div>
+<div class="learn-box"><span class="label">Learn From</span> Any intro probability course covers this well - the goal here is fluency, not a novel source.</div>
+
+<hr class="section-divider">
+
+<h2><span class="num">2.</span> Probability Distributions</h2>
+<p>Normal, Bernoulli, Binomial - the shapes that describe how likely different outcomes are.</p>
+<div class="tip-box">
+  <span class="label">The Pareto Cut</span>
+  You need exactly one mental model: softmax turns a vector of numbers into a probability distribution over your vocabulary. Everything downstream - temperature, top-p, top-k - is just different ways of reshaping or truncating that distribution before sampling from it.
+</div>
+<div class="use-box">
+  <span class="label">Where It Shows Up</span>
+  Every single token an LLM generates is a sample from a categorical distribution. "Temperature 0.7" is not a magic knob - it's dividing the logits before softmax, which flattens or sharpens that distribution.
+</div>
+<div class="learn-box"><span class="label">Learn From</span> DeepLearning.AI's "Probability & Statistics for Machine Learning" (Coursera); 3Blue1Brown's probability series for visual intuition.</div>
+
+<hr class="section-divider">
+
+<h2><span class="num">3.</span> Bayes' Theorem</h2>
+<p>How to update a belief (the posterior) given a prior belief and new evidence (the likelihood).</p>
+<div class="tip-box">
+  <span class="label">The Pareto Cut</span>
+  Forget memorizing the formula. Internalize the sentence: "how much should this new evidence change what I already believed?" If your prior was strong and the new evidence is weak, don't overreact to it. That's the entire idea.
+</div>
+<div class="use-box">
+  <span class="label">Where It Shows Up</span>
+  Bayesian hyperparameter search (used by Optuna and similar tools) builds a probabilistic model of which hyperparameters are likely to work well, updating as each trial completes. It's also the correct mental model for treating an LLM's output confidence as one signal among several, not gospel.
+</div>
+<div class="learn-box"><span class="label">Learn From</span> Stanford CS109 lecture notes (free, online); the "Learning Bayesian Statistics" podcast for applied intuition.</div>
+
+<hr class="section-divider">
+
+<h2><span class="num">4.</span> Maximum Likelihood Estimation (MLE)</h2>
+<p>Finding the model parameters that make your observed training data the most probable outcome.</p>
+<div class="tip-box">
+  <span class="label">The Pareto Cut</span>
+  You don't need the calculus. You need the sentence: training a model IS maximum likelihood estimation. Every gradient descent step nudges parameters toward assigning higher probability to the data you actually have.
+</div>
+<div class="use-box">
+  <span class="label">Where It Shows Up</span>
+  This is the theoretical justification for why minimizing cross-entropy loss (see #5) trains a language model at all - cross-entropy loss is the negative log-likelihood, and minimizing it is MLE in practice.
+</div>
+<div class="learn-box"><span class="label">Learn From</span> Stanford CS229 notes (Andrew Ng); the MLE chapter in Goodfellow, Bengio, and Courville's "Deep Learning."</div>
+
+<hr class="section-divider">
+
+<h2><span class="num">5.</span> Cross-Entropy, KL Divergence, and Perplexity</h2>
+<p>Three related ways of measuring the gap between what your model predicts and what's actually true.</p>
+<div class="tip-box">
+  <span class="label">The Pareto Cut</span>
+  Cross-entropy is the negative log-probability your model assigned to the correct answer. KL divergence is mathematically the same objective, viewed as "the distance between the model's distribution and reality." Perplexity is just cross-entropy exponentiated - a different unit, same idea. You genuinely only need to understand one of the three deeply; the other two are re-labelings.
+</div>
+<div class="use-box">
+  <span class="label">Where It Shows Up</span>
+  Cross-entropy is the literal loss function training every LLM being trained right now. KL divergence is the constraint term in RLHF that stops a fine-tuned model from drifting too far from its reference policy - it's why your model doesn't forget how to talk after alignment training. Perplexity is the classic pre-benchmark-era way papers reported "how good" a language model was.
+</div>
+<div class="learn-box"><span class="label">Learn From</span> Eli Bendersky's "Cross-entropy and KL divergence" writeup; Karpathy's from-scratch GPT build (watch him implement this loss function directly).</div>
+
+<hr class="section-divider">
+
+<h2><span class="num">6.</span> Bias-Variance Tradeoff</h2>
+<p>The tension between a model being too simple to capture the pattern (high bias) and too sensitive to the specific training data it saw (high variance).</p>
+<div class="tip-box">
+  <span class="label">The Pareto Cut</span>
+  One picture is enough: high bias = underfitting = the model is too dumb for the task. High variance = overfitting = the model memorized noise instead of signal. Every regularization technique you'll ever use is trying to move you along this tradeoff, not eliminate it.
+</div>
+<div class="use-box">
+  <span class="label">Where It Shows Up</span>
+  This is the actual theoretical reason dropout, weight decay, and early stopping work - they all deliberately add a bit of bias to reduce variance, trading a small amount of training-set fit for better generalization.
+</div>
+<div class="learn-box"><span class="label">Learn From</span> Andrew Ng's Machine Learning Specialization - still the clearest treatment of this tradeoff available for free.</div>
+
+<hr class="section-divider">
+
+<h2><span class="num">7.</span> Central Limit Theorem &amp; Confidence Intervals</h2>
+<p>Why averages of samples tend toward a normal distribution, and how to express uncertainty around a measured number.</p>
+<div class="tip-box">
+  <span class="label">The Pareto Cut</span>
+  The one number you need to internalize: sample size drives trust. A 20-example eval "win" and a 2,000-example eval "win" are not the same claim, even if both show the identical percentage improvement. Small samples produce noisy, overconfident-looking results.
+</div>
+<div class="use-box">
+  <span class="label">Where It Shows Up</span>
+  Every time you compare two prompts, two models, or two RAG configurations on a small eval set and declare a winner, this is the concept that tells you whether that declaration is trustworthy or noise.
+</div>
+<div class="learn-box"><span class="label">Learn From</span> Khan Academy's statistics course for the intuition, then apply it directly the next time you size an eval set.</div>
+
+<hr class="section-divider">
+
+<h2><span class="num">8.</span> Hypothesis Testing / A-B Testing</h2>
+<p>A formal framework for deciding whether an observed difference is real or could plausibly be chance.</p>
+<div class="tip-box">
+  <span class="label">The Pareto Cut</span>
+  You don't need to memorize test statistics by name. You need the workflow: decide your sample size and what you're measuring in advance, run it, look once. The single most damaging mistake is "peeking" - checking results early and stopping as soon as it looks good, which inflates your false-positive rate dramatically (from an intended 10% up to roughly 55% in documented cases).
+</div>
+<div class="use-box">
+  <span class="label">Where It Shows Up</span>
+  This is how you should be validating that a new prompt, a new model version, or a new RAG pipeline change is actually better in production - not by eyeballing a handful of examples and declaring victory.
+</div>
+<div class="learn-box"><span class="label">Learn From</span> GrowthBook and Statsig's engineering blogs - both are refreshingly practical rather than textbook-abstract.</div>
+
+<hr class="section-divider">
+
+<h2><span class="num">9.</span> Precision, Recall, F1, ROC-AUC</h2>
+<p>The vocabulary for describing how good a classifier, guardrail, or retrieval system actually is.</p>
+<div class="tip-box">
+  <span class="label">The Pareto Cut</span>
+  Accuracy lies on imbalanced data. If 99% of requests are benign, a classifier that always says "benign" is 99% accurate and completely useless. Precision (of what I flagged, how much was real) and recall (of what was real, how much did I catch) are the two numbers that actually matter, and they trade off against each other.
+</div>
+<div class="use-box">
+  <span class="label">Where It Shows Up</span>
+  Every guardrail, every content filter, and every retrieval system in a RAG pipeline should be reported on precision/recall, not accuracy. If someone hands you a single accuracy number for an imbalanced problem, ask what the class balance was before you trust it.
+</div>
+<div class="learn-box"><span class="label">Learn From</span> Google's Machine Learning Crash Course, classification metrics module (free).</div>
+
+<hr class="section-divider">
+
+<h2><span class="num">10.</span> Distribution Shift</h2>
+<p>When the real-world data a deployed model sees starts to differ from the data it was trained and evaluated on.</p>
+<div class="tip-box">
+  <span class="label">The Pareto Cut</span>
+  Your eval score is a measurement taken at one point in time, on one snapshot of data. It decays. The Pareto move is simple: monitor your production input distribution against your training/eval distribution on an ongoing basis, don't just eval once and assume it holds forever.
+</div>
+<div class="use-box">
+  <span class="label">Where It Shows Up</span>
+  This is the actual statistical explanation for why a model that scored great in your eval quietly gets worse over months in production - user behavior, input phrasing, or the underlying task itself drifts away from what you originally measured.
+</div>
+<div class="learn-box"><span class="label">Learn From</span> Chip Huyen's "Designing Machine Learning Systems" - the drift-detection chapter specifically is the best treatment of this available.</div>
+
+<hr class="section-divider">
+
+<h2>The Full List, At a Glance</h2>
+<table>
+  <tr><th>#</th><th>Concept</th><th>Used For</th></tr>
+  <tr><td class="mono">1</td><td>Expectation, variance, covariance</td><td>Batch norm, embedding similarity, loss function internals</td></tr>
+  <tr><td class="mono">2</td><td>Probability distributions</td><td>Softmax output, temperature/top-p sampling</td></tr>
+  <tr><td class="mono">3</td><td>Bayes' theorem</td><td>Hyperparameter search, reasoning about model confidence</td></tr>
+  <tr><td class="mono">4</td><td>Maximum Likelihood Estimation</td><td>What "training a model" mathematically means</td></tr>
+  <tr><td class="mono">5</td><td>Cross-entropy, KL divergence, perplexity</td><td>The LLM loss function; the RLHF drift constraint</td></tr>
+  <tr><td class="mono">6</td><td>Bias-variance tradeoff</td><td>Why dropout, weight decay, and early stopping work</td></tr>
+  <tr><td class="mono">7</td><td>CLT &amp; confidence intervals</td><td>Trusting (or not trusting) a small eval set</td></tr>
+  <tr><td class="mono">8</td><td>Hypothesis testing / A-B testing</td><td>Proving a prompt/model/RAG change is really better</td></tr>
+  <tr><td class="mono">9</td><td>Precision, recall, F1, ROC-AUC</td><td>Evaluating guardrails, filters, retrieval quality</td></tr>
+  <tr><td class="mono">10</td><td>Distribution shift</td><td>Explaining why production quietly degrades over time</td></tr>
+</table>
+
+<!-- ck-optin -->
+<div class="optin-box">
+  <div class="optin-eyebrow">Free Resource</div>
+  <div class="optin-title">Want breakdowns like this delivered weekly?</div>
+  <p class="optin-sub">Join The Weekly Decode - production patterns, eval frameworks, and system design breakdowns. One email, no fluff.</p>
+  <form class="optin-form ck-roadmap-form" action="https://app.kit.com/forms/9592219/subscriptions" method="post">
+    <input class="optin-input" type="email" name="email_address" placeholder="you@email.com" aria-label="Email address" required>
+    <button class="optin-btn" type="submit">Send me The Weekly Decode &#8594;</button>
+  </form>
+  <div class="optin-ok">You are in. Check your email to confirm. <a href="https://akshayratnawat.github.io/systemsbyakshay-resources/" target="_blank" rel="noopener">Browse all resources &#8594;</a></div>
+  <div class="optin-fineprint">No spam. Unsubscribe anytime.</div>
+</div>
+<!-- /ck-optin -->
+
+<div class="footer">
+  <p>Built by <span class="brand">@systemsbyakshay</span> - AI/ML Intuition Series</p>
+  <p>Statistics isn't a prerequisite. It's what's already running under your model.</p>
+</div>
+
+<script id="ck-optin-js">
+(function(){
+  var R="https://akshayratnawat.github.io/systemsbyakshay-resources/";
+  var forms=document.querySelectorAll(".ck-roadmap-form");
+  forms.forEach(function(f){
+    f.addEventListener("submit",function(e){
+      e.preventDefault();
+      var win=window.open("about:blank","_blank");
+      fetch(f.action,{method:"POST",body:new FormData(f),mode:"cors"}).then(function(){
+        if(win){win.location=R;}
+        var box=f.closest(".optin-box");
+        f.style.display="none";
+        var ok=box.querySelector(".optin-ok"); if(ok){ok.style.display="block";}
+      }).catch(function(){ if(win){win.close();} f.submit(); });
+    });
+  });
+})();
+</script>
+</body>
+</html>
