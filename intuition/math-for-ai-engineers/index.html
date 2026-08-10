@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Only Math You Need to Become an AI Engineer | @systemsbyakshay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f9f8f4; font-family: 'Inter', sans-serif;
+    padding: 60px 40px; max-width: 1080px; margin: 0 auto;
+    color: #1a1a1a; line-height: 1.65;
+  }
+
+  .header { text-align: center; margin-bottom: 48px; padding-bottom: 32px; border-bottom: 2px solid #e8e4dc; }
+  .header h1 { font-size: 34px; font-weight: 800; margin-bottom: 10px; color: #0a0a0a; line-height: 1.25; }
+  .header .sub { font-size: 18px; color: #6e6a64; }
+  .header .brand { font-size: 14px; color: #2563eb; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 12px; }
+
+  h2 { font-size: 24px; font-weight: 800; margin-top: 48px; margin-bottom: 8px; color: #0a0a0a; }
+  h2 .num { color: #2563eb; }
+  h3 { font-size: 18px; font-weight: 700; margin-top: 26px; margin-bottom: 10px; color: #1a1a1a; }
+  p { margin: 0 0 18px 0; font-size: 16px; }
+  strong { color: #0a0a0a; }
+
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px 0; font-size: 15px; }
+  th { background: #0a0a0a; color: #f9f8f4; padding: 12px 16px; text-align: left; font-weight: 600; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
+  td { padding: 12px 16px; border-bottom: 1px solid #e8e4dc; vertical-align: top; }
+  tr:nth-child(even) { background: rgba(0,0,0,0.02); }
+  .mono { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #2563eb; }
+
+  .section-divider { border: none; border-top: 2px solid #e8e4dc; margin: 36px 0; }
+
+  .tip-box {
+    background: rgba(37,99,235,0.06); border-left: 4px solid #2563eb;
+    border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 18px 0;
+    font-size: 15px; color: #1a1a1a;
+  }
+  .tip-box strong { color: #2563eb; }
+  .tip-box .label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #2563eb; display: block; margin-bottom: 6px; }
+
+  .use-box {
+    background: rgba(22,163,74,0.06); border-left: 4px solid #16a34a;
+    border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 18px 0;
+    font-size: 15px; color: #1a1a1a;
+  }
+  .use-box strong { color: #15803d; }
+  .use-box .label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #16a34a; display: block; margin-bottom: 6px; }
+
+  .learn-box {
+    background: #fff; border: 1px solid #e8e4dc; border-radius: 12px;
+    padding: 14px 20px; margin: 12px 0 8px; font-size: 14.5px; color: #444;
+  }
+  .learn-box .label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #6e6a64; display: block; margin-bottom: 6px; }
+  .learn-box a { color: #2563eb; text-decoration: none; }
+  .learn-box a:hover { text-decoration: underline; }
+
+  .formula-box {
+    background: #0a0a0a; color: #f9f8f4; border-radius: 12px;
+    padding: 24px 28px; margin: 18px 0; font-family: 'JetBrains Mono', monospace;
+    font-size: 17px; text-align: center; letter-spacing: 0.3px;
+  }
+  .formula-box .label { font-size: 11px; color: #6e6a64; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 8px; font-family: 'Inter', sans-serif; }
+
+  .footer { text-align: center; margin-top: 48px; padding-top: 24px; border-top: 2px solid #e8e4dc; color: #6e6a64; font-size: 14px; }
+  .footer .brand { color: #2563eb; font-weight: 700; }
+</style>
+<style id="ck-optin-css">
+  .optin-box{background:#0a0a0a;color:#f9f8f4;border-radius:16px;padding:34px 30px;margin:44px 0;text-align:center;font-family:'Inter',system-ui,sans-serif;}
+  .optin-box .optin-eyebrow{font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#7ba0f4;font-weight:700;margin-bottom:10px;}
+  .optin-box .optin-title{font-size:25px;font-weight:800;color:#fff;margin:0 0 10px;line-height:1.2;}
+  .optin-box .optin-sub{font-size:16px;color:#c9c6c0;max-width:600px;margin:0 auto 22px;line-height:1.6;}
+  .optin-box .optin-form{display:flex;gap:10px;max-width:540px;margin:0 auto;flex-wrap:wrap;justify-content:center;}
+  .optin-box .optin-input{flex:1;min-width:220px;padding:14px 18px;border-radius:10px;border:1px solid #333;background:#161616;color:#fff;font-size:16px;font-family:inherit;}
+  .optin-box .optin-input::placeholder{color:#888;}
+  .optin-box .optin-btn{padding:14px 26px;border-radius:10px;border:none;background:#2563eb;color:#fff;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;}
+  .optin-box .optin-btn:hover{background:#1d4ed8;}
+  .optin-box .optin-fineprint{font-size:13px;color:#888;margin-top:14px;}
+  .optin-box .optin-ok{display:none;font-size:17px;color:#4ade80;font-weight:600;line-height:1.6;padding:8px 0;}
+  .optin-box .optin-ok a{color:#7ba0f4;font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">@systemsbyakshay - AI/ML Intuition Series</div>
+  <h1>The Only Math You Need to Become an AI Engineer</h1>
+  <div class="sub">Not the math you took in college. The math that's actually running while your model trains - explained via the 20% of each concept that does 80% of the work.</div>
+</div>
+
+<p>Most "math for ML" content stops at linear algebra and basic gradient descent, then assumes you'll pick up the rest from papers. This is the next tier up: the calculus and optimization-theory concepts that explain what's actually happening when a model trains, why it sometimes plateaus, and why certain lines of code are written the way they are. Same Pareto-cut approach as the statistics companion post - the small slice of each concept that explains almost everything you'll touch.</p>
+
+<hr class="section-divider">
+
+<h2><span class="num">1.</span> The Chain Rule</h2>
+<p>The rule for finding the derivative of a function made of nested functions - and the single mathematical fact that makes backpropagation possible.</p>
+<div class="tip-box">
+  <span class="label">The Pareto Cut</span>
+  You don't need to derive it. You need the picture: to know how much a change deep inside a hundred-layer network affects the final loss, you multiply local derivatives together, one layer at a time, working backward from the output.
+</div>
+<div class="formula-box">
+  <div class="label">The Idea</div>
+  dL/dw&#8321; = dL/dy &middot; dy/dz &middot; dz/dw&#8321;
+</div>
+<div class="use-box">
+  <span class="label">Where It Shows Up</span>
+  Every time a framework "calls .backward()," it is running the chain rule millions of times per training step. It is not an abstraction sitting behind PyTorch - it is the entire mechanism PyTorch is automating for you.
+</div>
+<div class="learn-box"><span class="label">Learn From</span> 3Blue1Brown's "Backpropagation calculus"; Karpathy's micrograd build, where he implements this rule from scratch on camera.</div>
+
+<hr class="section-divider">
+
+<h2><span class="num">2.</span> The Jacobian Matrix</h2>
+<p>The generalization of "the derivative" to functions that map multiple inputs to multiple outputs.</p>
+<div class="tip-box">
+  <span class="label">The Pareto Cut</span>
+  A single derivative answers "how much does the one output change per unit of input." A Jacobian answers the same question for every output, with respect to every input, all at once - it's a full matrix of those answers instead of one number.
+</div>
+<div class="use-box">
+  <span class="label">Where It Shows Up</span>
+  Almost every layer in a neural network maps a vector to another vector, which means almost every layer has a Jacobian. Backpropagation through a deep network is really the chain rule applied to a sequence of Jacobians, not single-number derivatives.
+</div>
+<div class="learn-box"><span class="label">Learn From</span> The Jacobian/Hessian intuition writeups on Medium and GeeksforGeeks are solid for building the visual picture without getting lost in notation.</div>
+
+<hr class="section-divider">
+
+<h2><span class="num">3.</span> Taylor Series</h2>
+<p>A way of approximating any smooth function, near a specific point, using a sum of simpler polynomial terms.</p>
+<div class="tip-box">
+  <span class="label">The Pareto Cut</span>
+  You need exactly the first-order term. It says: if you zoom in close enough on any smooth loss function, it looks approximately linear - and the gradient is that local linear approximation. This is the actual justification for why a small gradient-descent step moves you in a useful direction, not a hack that happens to work.
+</div>
+<div class="use-box">
+  <span class="label">Where It Shows Up</span>
+  Every gradient descent update is implicitly trusting a first-order Taylor approximation of the loss around your current parameters. Go one term further in the expansion and you get the piece that describes curvature - which is the Hessian, next.
+</div>
+<div class="learn-box"><span class="label">Learn From</span> Any standard calculus course's Taylor series unit - then deliberately re-read the gradient descent update rule with this lens afterward.</div>
+
+<hr class="section-divider">
+
+<h2><span class="num">4.</span> The Hessian Matrix &amp; Convexity</h2>
+<p>The matrix of second derivatives - it describes the curvature of your loss function, not just its slope.</p>
+<div class="tip-box">
+  <span class="label">The Pareto Cut</span>
+  One classification is enough to be useful: a positive-definite Hessian means you're near a genuine minimum (the bowl curves up in every direction - convex, easy). An indefinite Hessian means you're at a saddle point - it curves up in some directions and down in others, so it only looks like a minimum from certain angles.
+</div>
+<div class="use-box">
+  <span class="label">Where It Shows Up</span>
+  This is the actual reason Adam and SGD (which only use first-order gradient information) are cheap and dominant at LLM scale, while Newton's method and quasi-Newton methods (which use the Hessian directly) converge in fewer steps but are far too expensive to compute at billions of parameters.
+</div>
+<div class="learn-box"><span class="label">Learn From</span> DataCamp's Hessian matrix tutorial; Cadence's "All About the Hessian Matrix, Convexity, and Optimization" writeup.</div>
+
+<hr class="section-divider">
+
+<h2><span class="num">5.</span> Local Minima vs. Saddle Points</h2>
+<p>The geometric consequence of the Hessian classification above - what "training got stuck" actually looks like, geometrically.</p>
+<div class="tip-box">
+  <span class="label">The Pareto Cut</span>
+  In the very high-dimensional loss landscapes LLMs train in, true local minima are rare and saddle points are common - a point that curves down in most directions but up in a few. "Training plateaued" is much more often "crossing a saddle" than "trapped at the bottom of a bowl."
+</div>
+<div class="use-box">
+  <span class="label">Where It Shows Up</span>
+  This reframes what a loss plateau means during training - it changes how you'd reason about learning-rate schedules, warmup, and momentum-based optimizers, all of which exist partly to help escape saddle regions rather than to find a "better" minimum.
+</div>
+<div class="learn-box"><span class="label">Learn From</span> The same Hessian resources above - the geometry falls out directly once the Hessian classification clicks.</div>
+
+<hr class="section-divider">
+
+<h2><span class="num">6.</span> Log-Sum-Exp / Working in Log-Space</h2>
+<p>Why nearly every ML codebase computes log-probabilities instead of raw probabilities.</p>
+<div class="tip-box">
+  <span class="label">The Pareto Cut</span>
+  Multiplying many small probabilities together underflows to zero on real hardware almost immediately. Adding their logarithms together doesn't. That's the entire reason - not elegance, numerical survival.
+</div>
+<div class="use-box">
+  <span class="label">Where It Shows Up</span>
+  This is the actual reason behind half the "log" prefixes scattered through loss functions and codebases - log-likelihood, log-softmax, log-sum-exp as a stable building block. Once you know why, these stop looking like arbitrary naming conventions.
+</div>
+<div class="learn-box"><span class="label">Learn From</span> Search "log-sum-exp trick numerical stability" alongside whatever deep learning framework docs you're already using - most frameworks document their own stable implementations directly.</div>
+
+<hr class="section-divider">
+
+<h2><span class="num">7.</span> Matrix Calculus Notation</h2>
+<p>Just enough fluency in derivative notation for vectors and matrices to read a paper's gradient derivation without stalling out.</p>
+<div class="tip-box">
+  <span class="label">The Pareto Cut</span>
+  You don't need to derive matrix calculus results yourself. You need pattern recognition: spotting a gradient vector, a Jacobian, and a Hessian on sight, and knowing roughly what shape each one is (vector, matrix, matrix) relative to the function they came from.
+</div>
+<div class="use-box">
+  <span class="label">Where It Shows Up</span>
+  This is the bridge back to linear algebra - the deep linear algebra ground (vectors, matmul, eigenvectors, SVD) is covered in a companion piece; this is specifically the notation fluency needed to read *derivations*, not just operations.
+</div>
+<div class="learn-box"><span class="label">Learn From</span> The "Matrix Calculus for Deep Learning" reference sheets that circulate widely (search the exact phrase) - most people bookmark one rather than memorize it, which is the right call.</div>
+
+<hr class="section-divider">
+
+<h2>The Full List, At a Glance</h2>
+<table>
+  <tr><th>#</th><th>Concept</th><th>Used For</th></tr>
+  <tr><td class="mono">1</td><td>Chain rule</td><td>The mechanism behind backpropagation itself</td></tr>
+  <tr><td class="mono">2</td><td>Jacobian matrix</td><td>The derivative when outputs are vectors, not scalars</td></tr>
+  <tr><td class="mono">3</td><td>Taylor series</td><td>Why a small gradient step is a valid local approximation</td></tr>
+  <tr><td class="mono">4</td><td>Hessian &amp; convexity</td><td>Is this a real minimum, or a saddle point</td></tr>
+  <tr><td class="mono">5</td><td>Local minima vs. saddle points</td><td>What "training plateaued" actually means, geometrically</td></tr>
+  <tr><td class="mono">6</td><td>Log-sum-exp</td><td>Why ML code works in log-space (numerical stability)</td></tr>
+  <tr><td class="mono">7</td><td>Matrix calculus notation</td><td>Reading a paper's gradient derivation without flinching</td></tr>
+</table>
+
+<!-- ck-optin -->
+<div class="optin-box">
+  <div class="optin-eyebrow">Free Resource</div>
+  <div class="optin-title">Want breakdowns like this delivered weekly?</div>
+  <p class="optin-sub">Join The Weekly Decode - production patterns, eval frameworks, and system design breakdowns. One email, no fluff.</p>
+  <form class="optin-form ck-roadmap-form" action="https://app.kit.com/forms/9592219/subscriptions" method="post">
+    <input class="optin-input" type="email" name="email_address" placeholder="you@email.com" aria-label="Email address" required>
+    <button class="optin-btn" type="submit">Send me The Weekly Decode &#8594;</button>
+  </form>
+  <div class="optin-ok">You are in. Check your email to confirm. <a href="https://akshayratnawat.github.io/systemsbyakshay-resources/" target="_blank" rel="noopener">Browse all resources &#8594;</a></div>
+  <div class="optin-fineprint">No spam. Unsubscribe anytime.</div>
+</div>
+<!-- /ck-optin -->
+
+<div class="footer">
+  <p>Built by <span class="brand">@systemsbyakshay</span> - AI/ML Intuition Series</p>
+  <p>Not the math you took in college. The math already running when your model trains.</p>
+</div>
+
+<script id="ck-optin-js">
+(function(){
+  var R="https://akshayratnawat.github.io/systemsbyakshay-resources/";
+  var forms=document.querySelectorAll(".ck-roadmap-form");
+  forms.forEach(function(f){
+    f.addEventListener("submit",function(e){
+      e.preventDefault();
+      var win=window.open("about:blank","_blank");
+      fetch(f.action,{method:"POST",body:new FormData(f),mode:"cors"}).then(function(){
+        if(win){win.location=R;}
+        var box=f.closest(".optin-box");
+        f.style.display="none";
+        var ok=box.querySelector(".optin-ok"); if(ok){ok.style.display="block";}
+      }).catch(function(){ if(win){win.close();} f.submit(); });
+    });
+  });
+})();
+</script>
+</body>
+</html>
