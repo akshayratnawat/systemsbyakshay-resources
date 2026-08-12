@@ -107,6 +107,25 @@
   <div class="sub">The only guide you need to go from zero vLLM awareness to the person your team turns to for production inference decisions. System design first - capacity, cost, latency, and the tradeoffs behind each one. Not a recitation of the source code.</div>
 </div>
 
+<div class="module-tag" style="margin-top:0;">Start Here</div>
+<h2 id="why-vllm">0. What vLLM Actually Solves</h2>
+<p class="intuition">Every LLM request needs a KV cache - memory that grows with every token generated, for every request that's currently active. The naive way to serve a model is to reserve one big contiguous block of GPU memory per request, sized for the worst case (the maximum sequence length you'll allow), and hope it's enough.</p>
+<p>That naive approach is wasteful in two ways. Most requests never get anywhere near their max length, so a lot of reserved memory just sits empty. And even memory that does get freed can become unusable "fragments" - gaps too small or too awkwardly placed to fit the next request's reservation. Measured without any optimization, <strong>60-80% of KV cache memory can sit wasted this way</strong> - you're paying for GPU memory you're not actually using.</p>
+
+<div class="use-box">
+  <span class="label">The Founding Idea: PagedAttention</span>
+  vLLM borrows a trick straight from operating systems. Instead of one large contiguous reservation per request, it splits the KV cache into small, fixed-size blocks - like OS memory pages - and lets any request use any free block, wherever it happens to be. Nothing needs to be contiguous. Combined with continuous batching (Module 2 below - mixing many requests' work into every single GPU step instead of waiting for a batch to fill), this is why vLLM can serve dramatically more concurrent users on the exact same GPU than a naive implementation - roughly 2-4x more, in measured benchmarks.
+</div>
+
+<div class="decision-box">
+  <span class="label">Why This Isn't Academic</span>
+  Inference serving cost is usually the largest recurring line item once a product has real usage - unlike training, which is a one-time cost, you pay for serving every single day, forever. The gap between a naive serving setup and a properly-tuned vLLM deployment is often the difference between needing 10 GPUs and needing 3. Every module in this guide is really answering one question: how do you extract the most useful work out of every GPU-second you're already paying for.
+</div>
+
+<p>If you already know all of this, skip straight to Module 1. If you're new to inference serving, that's the whole reason this guide exists - keep going.</p>
+
+<hr class="section-divider">
+
 <div class="toc">
   <h2>What's Inside</h2>
   <div class="toc-module">
