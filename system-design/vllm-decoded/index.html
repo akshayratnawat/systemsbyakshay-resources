@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>vLLM, Decoded: Zero to Hero | @systemsbyakshay</title>
+<title>vLLM, Decoded: How It Makes Inference Actually Fast | @systemsbyakshay</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -31,6 +31,13 @@
   .toc-module a:hover { color: #2563eb; text-decoration: underline; }
 
   .module-tag { display: inline-block; background: rgba(37,99,235,0.08); color: #2563eb; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 5px 14px; border-radius: 40px; margin-top: 56px; margin-bottom: 8px; }
+  .opt-tag { display: inline-block; background: rgba(147,51,234,0.08); color: #7e22ce; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 14px; border-radius: 40px; margin-top: 44px; margin-bottom: 8px; }
+  .faster-because {
+    background: rgba(147,51,234,0.06); border-left: 4px solid #9333ea;
+    border-radius: 0 12px 12px 0; padding: 14px 20px; margin: 14px 0 18px;
+    font-size: 15.5px; color: #1a1a1a;
+  }
+  .faster-because strong { color: #7e22ce; }
   h2 { font-size: 27px; font-weight: 800; margin-top: 6px; margin-bottom: 10px; color: #0a0a0a; }
   h3 { font-size: 17px; font-weight: 700; margin-top: 24px; margin-bottom: 8px; color: #1a1a1a; }
   p { margin: 0 0 16px 0; font-size: 16px; }
@@ -105,8 +112,8 @@
 
 <div class="header">
   <div class="brand">@systemsbyakshay - No BS System Design Series</div>
-  <h1>vLLM, Decoded: Zero to Hero</h1>
-  <div class="sub">The only guide you need to go from zero vLLM awareness to the person your team turns to for production inference decisions. System design first - capacity, cost, latency, and the tradeoffs behind each one. Not a recitation of the source code.</div>
+  <h1>vLLM, Decoded: How It Makes Inference Actually Fast</h1>
+  <div class="sub">Every optimization vLLM makes, organized by what it actually speeds up - memory, compute, latency, or scale - and by how much. Zero vLLM awareness to the person your team turns to for production inference decisions.</div>
 </div>
 
 <div class="module-tag" style="margin-top:0;">Start Here</div>
@@ -116,55 +123,68 @@
 
 <div class="use-box">
   <span class="label">The Founding Idea: PagedAttention</span>
-  vLLM borrows a trick straight from operating systems. Instead of one large contiguous reservation per request, it splits the KV cache into small, fixed-size blocks - like OS memory pages - and lets any request use any free block, wherever it happens to be. Nothing needs to be contiguous. Combined with continuous batching (Module 2 below - mixing many requests' work into every single GPU step instead of waiting for a batch to fill), this is why vLLM can serve dramatically more concurrent users on the exact same GPU than a naive implementation - roughly 2-4x more, in measured benchmarks.
+  vLLM borrows a trick straight from operating systems. Instead of one large contiguous reservation per request, it splits the KV cache into small, fixed-size blocks - like OS memory pages - and lets any request use any free block, wherever it happens to be. Nothing needs to be contiguous. Combined with continuous batching (Part 2 below - mixing many requests' work into every single GPU step instead of waiting for a batch to fill), this is why vLLM can serve dramatically more concurrent users on the exact same GPU than a naive implementation - roughly 2-4x more, in measured benchmarks.
 </div>
+
+<div class="faster-because"><strong>Faster because:</strong> memory that used to sit reserved-but-idle, or fragmented into unusable gaps, becomes usable capacity - the same GPU serves more concurrent requests without any hardware change.</div>
 
 <div class="decision-box">
   <span class="label">Why This Isn't Academic</span>
   Inference serving cost is usually the largest recurring line item once a product has real usage - unlike training, which is a one-time cost, you pay for serving every single day, forever. The gap between a naive serving setup and a properly-tuned vLLM deployment is often the difference between needing 10 GPUs and needing 3. Every module in this guide is really answering one question: how do you extract the most useful work out of every GPU-second you're already paying for.
 </div>
 
-<p>If you already know all of this, skip straight to Module 1. If you're new to inference serving, that's the whole reason this guide exists - keep going.</p>
+<p>If you already know all of this, skip straight to Part 1. If you're new to inference serving, that's the whole reason this guide exists - keep going.</p>
 
 <hr class="section-divider">
 
 <div class="toc">
-  <h2>What's Inside</h2>
+  <h2>What's Inside - Every Part Answers "What Does This Optimize?"</h2>
   <div class="toc-module">
-    <div class="mod-title">Module 1 - Foundations</div>
+    <div class="mod-title">Memory Budgeting</div>
     <ul><li><a href="#engine-anatomy">1. Engine Anatomy - the memory ceiling and the cold-start tradeoff</a></li></ul>
   </div>
   <div class="toc-module">
-    <div class="mod-title">Module 2 - The Core Mechanism</div>
+    <div class="mod-title">Compute Optimization</div>
     <ul><li><a href="#scheduler">2. Scheduler, Continuous Batching &amp; Paged Attention - why vLLM is fast, and your real capacity limit</a></li></ul>
   </div>
   <div class="toc-module">
-    <div class="mod-title">Module 3 - The Levers</div>
-    <ul>
-      <li><a href="#prefix-caching">3. Prefix Caching - the biggest cost lever</a></li>
-      <li><a href="#chunked-prefill">4. Chunked Prefill - fairness vs. throughput</a></li>
-      <li><a href="#spec-decoding">5. Speculative Decoding - the latency lever</a></li>
-      <li><a href="#guided-decoding">6. Guided Decoding - the reliability lever</a></li>
-    </ul>
+    <div class="mod-title">Memory &amp; Compute Optimization</div>
+    <ul><li><a href="#prefix-caching">3. Prefix Caching - the biggest cost lever</a></li></ul>
   </div>
   <div class="toc-module">
-    <div class="mod-title">Module 4 - Scaling Out</div>
+    <div class="mod-title">Fairness Optimization</div>
+    <ul><li><a href="#chunked-prefill">4. Chunked Prefill - fairness vs. throughput</a></li></ul>
+  </div>
+  <div class="toc-module">
+    <div class="mod-title">Latency Optimization</div>
+    <ul><li><a href="#spec-decoding">5. Speculative Decoding - the latency lever</a></li></ul>
+  </div>
+  <div class="toc-module">
+    <div class="mod-title">Correctness Without Cost</div>
+    <ul><li><a href="#guided-decoding">6. Guided Decoding - the reliability lever</a></li></ul>
+  </div>
+  <div class="toc-module">
+    <div class="mod-title">Throughput At Scale</div>
     <ul>
       <li><a href="#multi-gpu">7. Scaling to Multi-GPU - TP vs. PP</a></li>
       <li><a href="#distributed-serving">8. Distributed Serving - real deployment topology</a></li>
-      <li><a href="#disaggregated">9. Disaggregated Prefill/Decode - the advanced pattern</a></li>
     </ul>
   </div>
   <div class="toc-module">
-    <div class="mod-title">Module 5 - Operate It</div>
+    <div class="mod-title">Latency + Throughput, Decoupled</div>
+    <ul><li><a href="#disaggregated">9. Disaggregated Prefill/Decode - the advanced pattern</a></li></ul>
+  </div>
+  <div class="toc-module">
+    <div class="mod-title">Proving The Optimization</div>
     <ul><li><a href="#benchmarking">10. Benchmarking &amp; Tuning - proving any of this actually worked</a></li></ul>
   </div>
 </div>
 
-<!-- ══════════════════════ MODULE 1 ══════════════════════ -->
-<div class="module-tag">Module 1 - Foundations</div>
+<!-- ══════════════════════ PART 1 ══════════════════════ -->
+<div class="opt-tag">Memory Budgeting</div>
 <h2 id="engine-anatomy">1. Engine Anatomy</h2>
 <p class="intuition">You call <span class="mono">LLM(model=...)</span> once. Before it ever sees a prompt, vLLM resolves its config, builds the scheduler, and - critically - runs a worker init sequence that decides two things you'll live with for the life of the deployment: how much GPU memory you actually get, and how fast your first request will be.</p>
+<div class="faster-because"><strong>Faster because:</strong> you can predict your real memory ceiling and startup-vs-steady-state tradeoff before deploying, instead of discovering both the hard way in production.</div>
 
 <h3>The decision that actually matters here</h3>
 <div class="decision-box">
@@ -216,10 +236,11 @@ llm = LLM(model=<span class="str">"..."</span>, enforce_eager=<span class="kw">F
 
 <hr class="section-divider">
 
-<!-- ══════════════════════ MODULE 2 ══════════════════════ -->
-<div class="module-tag">Module 2 - The Core Mechanism</div>
+<!-- ══════════════════════ PART 2 ══════════════════════ -->
+<div class="opt-tag">Compute Optimization</div>
 <h2 id="scheduler">2. Scheduler, Continuous Batching &amp; Paged Attention</h2>
 <p class="intuition">This is the single mental model everything else in this guide either exploits or works around. Get this one and the rest of vLLM stops looking like a pile of features and starts looking like consequences of one design choice.</p>
+<div class="faster-because"><strong>Faster because:</strong> the GPU is never idle waiting for a batch to fill or a slow request to finish - every step does useful work for every active request, mixed together.</div>
 
 <h3>Two workloads, two bottlenecks</h3>
 <table>
@@ -264,10 +285,11 @@ llm = LLM(model=<span class="str">"..."</span>, enforce_eager=<span class="kw">F
 
 <hr class="section-divider">
 
-<!-- ══════════════════════ MODULE 3 ══════════════════════ -->
-<div class="module-tag">Module 3 - The Levers</div>
+<!-- ══════════════════════ PART 3 ══════════════════════ -->
+<div class="opt-tag">Memory &amp; Compute Optimization</div>
 <h2 id="prefix-caching">3. Prefix Caching</h2>
 <p class="intuition">If two requests share the same opening tokens - a system prompt, a few-shot block, a long document prefix - vLLM can skip recomputing the KV cache for that shared portion entirely and just reuse it.</p>
+<div class="faster-because"><strong>Faster because:</strong> compute you already paid for once never gets paid for again - a shared prefix across thousands of requests is now close to free.</div>
 
 <h3>How it actually works</h3>
 <p>Tokens are split into 16-token chunks (matching the default block size) and hashed. The hash for each chunk depends on the previous chunk's hash plus its own tokens - so a shared prefix produces identical hashes across requests, and <span class="mono">find_longest_cache_hit</span> can look up already-computed blocks instead of recomputing them.</p>
@@ -294,8 +316,10 @@ llm = LLM(
 
 <hr class="section-divider">
 
+<div class="opt-tag">Fairness Optimization</div>
 <h2 id="chunked-prefill">4. Chunked Prefill</h2>
 <p class="intuition">A single very long prompt can monopolize an entire scheduling step, blocking every other request - including latency-sensitive decode requests - until it's done.</p>
+<div class="faster-because"><strong>Faster because (for everyone else):</strong> no single long prompt can hold every other request's latency hostage for the length of its own prefill.</div>
 
 <div class="decision-box">
   <span class="label">The Tradeoff</span>
@@ -322,8 +346,10 @@ llm = LLM(
 
 <hr class="section-divider">
 
+<div class="opt-tag">Latency Optimization</div>
 <h2 id="spec-decoding">5. Speculative Decoding</h2>
 <p class="intuition">Every token normally costs a full forward pass through the large model. Speculative decoding proposes several tokens cheaply, then verifies them all in a single large-model pass - accepting the ones that match what the large model would have generated anyway.</p>
+<div class="faster-because"><strong>Faster because:</strong> you can accept multiple tokens per expensive large-model forward pass instead of exactly one - the accept rate directly multiplies your effective decode speed.</div>
 
 <h3>The accept/reject math</h3>
 <p>For each of the <span class="mono">k</span> proposed tokens, left to right: if the large model's probability for that token is <span class="mono">≥</span> the draft's probability, accept it. Otherwise, accept it with probability <span class="mono">p_large / p_draft</span>. Stop at the first rejection. If all <span class="mono">k</span> are accepted, you also get one extra token "free" from the large model's own distribution.</p>
@@ -359,8 +385,10 @@ llm = LLM(model=<span class="str">"..."</span>, speculative_config=speculative_c
 
 <hr class="section-divider">
 
+<div class="opt-tag">Correctness Without Cost</div>
 <h2 id="guided-decoding">6. Guided Decoding</h2>
 <p class="intuition">If you need output in a specific format - JSON matching a schema, one of a fixed set of choices - guided decoding constrains which tokens the model is even allowed to sample, using a grammar-based finite state machine.</p>
+<div class="faster-because"><strong>Faster because:</strong> you skip the retry loop entirely - no re-prompting, no parsing failures, no wasted forward passes on output you'll throw away and regenerate.</div>
 
 <div class="decision-box">
   <span class="label">When To Actually Use This</span>
@@ -374,10 +402,11 @@ sampling_params = SamplingParams(guided_decoding=guided)</div>
 
 <hr class="section-divider">
 
-<!-- ══════════════════════ MODULE 4 ══════════════════════ -->
-<div class="module-tag">Module 4 - Scaling Out</div>
+<!-- ══════════════════════ PART 7 ══════════════════════ -->
+<div class="opt-tag">Throughput At Scale</div>
 <h2 id="multi-gpu">7. Scaling to Multi-GPU</h2>
 <p class="intuition">When a model's weights don't fit on one GPU, you have two ways to split it - and the choice is a real architecture decision, not a default to accept.</p>
+<div class="faster-because"><strong>Faster because:</strong> picking the split that matches your actual bandwidth topology avoids turning inter-GPU communication into your new bottleneck.</div>
 
 <table>
   <tr><th>Approach</th><th>Splits</th><th>Best when</th></tr>
@@ -398,8 +427,10 @@ llm = LLM(model=<span class="str">"..."</span>, tensor_parallel_size=<span class
 
 <hr class="section-divider">
 
+<div class="opt-tag">Throughput At Scale</div>
 <h2 id="distributed-serving">8. Distributed Serving</h2>
 <p class="intuition">Beyond a single engine, vLLM supports data-parallel deployment - multiple full engine replicas, load-balanced behind one API surface.</p>
+<div class="faster-because"><strong>Faster because:</strong> aggregate capacity grows with each replica added, and the load-balancing formula actively routes around whichever engine is currently most backed up.</div>
 
 <div class="code-block"><span class="cm"># Node 1 - headless (no API), 2 engines, TP=4 each</span>
 vllm serve &lt;model&gt; \
@@ -432,8 +463,10 @@ vllm serve &lt;model&gt; \
 
 <hr class="section-divider">
 
+<div class="opt-tag">Latency + Throughput, Decoupled</div>
 <h2 id="disaggregated">9. Disaggregated Prefill/Decode</h2>
 <p class="intuition">Prefill (compute-bound) and decode (memory-bandwidth-bound) have fundamentally different performance profiles. At large enough scale, running them on separate, independently-scaled pools of hardware gives you tighter control over both.</p>
+<div class="faster-because"><strong>Faster because:</strong> a burst of prefill-heavy traffic stops stealing decode latency budget from everyone already mid-generation - each bottleneck gets its own dedicated hardware.</div>
 
 <div class="diagram-wrap">
   <svg width="100%" viewBox="0 0 720 190" role="img">
@@ -467,10 +500,11 @@ llm = LLM(model=<span class="str">"..."</span>, kv_transfer_config=ktc)</div>
 
 <hr class="section-divider">
 
-<!-- ══════════════════════ MODULE 5 ══════════════════════ -->
-<div class="module-tag">Module 5 - Operate It</div>
+<!-- ══════════════════════ PART 10 ══════════════════════ -->
+<div class="opt-tag">Proving The Optimization</div>
 <h2 id="benchmarking">10. Benchmarking &amp; Tuning</h2>
-<p class="intuition">Everything above is a lever. This module is how you find out whether pulling it actually helped - and it's the part most people skip until something's already on fire in production.</p>
+<p class="intuition">Everything above is an optimization. This part is how you find out whether pulling any given lever actually helped - and it's the part most people skip until something's already on fire in production.</p>
+<div class="faster-because"><strong>Faster because:</strong> without this, "faster" is a guess. TTFT, ITL, and goodput turn every optimization above from a hope into a measured, provable number.</div>
 
 <h3>The metrics that actually matter</h3>
 <table>
@@ -525,7 +559,7 @@ vllm bench serve \
 <h2>The Full Guide, At a Glance</h2>
 <p style="color:#6e6a64; font-size:15px; margin-bottom:20px;">Every load-bearing fact from this guide, in one place - screenshot this section.</p>
 
-<div class="module-tag" style="margin-top:20px;">Module 1 - Foundations</div>
+<div class="module-tag" style="margin-top:20px;">Memory Budgeting (Part 1)</div>
 <div class="use-box">
   <ul style="padding-left:20px; margin:0;">
     <li><span class="mono">gpu_memory_utilization</span> (default <span class="mono">0.8</span>) is a hard VRAM ceiling - raise it if nothing else shares the GPU, lower it if something does.</li>
@@ -534,7 +568,7 @@ vllm bench serve \
   </ul>
 </div>
 
-<div class="module-tag">Module 2 - The Core Mechanism</div>
+<div class="module-tag">Compute Optimization (Part 2)</div>
 <div class="use-box">
   <ul style="padding-left:20px; margin:0;">
     <li>Prefill = compute-bound (full prompt, once). Decode = memory-bandwidth-bound (last token, repeatedly, every step).</li>
@@ -543,7 +577,7 @@ vllm bench serve \
   </ul>
 </div>
 
-<div class="module-tag">Module 3 - The Levers</div>
+<div class="module-tag">The Levers - Parts 3-6</div>
 <div class="use-box">
   <ul style="padding-left:20px; margin:0;">
     <li><strong>Prefix caching:</strong> put static content (system prompts, tool defs) first, variable content last - shared prefixes reuse KV cache for free. On by default.</li>
@@ -553,7 +587,7 @@ vllm bench serve \
   </ul>
 </div>
 
-<div class="module-tag">Module 4 - Scaling Out</div>
+<div class="module-tag">Throughput at Scale - Parts 7-9</div>
 <div class="use-box">
   <ul style="padding-left:20px; margin:0;">
     <li><strong>Tensor parallelism first</strong> - it needs fast intranode bandwidth. Reach for <strong>pipeline parallelism</strong> only once you must cross nodes.</li>
@@ -562,7 +596,7 @@ vllm bench serve \
   </ul>
 </div>
 
-<div class="module-tag">Module 5 - Operate It</div>
+<div class="module-tag">Proving the Optimization (Part 10)</div>
 <div class="use-box">
   <ul style="padding-left:20px; margin:0;">
     <li>TTFT, ITL, TPOT, throughput, goodput - <strong>goodput</strong> (throughput that meets your actual SLOs) is the number that belongs on a dashboard, not raw throughput.</li>
