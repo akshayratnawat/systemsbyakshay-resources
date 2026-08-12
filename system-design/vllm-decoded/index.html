@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vLLM, Decoded: Zero to Hero | @systemsbyakshay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f9f8f4; font-family: 'Inter', sans-serif;
+    padding: 60px 40px; max-width: 1100px; margin: 0 auto;
+    color: #1a1a1a; line-height: 1.65;
+  }
+
+  .header { text-align: center; margin-bottom: 40px; padding-bottom: 32px; border-bottom: 2px solid #e8e4dc; }
+  .header .brand { font-size: 14px; color: #2563eb; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
+  .header h1 { font-size: 38px; font-weight: 800; margin-bottom: 12px; color: #0a0a0a; line-height: 1.2; }
+  .header .sub { font-size: 18px; color: #6e6a64; max-width: 720px; margin: 0 auto; }
+  .header .source { font-size: 13px; color: #9c9890; margin-top: 16px; }
+  .header .source a { color: #2563eb; }
+
+  .toc { background: #fff; border: 1px solid #e8e4dc; border-radius: 16px; padding: 28px 32px; margin: 36px 0 48px; }
+  .toc h2 { font-size: 14px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #6e6a64; margin-bottom: 18px; }
+  .toc-module { margin-bottom: 14px; }
+  .toc-module .mod-title { font-size: 13px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .toc-module ul { list-style: none; padding-left: 0; }
+  .toc-module li { font-size: 15px; padding: 3px 0; }
+  .toc-module a { color: #1a1a1a; text-decoration: none; }
+  .toc-module a:hover { color: #2563eb; text-decoration: underline; }
+
+  .module-tag { display: inline-block; background: rgba(37,99,235,0.08); color: #2563eb; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 5px 14px; border-radius: 40px; margin-top: 56px; margin-bottom: 8px; }
+  h2 { font-size: 27px; font-weight: 800; margin-top: 6px; margin-bottom: 10px; color: #0a0a0a; }
+  h3 { font-size: 17px; font-weight: 700; margin-top: 24px; margin-bottom: 8px; color: #1a1a1a; }
+  p { margin: 0 0 16px 0; font-size: 16px; }
+  strong { color: #0a0a0a; }
+  .intuition { font-size: 17px; color: #333; margin-bottom: 18px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 14px 0 22px 0; font-size: 14.5px; }
+  th { background: #0a0a0a; color: #f9f8f4; padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+  td { padding: 10px 14px; border-bottom: 1px solid #e8e4dc; vertical-align: top; }
+  tr:nth-child(even) { background: rgba(0,0,0,0.02); }
+  .mono { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #2563eb; }
+
+  .section-divider { border: none; border-top: 2px solid #e8e4dc; margin: 32px 0; }
+
+  .decision-box {
+    background: rgba(37,99,235,0.06); border-left: 4px solid #2563eb;
+    border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 16px 0;
+    font-size: 15px; color: #1a1a1a;
+  }
+  .decision-box .label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #2563eb; display: block; margin-bottom: 6px; }
+
+  .use-box {
+    background: rgba(22,163,74,0.06); border-left: 4px solid #16a34a;
+    border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 16px 0;
+    font-size: 15px; color: #1a1a1a;
+  }
+  .use-box .label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #16a34a; display: block; margin-bottom: 6px; }
+
+  .warn-box {
+    background: rgba(220,38,38,0.06); border-left: 4px solid #dc2626;
+    border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 16px 0;
+    font-size: 15px; color: #1a1a1a;
+  }
+  .warn-box .label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #dc2626; display: block; margin-bottom: 6px; }
+
+  .code-block {
+    font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.65;
+    background: #0a0a0a; color: #f3f1ec; border-radius: 12px; padding: 20px 24px;
+    margin: 16px 0; white-space: pre; overflow-x: auto;
+  }
+  .code-block .kw { color: #e08a5c; }
+  .code-block .str { color: #7cc6a8; }
+  .code-block .cm { color: #7a7772; }
+
+  .diagram-wrap { background: #fff; border: 1px solid #e8e4dc; border-radius: 16px; padding: 24px 20px; margin: 20px 0; }
+  .diagram-caption { font-size: 13px; color: #6e6a64; text-align: center; margin-top: 10px; }
+  .diagram-wrap svg text { font-family: 'Inter', sans-serif; }
+  .diagram-wrap svg .mono-text { font-family: 'JetBrains Mono', monospace; }
+
+  .recap-table th { background: #2563eb; }
+
+  .optin-box{background:#0a0a0a;color:#f9f8f4;border-radius:16px;padding:34px 30px;margin:56px 0 24px;text-align:center;font-family:'Inter',system-ui,sans-serif;}
+  .optin-box .optin-eyebrow{font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#7ba0f4;font-weight:700;margin-bottom:10px;}
+  .optin-box .optin-title{font-size:25px;font-weight:800;color:#fff;margin:0 0 10px;line-height:1.2;}
+  .optin-box .optin-sub{font-size:16px;color:#c9c6c0;max-width:600px;margin:0 auto 22px;line-height:1.6;}
+  .optin-box .optin-form{display:flex;gap:10px;max-width:540px;margin:0 auto;flex-wrap:wrap;justify-content:center;}
+  .optin-box .optin-input{flex:1;min-width:220px;padding:14px 18px;border-radius:10px;border:1px solid #333;background:#161616;color:#fff;font-size:16px;font-family:inherit;}
+  .optin-box .optin-input::placeholder{color:#888;}
+  .optin-box .optin-btn{padding:14px 26px;border-radius:10px;border:none;background:#2563eb;color:#fff;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;}
+  .optin-box .optin-btn:hover{background:#1d4ed8;}
+  .optin-box .optin-fineprint{font-size:13px;color:#888;margin-top:14px;}
+  .optin-box .optin-ok{display:none;font-size:17px;color:#4ade80;font-weight:600;line-height:1.6;padding:8px 0;}
+  .optin-box .optin-ok a{color:#7ba0f4;font-weight:700;}
+
+  .footer { text-align: center; margin-top: 40px; padding-top: 24px; border-top: 2px solid #e8e4dc; color: #6e6a64; font-size: 14px; }
+  .footer .brand { color: #2563eb; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">@systemsbyakshay - No BS System Design Series</div>
+  <h1>vLLM, Decoded: Zero to Hero</h1>
+  <div class="sub">The only guide you need to go from zero vLLM awareness to the person your team turns to for production inference decisions. System design first - capacity, cost, latency, and the tradeoffs behind each one. Not a recitation of the source code.</div>
+  <div class="source">Built from a close read of Aleksa Gordic's <a href="https://vllm.ai/blog/2025-09-05-anatomy-of-vllm" target="_blank" rel="noopener">"Anatomy of vLLM"</a> (vLLM Blog, Sept 2025) - reorganized and filtered through a system-design lens, not summarized line by line.</div>
+</div>
+
+<div class="toc">
+  <h2>What's Inside</h2>
+  <div class="toc-module">
+    <div class="mod-title">Module 1 - Foundations</div>
+    <ul><li><a href="#engine-anatomy">1. Engine Anatomy - the memory ceiling and the cold-start tradeoff</a></li></ul>
+  </div>
+  <div class="toc-module">
+    <div class="mod-title">Module 2 - The Core Mechanism</div>
+    <ul><li><a href="#scheduler">2. Scheduler, Continuous Batching &amp; Paged Attention - why vLLM is fast, and your real capacity limit</a></li></ul>
+  </div>
+  <div class="toc-module">
+    <div class="mod-title">Module 3 - The Levers</div>
+    <ul>
+      <li><a href="#prefix-caching">3. Prefix Caching - the biggest cost lever</a></li>
+      <li><a href="#chunked-prefill">4. Chunked Prefill - fairness vs. throughput</a></li>
+      <li><a href="#spec-decoding">5. Speculative Decoding - the latency lever</a></li>
+      <li><a href="#guided-decoding">6. Guided Decoding - the reliability lever</a></li>
+    </ul>
+  </div>
+  <div class="toc-module">
+    <div class="mod-title">Module 4 - Scaling Out</div>
+    <ul>
+      <li><a href="#multi-gpu">7. Scaling to Multi-GPU - TP vs. PP</a></li>
+      <li><a href="#distributed-serving">8. Distributed Serving - real deployment topology</a></li>
+      <li><a href="#disaggregated">9. Disaggregated Prefill/Decode - the advanced pattern</a></li>
+    </ul>
+  </div>
+  <div class="toc-module">
+    <div class="mod-title">Module 5 - Operate It</div>
+    <ul><li><a href="#benchmarking">10. Benchmarking &amp; Tuning - proving any of this actually worked</a></li></ul>
+  </div>
+</div>
+
+<!-- ══════════════════════ MODULE 1 ══════════════════════ -->
+<div class="module-tag">Module 1 - Foundations</div>
+<h2 id="engine-anatomy">1. Engine Anatomy</h2>
+<p class="intuition">You call <span class="mono">LLM(model=...)</span> once. Before it ever sees a prompt, vLLM resolves its config, builds the scheduler, and - critically - runs a worker init sequence that decides two things you'll live with for the life of the deployment: how much GPU memory you actually get, and how fast your first request will be.</p>
+
+<h3>The decision that actually matters here</h3>
+<div class="decision-box">
+  <span class="label">Decision: gpu_memory_utilization</span>
+  vLLM checks your VRAM against this value - default <span class="mono">0.8</span> - and treats it as a hard ceiling it will never cross unless you raise it. Set it too high and you OOM against anything else sharing the GPU. Set it too low and you're leaving concurrent-request capacity on the table. This single number is the difference between "fits" and "doesn't" for a given model + hardware pair.
+</div>
+
+<div class="code-block">llm = LLM(
+    model=<span class="str">"meta-llama/Llama-3.1-8B"</span>,
+    gpu_memory_utilization=<span class="kw">0.9</span>,  <span class="cm"># raise from the 0.8 default if nothing else shares the GPU</span>
+)</div>
+
+<h3>The cold-start tradeoff</h3>
+<p>During init, vLLM loads weights, then runs a real profiling forward pass to compute how many KV cache blocks fit in whatever VRAM is left. Unless you pass <span class="mono">enforce_eager=True</span>, it then captures a CUDA graph per warmup batch size - a recorded DAG of kernels it can replay instead of re-launching kernels on every step.</p>
+
+<div class="diagram-wrap">
+  <svg width="100%" viewBox="0 0 720 190" role="img">
+    <text x="360" y="24" text-anchor="middle" font-size="13" fill="#6e6a64">GPU memory budget under gpu_memory_utilization</text>
+    <rect x="60" y="44" width="600" height="60" rx="8" fill="none" stroke="#1a1a1a" stroke-width="1.6"/>
+    <rect x="60" y="44" width="600" height="60" fill="none" stroke-dasharray="4 4" stroke="#dc2626" stroke-width="1.2"/>
+    <rect x="62" y="46" width="260" height="56" fill="rgba(37,99,235,0.18)"/>
+    <text x="192" y="80" text-anchor="middle" font-size="13" fill="#1e40af" font-weight="600">model weights</text>
+    <rect x="322" y="46" width="330" height="56" fill="rgba(22,163,74,0.18)"/>
+    <text x="487" y="80" text-anchor="middle" font-size="13" fill="#15803d" font-weight="600">KV cache blocks (your concurrency budget)</text>
+    <text x="660" y="80" text-anchor="middle" font-size="11" fill="#dc2626" transform="rotate(90 660 80)"></text>
+    <text x="360" y="126" text-anchor="middle" font-size="12" fill="#dc2626">dashed line = your gpu_memory_utilization ceiling - nothing gets allocated past it</text>
+    <text x="360" y="150" text-anchor="middle" font-size="12" fill="#6e6a64">everything to the right of weights, up to the ceiling, is what decides how many concurrent requests you can serve</text>
+  </svg>
+  <div class="diagram-caption">Weights are fixed once you pick a model. The KV cache budget - the part you actually control - is whatever's left under the ceiling.</div>
+</div>
+
+<div class="decision-box">
+  <span class="label">Decision: enforce_eager</span>
+  <span class="mono">True</span> = faster, lighter startup, slower steady-state generation. Reach for it while iterating or debugging. <span class="mono">False</span> (default) = slower startup, faster steady-state. This is the right choice for anything stable in production - you pay the cost once at boot, not on every request.
+</div>
+
+<div class="code-block"><span class="cm"># dev / debugging - fast to boot, skips graph capture</span>
+llm = LLM(model=<span class="str">"..."</span>, enforce_eager=<span class="kw">True</span>)
+
+<span class="cm"># prod - slower to boot, faster steady-state generation</span>
+llm = LLM(model=<span class="str">"..."</span>, enforce_eager=<span class="kw">False</span>)</div>
+
+<h3>The formula behind every OOM you'll see</h3>
+<div class="code-block">bytes_per_block = <span class="kw">2</span> * block_size * num_kv_heads * head_size * dtype_bytes
+
+<span class="cm"># defaults: block_size=16, dtype_bytes=2 for bf16
+# the 2 is for key and value, stored separately</span></div>
+<p>Plug in your model's <span class="mono">num_kv_heads</span> and <span class="mono">head_size</span> and you can predict your memory ceiling before you hit it, not after. This is also a legitimate system-design interview question - "how much memory does a KV cache block use" is a straightforward arithmetic answer once you know this formula.</p>
+
+<hr class="section-divider">
+
+<!-- ══════════════════════ MODULE 2 ══════════════════════ -->
+<div class="module-tag">Module 2 - The Core Mechanism</div>
+<h2 id="scheduler">2. Scheduler, Continuous Batching &amp; Paged Attention</h2>
+<p class="intuition">This is the single mental model everything else in this guide either exploits or works around. Get this one and the rest of vLLM stops looking like a pile of features and starts looking like consequences of one design choice.</p>
+
+<h3>Two workloads, two bottlenecks</h3>
+<table>
+  <tr><th>Workload</th><th>What it does</th><th>Bottleneck</th></tr>
+  <tr><td><strong>Prefill</strong></td><td>Forward pass over the entire prompt, once, to produce the first token</td><td>Compute-bound</td></tr>
+  <tr><td><strong>Decode</strong></td><td>Forward pass over just the newest token, repeatedly</td><td>Memory-bandwidth-bound</td></tr>
+</table>
+<p>Older serving engines could only run one type of workload per step. vLLM's scheduler can mix both in a single step - decode requests from the <span class="mono">running</span> queue get priority (they're already paying rent on KV cache memory), then prefill requests fill whatever budget is left from the <span class="mono">waiting</span> queue.</p>
+
+<div class="use-box">
+  <span class="label">Why This Is the Interview Answer</span>
+  "How does vLLM achieve high throughput?" The answer is continuous batching: instead of waiting for an entire batch to finish before starting the next one (static batching, where a GPU can sit idle waiting for the slowest sequence), vLLM flattens all active sequences into one "super sequence" every step, with position indices and attention masks keeping them from bleeding into each other. No padding waste, no idle GPU time waiting on stragglers.
+</div>
+
+<h3>Your real concurrency limit is memory, not request count</h3>
+<p>Every request needs KV cache blocks to hold its growing context. The scheduler's <span class="mono">allocate_slots</span> call computes <span class="mono">ceil(num_new_tokens / block_size)</span> blocks needed and pulls them from a <span class="mono">free_block_queue</span>. When that queue runs dry, new requests wait - regardless of how much compute you have spare.</p>
+
+<div class="diagram-wrap">
+  <svg width="100%" viewBox="0 0 720 210" role="img">
+    <text x="360" y="24" text-anchor="middle" font-size="13" fill="#6e6a64">Continuous batching - one GPU step, mixed workloads</text>
+    <rect x="40" y="46" width="120" height="46" rx="6" fill="rgba(22,163,74,0.15)" stroke="#16a34a" stroke-width="1.4"/>
+    <text x="100" y="74" text-anchor="middle" font-size="12" fill="#15803d">decode: req A</text>
+    <rect x="170" y="46" width="120" height="46" rx="6" fill="rgba(22,163,74,0.15)" stroke="#16a34a" stroke-width="1.4"/>
+    <text x="230" y="74" text-anchor="middle" font-size="12" fill="#15803d">decode: req B</text>
+    <rect x="300" y="46" width="120" height="46" rx="6" fill="rgba(22,163,74,0.15)" stroke="#16a34a" stroke-width="1.4"/>
+    <text x="360" y="74" text-anchor="middle" font-size="12" fill="#15803d">decode: req C</text>
+    <rect x="430" y="46" width="130" height="46" rx="6" fill="rgba(37,99,235,0.15)" stroke="#2563eb" stroke-width="1.4"/>
+    <text x="495" y="74" text-anchor="middle" font-size="12" fill="#1e40af">prefill: req D</text>
+    <rect x="570" y="46" width="110" height="46" rx="6" fill="rgba(37,99,235,0.15)" stroke="#2563eb" stroke-width="1.4"/>
+    <text x="625" y="74" text-anchor="middle" font-size="12" fill="#1e40af">prefill: req E</text>
+    <text x="360" y="118" text-anchor="middle" font-size="12" fill="#6e6a64">^ all flattened into one "super sequence" for a single forward pass -</text>
+    <text x="360" y="138" text-anchor="middle" font-size="12" fill="#6e6a64">position indices and attention masks keep each request isolated</text>
+    <text x="360" y="172" text-anchor="middle" font-size="12" fill="#1a1a1a" font-weight="600">decode requests (already have KV cache) get priority - prefill fills the rest of the budget</text>
+  </svg>
+  <div class="diagram-caption">This is why vLLM doesn't need to wait for a "batch" to fill - every step is its own mixed batch, assembled fresh.</div>
+</div>
+
+<div class="decision-box">
+  <span class="label">System Design Takeaway</span>
+  When you're capacity planning, don't think in "requests per second" in isolation. Think: (available KV cache blocks) ÷ (average blocks per request) = your real concurrency ceiling. Reducing average context length or raising <span class="mono">gpu_memory_utilization</span> both directly raise this number - reducing model size does not, since weights are a fixed cost paid once.
+</div>
+
+<hr class="section-divider">
+
+<!-- ══════════════════════ MODULE 3 ══════════════════════ -->
+<div class="module-tag">Module 3 - The Levers</div>
+<h2 id="prefix-caching">3. Prefix Caching</h2>
+<p class="intuition">If two requests share the same opening tokens - a system prompt, a few-shot block, a long document prefix - vLLM can skip recomputing the KV cache for that shared portion entirely and just reuse it.</p>
+
+<h3>How it actually works</h3>
+<p>Tokens are split into 16-token chunks (matching the default block size) and hashed. The hash for each chunk depends on the previous chunk's hash plus its own tokens - so a shared prefix produces identical hashes across requests, and <span class="mono">find_longest_cache_hit</span> can look up already-computed blocks instead of recomputing them.</p>
+
+<div class="decision-box">
+  <span class="label">The Decision This Actually Drives</span>
+  Put static content (system prompts, tool definitions, few-shot examples) at the START of your prompt, and put the variable, per-request content at the END. Every byte you put before the variable part is a byte that gets reused across every request sharing that prefix - and every byte after it breaks the cache hit for anyone whose prefix differs even by one token before that point.
+</div>
+
+<div class="code-block"><span class="cm"># enabled by default - explicit for clarity</span>
+llm = LLM(
+    model=<span class="str">"..."</span>,
+    enable_prefix_caching=<span class="kw">True</span>,
+)
+
+<span class="cm"># prompt structure that actually benefits:
+# [ fixed system prompt ][ fixed tool definitions ][ VARIABLE user query ]
+#          reused                reused                 recomputed only</span></div>
+
+<div class="use-box">
+  <span class="label">Where This Pays Off Most</span>
+  Long, static system prompts (agent instructions, RAG context templates) repeated across thousands of requests. This is close to free capacity - you're not adding hardware, you're just not re-doing work you already did.
+</div>
+
+<hr class="section-divider">
+
+<h2 id="chunked-prefill">4. Chunked Prefill</h2>
+<p class="intuition">A single very long prompt can monopolize an entire scheduling step, blocking every other request - including latency-sensitive decode requests - until it's done.</p>
+
+<div class="decision-box">
+  <span class="label">The Tradeoff</span>
+  Set <span class="mono">long_prefill_token_threshold</span> to cap how many tokens of a long prompt get processed per step - the rest spreads across subsequent steps automatically. Lower values improve fairness and tail latency for other requests sharing the engine. Higher values (or leaving it unset) processes long prompts faster in isolation, at the cost of blocking everyone else while it runs.
+</div>
+
+<div class="diagram-wrap">
+  <svg width="100%" viewBox="0 0 720 150" role="img">
+    <text x="360" y="20" text-anchor="middle" font-size="13" fill="#6e6a64">Without chunking - one long prompt blocks everyone</text>
+    <rect x="40" y="34" width="640" height="30" fill="rgba(220,38,38,0.15)" stroke="#dc2626" stroke-width="1.2"/>
+    <text x="360" y="54" text-anchor="middle" font-size="12" fill="#991b1b">long prompt P, processed whole - nothing else runs until this step finishes</text>
+    <text x="360" y="90" text-anchor="middle" font-size="13" fill="#6e6a64">With chunking - P split into steps, other requests interleave</text>
+    <rect x="40" y="104" width="150" height="30" fill="rgba(37,99,235,0.15)" stroke="#2563eb" stroke-width="1.2"/>
+    <text x="115" y="124" text-anchor="middle" font-size="11" fill="#1e40af">P chunk 1</text>
+    <rect x="200" y="104" width="120" height="30" fill="rgba(22,163,74,0.15)" stroke="#16a34a" stroke-width="1.2"/>
+    <text x="260" y="124" text-anchor="middle" font-size="11" fill="#15803d">other reqs</text>
+    <rect x="330" y="104" width="150" height="30" fill="rgba(37,99,235,0.15)" stroke="#2563eb" stroke-width="1.2"/>
+    <text x="405" y="124" text-anchor="middle" font-size="11" fill="#1e40af">P chunk 2</text>
+    <rect x="490" y="104" width="120" height="30" fill="rgba(22,163,74,0.15)" stroke="#16a34a" stroke-width="1.2"/>
+    <text x="550" y="124" text-anchor="middle" font-size="11" fill="#15803d">other reqs</text>
+  </svg>
+  <div class="diagram-caption">Chunking trades a bit of raw throughput on the long prompt for much better tail latency on everything else.</div>
+</div>
+
+<hr class="section-divider">
+
+<h2 id="spec-decoding">5. Speculative Decoding</h2>
+<p class="intuition">Every token normally costs a full forward pass through the large model. Speculative decoding proposes several tokens cheaply, then verifies them all in a single large-model pass - accepting the ones that match what the large model would have generated anyway.</p>
+
+<h3>The accept/reject math</h3>
+<p>For each of the <span class="mono">k</span> proposed tokens, left to right: if the large model's probability for that token is <span class="mono">≥</span> the draft's probability, accept it. Otherwise, accept it with probability <span class="mono">p_large / p_draft</span>. Stop at the first rejection. If all <span class="mono">k</span> are accepted, you also get one extra token "free" from the large model's own distribution.</p>
+
+<div class="diagram-wrap">
+  <svg width="100%" viewBox="0 0 720 140" role="img">
+    <text x="360" y="20" text-anchor="middle" font-size="13" fill="#6e6a64">Draft proposes 4 tokens - large model verifies once</text>
+    <rect x="60" y="40" width="90" height="36" rx="6" fill="rgba(22,163,74,0.18)" stroke="#16a34a" stroke-width="1.4"/>
+    <text x="105" y="63" text-anchor="middle" font-size="12" fill="#15803d">accept</text>
+    <rect x="170" y="40" width="90" height="36" rx="6" fill="rgba(22,163,74,0.18)" stroke="#16a34a" stroke-width="1.4"/>
+    <text x="215" y="63" text-anchor="middle" font-size="12" fill="#15803d">accept</text>
+    <rect x="280" y="40" width="90" height="36" rx="6" fill="rgba(220,38,38,0.18)" stroke="#dc2626" stroke-width="1.4"/>
+    <text x="325" y="63" text-anchor="middle" font-size="12" fill="#991b1b">reject</text>
+    <rect x="390" y="40" width="150" height="36" rx="6" fill="rgba(0,0,0,0.05)" stroke="#9c9890" stroke-width="1.2" stroke-dasharray="3 3"/>
+    <text x="465" y="63" text-anchor="middle" font-size="11" fill="#6e6a64">never reached</text>
+    <text x="360" y="105" text-anchor="middle" font-size="12" fill="#1a1a1a">Stop at the first rejection - resample that position from the large model's own distribution.</text>
+    <text x="360" y="125" text-anchor="middle" font-size="11" fill="#6e6a64">Statistically identical output to sampling token-by-token from the large model alone.</text>
+  </svg>
+</div>
+
+<div class="decision-box">
+  <span class="label">The Real Decision</span>
+  vLLM's V1 engine doesn't support a separate draft LLM - it uses n-gram matching (fast, no extra model, works best on repetitive/structured output), EAGLE (a lightweight MLP replacing the transformer stack), or Medusa (auxiliary prediction heads). The tradeoff is acceptance rate vs. draft cost: n-gram is nearly free but only helps when output has repeated patterns; EAGLE/Medusa need training but generalize better. Worth it when decode latency, not throughput, is your bottleneck.
+</div>
+
+<div class="code-block">speculative_config = {
+    <span class="str">"method"</span>: <span class="str">"ngram"</span>,
+    <span class="str">"prompt_lookup_max"</span>: <span class="kw">5</span>,
+    <span class="str">"prompt_lookup_min"</span>: <span class="kw">3</span>,
+    <span class="str">"num_speculative_tokens"</span>: <span class="kw">3</span>,
+}
+llm = LLM(model=<span class="str">"..."</span>, speculative_config=speculative_config)</div>
+
+<hr class="section-divider">
+
+<h2 id="guided-decoding">6. Guided Decoding</h2>
+<p class="intuition">If you need output in a specific format - JSON matching a schema, one of a fixed set of choices - guided decoding constrains which tokens the model is even allowed to sample, using a grammar-based finite state machine.</p>
+
+<div class="decision-box">
+  <span class="label">When To Actually Use This</span>
+  Reach for guided decoding when malformed output is a hard failure (breaking a downstream parser, an API contract), not just an inconvenience. It has a real cost - grammar compilation and per-step logit masking - so for loose formatting preferences, prompting alone is usually cheaper and good enough.
+</div>
+
+<div class="code-block">from vllm.sampling_params import GuidedDecodingParams
+
+guided = GuidedDecodingParams(choice=[<span class="str">"Positive"</span>, <span class="str">"Negative"</span>])
+sampling_params = SamplingParams(guided_decoding=guided)</div>
+
+<hr class="section-divider">
+
+<!-- ══════════════════════ MODULE 4 ══════════════════════ -->
+<div class="module-tag">Module 4 - Scaling Out</div>
+<h2 id="multi-gpu">7. Scaling to Multi-GPU</h2>
+<p class="intuition">When a model's weights don't fit on one GPU, you have two ways to split it - and the choice is a real architecture decision, not a default to accept.</p>
+
+<table>
+  <tr><th>Approach</th><th>Splits</th><th>Best when</th></tr>
+  <tr><td><strong>Tensor Parallelism (TP)</strong></td><td>Individual layers, across GPUs</td><td>GPUs share fast intranode bandwidth (e.g. NVLink) - prefer this first</td></tr>
+  <tr><td><strong>Pipeline Parallelism (PP)</strong></td><td>Groups of layers, across nodes</td><td>You've exhausted TP within a node and must cross nodes - internode bandwidth is much lower, but PP communicates less data than TP would across that same link</td></tr>
+</table>
+
+<div class="decision-box">
+  <span class="label">Decision Rule</span>
+  Prefer TP over PP whenever your GPUs are in the same node. Only reach for PP when you've hit the ceiling of a single node's GPU count and must span multiple nodes - the bandwidth gap between intranode and internode links is the entire reason this ordering exists.
+</div>
+
+<div class="code-block"><span class="cm"># 8 GPUs in one node, TP only</span>
+llm = LLM(model=<span class="str">"..."</span>, tensor_parallel_size=<span class="kw">8</span>)
+
+<span class="cm"># spanning nodes: TP within each node, PP across nodes</span>
+llm = LLM(model=<span class="str">"..."</span>, tensor_parallel_size=<span class="kw">8</span>, pipeline_parallel_size=<span class="kw">2</span>)</div>
+
+<hr class="section-divider">
+
+<h2 id="distributed-serving">8. Distributed Serving</h2>
+<p class="intuition">Beyond a single engine, vLLM supports data-parallel deployment - multiple full engine replicas, load-balanced behind one API surface.</p>
+
+<div class="code-block"><span class="cm"># Node 1 - headless (no API), 2 engines, TP=4 each</span>
+vllm serve &lt;model&gt; \
+  --tensor-parallel-size 4 \
+  --data-parallel-size 4 \
+  --data-parallel-size-local 2 \
+  --data-parallel-start-rank 0 \
+  --data-parallel-address &lt;master-ip&gt; \
+  --data-parallel-rpc-port 13345 \
+  --headless
+
+<span class="cm"># Node 2 - runs the API server, 2 more engines</span>
+vllm serve &lt;model&gt; \
+  --tensor-parallel-size 4 \
+  --data-parallel-size 4 \
+  --data-parallel-size-local 2 \
+  --data-parallel-start-rank 2 \
+  --data-parallel-address &lt;master-ip&gt; \
+  --data-parallel-rpc-port 13345</div>
+
+<div class="use-box">
+  <span class="label">How Requests Get Routed</span>
+  A coordinator scores each engine by <span class="mono">len(waiting) * 4 + len(running)</span> and routes new requests to the lowest score - waiting requests are weighted heavier since they represent latency the request hasn't started paying yet.
+</div>
+
+<div class="decision-box">
+  <span class="label">The Decision</span>
+  This is horizontal scaling for throughput, not a way around the TP/PP decision above - each replica still needs its own TP/PP configuration to fit the model. Add data-parallel replicas when you need more aggregate throughput than one engine (however parallelized internally) can serve.
+</div>
+
+<hr class="section-divider">
+
+<h2 id="disaggregated">9. Disaggregated Prefill/Decode</h2>
+<p class="intuition">Prefill (compute-bound) and decode (memory-bandwidth-bound) have fundamentally different performance profiles. At large enough scale, running them on separate, independently-scaled pools of hardware gives you tighter control over both.</p>
+
+<div class="diagram-wrap">
+  <svg width="100%" viewBox="0 0 720 150" role="img">
+    <rect x="40" y="40" width="280" height="70" rx="10" fill="rgba(37,99,235,0.1)" stroke="#2563eb" stroke-width="1.6"/>
+    <text x="180" y="68" text-anchor="middle" font-size="14" fill="#1e40af" font-weight="600">Prefill pool</text>
+    <text x="180" y="90" text-anchor="middle" font-size="12" fill="#1e40af">compute-optimized, scales with request volume</text>
+    <path d="M320 75 L400 75" stroke="#1a1a1a" stroke-width="1.6" marker-end="url(#arr)"/>
+    <text x="360" y="65" text-anchor="middle" font-size="11" fill="#6e6a64">KV cache transfer</text>
+    <rect x="400" y="40" width="280" height="70" rx="10" fill="rgba(22,163,74,0.1)" stroke="#16a34a" stroke-width="1.6"/>
+    <text x="540" y="68" text-anchor="middle" font-size="14" fill="#15803d" font-weight="600">Decode pool</text>
+    <text x="540" y="90" text-anchor="middle" font-size="12" fill="#15803d">memory-optimized, scales with concurrent sessions</text>
+    <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#1a1a1a"/></marker></defs>
+    <text x="360" y="135" text-anchor="middle" font-size="12" fill="#6e6a64">each pool autoscales independently based on its own bottleneck</text>
+  </svg>
+</div>
+
+<div class="decision-box">
+  <span class="label">When This Earns Its Complexity</span>
+  This is real operational overhead - a KV transfer connector, two autoscaling policies, more moving parts to monitor. It earns that cost when prefill-heavy and decode-heavy traffic patterns interfere with each other badly enough on a shared pool that tighter latency control (TTFT and ITL independently) is worth the added system complexity. Below that scale, a shared pool with continuous batching (Module 2) is simpler and usually sufficient.
+</div>
+
+<div class="code-block">ktc = KVTransferConfig(
+    kv_connector=<span class="str">"SharedStorageConnector"</span>,
+    kv_role=<span class="str">"kv_both"</span>,
+    kv_connector_extra_config={<span class="str">"shared_storage_path"</span>: <span class="str">"local_storage"</span>},
+)
+llm = LLM(model=<span class="str">"..."</span>, kv_transfer_config=ktc)</div>
+
+<hr class="section-divider">
+
+<!-- ══════════════════════ MODULE 5 ══════════════════════ -->
+<div class="module-tag">Module 5 - Operate It</div>
+<h2 id="benchmarking">10. Benchmarking &amp; Tuning</h2>
+<p class="intuition">Everything above is a lever. This module is how you find out whether pulling it actually helped - and it's the part most people skip until something's already on fire in production.</p>
+
+<h3>The metrics that actually matter</h3>
+<table>
+  <tr><th>Metric</th><th>Definition</th><th>Matters most for</th></tr>
+  <tr><td class="mono">TTFT</td><td>Time to first token</td><td>Interactive UX - the "is this thing alive" feeling</td></tr>
+  <tr><td class="mono">ITL</td><td>Inter-token latency</td><td>Perceived streaming smoothness</td></tr>
+  <tr><td class="mono">TPOT</td><td>Average ITL across the response</td><td>Summarizing overall generation speed</td></tr>
+  <tr><td>Throughput</td><td>Tokens or requests per second</td><td>Offline / batch workloads, cost per token</td></tr>
+  <tr><td>Goodput</td><td>Throughput that meets your actual SLOs</td><td>The number that should be in your dashboard, not raw throughput</td></tr>
+</table>
+
+<div class="diagram-wrap">
+  <svg width="100%" viewBox="0 0 720 180" role="img">
+    <text x="360" y="20" text-anchor="middle" font-size="13" fill="#6e6a64">The roofline model - what actually bounds your step time</text>
+    <line x1="60" y1="140" x2="660" y2="140" stroke="#1a1a1a" stroke-width="1.4"/>
+    <line x1="60" y1="140" x2="60" y2="30" stroke="#1a1a1a" stroke-width="1.4"/>
+    <text x="30" y="90" font-size="11" fill="#6e6a64" transform="rotate(-90 30 90)">step latency</text>
+    <text x="360" y="164" text-anchor="middle" font-size="11" fill="#6e6a64">batch size →</text>
+    <path d="M60 138 L260 138" stroke="#16a34a" stroke-width="2.4"/>
+    <path d="M260 138 L620 50" stroke="#dc2626" stroke-width="2.4"/>
+    <line x1="260" y1="30" x2="260" y2="140" stroke="#9c9890" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="260" y="24" text-anchor="middle" font-size="11" fill="#6e6a64">B_sat</text>
+    <text x="150" y="122" text-anchor="middle" font-size="11" fill="#15803d">memory-bound - nearly flat</text>
+    <text x="470" y="80" text-anchor="middle" font-size="11" fill="#991b1b">compute-bound - grows with batch</text>
+  </svg>
+  <div class="diagram-caption">Below the saturation batch size, you're paying for streaming weights off HBM - latency barely moves. Past it, you're compute-bound and every added token costs real time.</div>
+</div>
+
+<div class="decision-box">
+  <span class="label">The Practical Move</span>
+  Use <span class="mono">vllm bench latency</span> to measure single-batch response time, <span class="mono">vllm bench throughput</span> to find your ceiling under saturation, and <span class="mono">vllm bench serve</span> to simulate realistic arrival patterns and measure goodput against real SLOs. Don't tune against throughput alone - a config that maximizes throughput can blow your TTFT budget for interactive use cases.
+</div>
+
+<div class="code-block">vllm bench latency \
+  --model &lt;model-name&gt; \
+  --input-tokens 32 \
+  --output-tokens 128 \
+  --batch-size 8
+
+vllm bench throughput \
+  --model &lt;model-name&gt; \
+  --input-len 512 \
+  --output-len 128
+
+vllm bench serve \
+  --model &lt;model-name&gt; \
+  --request-rate 4 \
+  --num-prompts 200</div>
+
+<hr class="section-divider">
+
+<h2>The Full Course, At a Glance</h2>
+<table class="recap-table">
+  <tr><th>#</th><th>Part</th><th>The Decision It Drives</th></tr>
+  <tr><td class="mono">1</td><td>Engine Anatomy</td><td>Memory ceiling (<code>gpu_memory_utilization</code>) and cold-start tradeoff (<code>enforce_eager</code>)</td></tr>
+  <tr><td class="mono">2</td><td>Scheduler &amp; Continuous Batching</td><td>Your real concurrency limit is KV cache blocks, not request count</td></tr>
+  <tr><td class="mono">3</td><td>Prefix Caching</td><td>Prompt structure directly changes your bill</td></tr>
+  <tr><td class="mono">4</td><td>Chunked Prefill</td><td>Fairness vs. raw throughput on long prompts</td></tr>
+  <tr><td class="mono">5</td><td>Speculative Decoding</td><td>Trade draft complexity for lower decode latency</td></tr>
+  <tr><td class="mono">6</td><td>Guided Decoding</td><td>Guarantee output structure when malformed output is a hard failure</td></tr>
+  <tr><td class="mono">7</td><td>Scaling to Multi-GPU</td><td>TP first (intranode bandwidth), PP only across nodes</td></tr>
+  <tr><td class="mono">8</td><td>Distributed Serving</td><td>Horizontal scaling for aggregate throughput</td></tr>
+  <tr><td class="mono">9</td><td>Disaggregated P/D</td><td>Worth it only past the scale where shared pools interfere</td></tr>
+  <tr><td class="mono">10</td><td>Benchmarking &amp; Tuning</td><td>Prove any of the above actually worked, against real SLOs</td></tr>
+</table>
+
+<!-- ck-optin -->
+<div class="optin-box">
+  <div class="optin-eyebrow">Free Resource</div>
+  <div class="optin-title">Want breakdowns like this delivered weekly?</div>
+  <p class="optin-sub">Join The Weekly Decode - production patterns, eval frameworks, and system design breakdowns. One email, no fluff.</p>
+  <form class="optin-form ck-roadmap-form" action="https://app.kit.com/forms/9592219/subscriptions" method="post">
+    <input class="optin-input" type="email" name="email_address" placeholder="you@email.com" aria-label="Email address" required>
+    <button class="optin-btn" type="submit">Send me The Weekly Decode &#8594;</button>
+  </form>
+  <div class="optin-ok">You are in. Check your email to confirm. <a href="https://akshayratnawat.github.io/systemsbyakshay-resources/" target="_blank" rel="noopener">Browse all resources &#8594;</a></div>
+  <div class="optin-fineprint">No spam. Unsubscribe anytime.</div>
+</div>
+<!-- /ck-optin -->
+
+<div class="footer">
+  <p>Built by <span class="brand">@systemsbyakshay</span> - No BS System Design Series</p>
+  <p>Own the system. The code was never the hard part.</p>
+</div>
+
+<script id="ck-optin-js">
+(function(){
+  var R="https://akshayratnawat.github.io/systemsbyakshay-resources/";
+  var forms=document.querySelectorAll(".ck-roadmap-form");
+  forms.forEach(function(f){
+    f.addEventListener("submit",function(e){
+      e.preventDefault();
+      var win=window.open("about:blank","_blank");
+      fetch(f.action,{method:"POST",body:new FormData(f),mode:"cors"}).then(function(){
+        if(win){win.location=R;}
+        var box=f.closest(".optin-box");
+        f.style.display="none";
+        var ok=box.querySelector(".optin-ok"); if(ok){ok.style.display="block";}
+      }).catch(function(){ if(win){win.close();} f.submit(); });
+    });
+  });
+})();
+</script>
+</body>
+</html>
