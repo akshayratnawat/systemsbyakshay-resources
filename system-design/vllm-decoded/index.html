@@ -58,6 +58,8 @@
     font-size: 15px; color: #1a1a1a;
   }
   .use-box .label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #16a34a; display: block; margin-bottom: 6px; }
+  .use-box ul li { margin-bottom: 10px; line-height: 1.55; }
+  .use-box ul li:last-child { margin-bottom: 0; }
 
   .warn-box {
     background: rgba(220,38,38,0.06); border-left: 4px solid #dc2626;
@@ -434,17 +436,20 @@ vllm serve &lt;model&gt; \
 <p class="intuition">Prefill (compute-bound) and decode (memory-bandwidth-bound) have fundamentally different performance profiles. At large enough scale, running them on separate, independently-scaled pools of hardware gives you tighter control over both.</p>
 
 <div class="diagram-wrap">
-  <svg width="100%" viewBox="0 0 720 150" role="img">
-    <rect x="40" y="40" width="280" height="70" rx="10" fill="rgba(37,99,235,0.1)" stroke="#2563eb" stroke-width="1.6"/>
-    <text x="180" y="68" text-anchor="middle" font-size="14" fill="#1e40af" font-weight="600">Prefill pool</text>
-    <text x="180" y="90" text-anchor="middle" font-size="12" fill="#1e40af">compute-optimized, scales with request volume</text>
-    <path d="M320 75 L400 75" stroke="#1a1a1a" stroke-width="1.6" marker-end="url(#arr)"/>
-    <text x="360" y="65" text-anchor="middle" font-size="11" fill="#6e6a64">KV cache transfer</text>
-    <rect x="400" y="40" width="280" height="70" rx="10" fill="rgba(22,163,74,0.1)" stroke="#16a34a" stroke-width="1.6"/>
-    <text x="540" y="68" text-anchor="middle" font-size="14" fill="#15803d" font-weight="600">Decode pool</text>
-    <text x="540" y="90" text-anchor="middle" font-size="12" fill="#15803d">memory-optimized, scales with concurrent sessions</text>
+  <svg width="100%" viewBox="0 0 720 190" role="img">
+    <rect x="30" y="40" width="290" height="90" rx="10" fill="rgba(37,99,235,0.1)" stroke="#2563eb" stroke-width="1.6"/>
+    <text x="175" y="66" text-anchor="middle" font-size="14" fill="#1e40af" font-weight="600">Prefill pool</text>
+    <text x="175" y="88" text-anchor="middle" font-size="11.5" fill="#1e40af">compute-optimized,</text>
+    <text x="175" y="104" text-anchor="middle" font-size="11.5" fill="#1e40af">scales with request volume</text>
+    <path d="M325 85 L395 85" stroke="#1a1a1a" stroke-width="1.6" marker-end="url(#arr)"/>
+    <text x="360" y="72" text-anchor="middle" font-size="11" fill="#6e6a64">KV cache</text>
+    <text x="360" y="106" text-anchor="middle" font-size="11" fill="#6e6a64">transfer</text>
+    <rect x="400" y="40" width="290" height="90" rx="10" fill="rgba(22,163,74,0.1)" stroke="#16a34a" stroke-width="1.6"/>
+    <text x="545" y="66" text-anchor="middle" font-size="14" fill="#15803d" font-weight="600">Decode pool</text>
+    <text x="545" y="88" text-anchor="middle" font-size="11.5" fill="#15803d">memory-optimized,</text>
+    <text x="545" y="104" text-anchor="middle" font-size="11.5" fill="#15803d">scales with concurrent sessions</text>
     <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#1a1a1a"/></marker></defs>
-    <text x="360" y="135" text-anchor="middle" font-size="12" fill="#6e6a64">each pool autoscales independently based on its own bottleneck</text>
+    <text x="360" y="160" text-anchor="middle" font-size="12" fill="#6e6a64">each pool autoscales independently based on its own bottleneck</text>
   </svg>
 </div>
 
@@ -517,20 +522,54 @@ vllm bench serve \
 
 <hr class="section-divider">
 
-<h2>The Full Course, At a Glance</h2>
-<table class="recap-table">
-  <tr><th>#</th><th>Part</th><th>The Decision It Drives</th></tr>
-  <tr><td class="mono">1</td><td>Engine Anatomy</td><td>Memory ceiling (<code>gpu_memory_utilization</code>) and cold-start tradeoff (<code>enforce_eager</code>)</td></tr>
-  <tr><td class="mono">2</td><td>Scheduler &amp; Continuous Batching</td><td>Your real concurrency limit is KV cache blocks, not request count</td></tr>
-  <tr><td class="mono">3</td><td>Prefix Caching</td><td>Prompt structure directly changes your bill</td></tr>
-  <tr><td class="mono">4</td><td>Chunked Prefill</td><td>Fairness vs. raw throughput on long prompts</td></tr>
-  <tr><td class="mono">5</td><td>Speculative Decoding</td><td>Trade draft complexity for lower decode latency</td></tr>
-  <tr><td class="mono">6</td><td>Guided Decoding</td><td>Guarantee output structure when malformed output is a hard failure</td></tr>
-  <tr><td class="mono">7</td><td>Scaling to Multi-GPU</td><td>TP first (intranode bandwidth), PP only across nodes</td></tr>
-  <tr><td class="mono">8</td><td>Distributed Serving</td><td>Horizontal scaling for aggregate throughput</td></tr>
-  <tr><td class="mono">9</td><td>Disaggregated P/D</td><td>Worth it only past the scale where shared pools interfere</td></tr>
-  <tr><td class="mono">10</td><td>Benchmarking &amp; Tuning</td><td>Prove any of the above actually worked, against real SLOs</td></tr>
-</table>
+<h2>The Full Guide, At a Glance</h2>
+<p style="color:#6e6a64; font-size:15px; margin-bottom:20px;">Every load-bearing fact from this guide, in one place - screenshot this section.</p>
+
+<div class="module-tag" style="margin-top:20px;">Module 1 - Foundations</div>
+<div class="use-box">
+  <ul style="padding-left:20px; margin:0;">
+    <li><span class="mono">gpu_memory_utilization</span> (default <span class="mono">0.8</span>) is a hard VRAM ceiling - raise it if nothing else shares the GPU, lower it if something does.</li>
+    <li>KV block size = <span class="mono">2 &times; block_size(16) &times; num_kv_heads &times; head_size &times; dtype_bytes(2 for bf16)</span> - predict your memory ceiling before you hit it.</li>
+    <li><span class="mono">enforce_eager=True</span>: faster boot, slower steady-state generation. Use in dev/debugging, never for a stable prod deployment.</li>
+  </ul>
+</div>
+
+<div class="module-tag">Module 2 - The Core Mechanism</div>
+<div class="use-box">
+  <ul style="padding-left:20px; margin:0;">
+    <li>Prefill = compute-bound (full prompt, once). Decode = memory-bandwidth-bound (last token, repeatedly, every step).</li>
+    <li>vLLM mixes both in a single step - decode gets scheduling priority since it's already paying rent on KV cache memory.</li>
+    <li>Your real concurrency limit = free KV cache blocks &divide; average blocks per request. Not raw request count. Not GPU compute.</li>
+  </ul>
+</div>
+
+<div class="module-tag">Module 3 - The Levers</div>
+<div class="use-box">
+  <ul style="padding-left:20px; margin:0;">
+    <li><strong>Prefix caching:</strong> put static content (system prompts, tool defs) first, variable content last - shared prefixes reuse KV cache for free. On by default.</li>
+    <li><strong>Chunked prefill:</strong> <span class="mono">long_prefill_token_threshold</span> trades raw throughput on one long prompt for fairness to everyone else sharing the engine.</li>
+    <li><strong>Speculative decoding:</strong> draft cheap, verify once with the large model, accept/reject left to right. vLLM V1 options: n-gram (free, needs repetitive output), EAGLE, Medusa.</li>
+    <li><strong>Guided decoding:</strong> use it when malformed output is a hard failure (broken parser, broken API contract) - not for loose formatting preferences.</li>
+  </ul>
+</div>
+
+<div class="module-tag">Module 4 - Scaling Out</div>
+<div class="use-box">
+  <ul style="padding-left:20px; margin:0;">
+    <li><strong>Tensor parallelism first</strong> - it needs fast intranode bandwidth. Reach for <strong>pipeline parallelism</strong> only once you must cross nodes.</li>
+    <li>Distributed serving load-balances new requests across engine replicas by <span class="mono">len(waiting) * 4 + len(running)</span> - lowest score wins.</li>
+    <li><strong>Disaggregated P/D</strong> separates compute-bound and memory-bound work onto independently-scaled pools. Real operational overhead - only worth it once shared-pool interference outweighs that cost.</li>
+  </ul>
+</div>
+
+<div class="module-tag">Module 5 - Operate It</div>
+<div class="use-box">
+  <ul style="padding-left:20px; margin:0;">
+    <li>TTFT, ITL, TPOT, throughput, goodput - <strong>goodput</strong> (throughput that meets your actual SLOs) is the number that belongs on a dashboard, not raw throughput.</li>
+    <li>The roofline model: below the saturation batch size you're memory-bound (latency stays nearly flat); past it you're compute-bound (latency grows with batch size).</li>
+    <li><span class="mono">vllm bench {latency,throughput,serve}</span> - use <span class="mono">serve</span> to simulate real traffic patterns and validate against real SLOs, not just chase raw throughput.</li>
+  </ul>
+</div>
 
 <!-- ck-optin -->
 <div class="optin-box">
