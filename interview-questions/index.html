@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Engineering Interview Questions | @systemsbyakshay</title>
+<meta name="description" content="Real AI Engineering interview questions on RAG, evals, serving, fine-tuning, MLOps, governance, agents, cost, and architecture trade-offs. Filter by topic, difficulty, and company.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brand-bg: #f9f8f4;
+    --brand-dark: #0a0a0a;
+    --brand-text: #1a1a1a;
+    --brand-muted: #6e6a64;
+    --brand-accent: #2563eb;
+    --brand-gold: #b8860b;
+    --brand-green: #16a34a;
+    --brand-red: #dc2626;
+    --brand-border: #e8e4dc;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--brand-bg);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--brand-text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    padding: 48px 24px 80px;
+  }
+  a { color: var(--brand-accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .wrap { max-width: 920px; margin: 0 auto; }
+
+  .header { text-align: center; margin-bottom: 40px; }
+  .header .brand { font-size: 13px; color: var(--brand-accent); font-weight: 600; letter-spacing: 0.10em; text-transform: uppercase; margin-bottom: 10px; }
+  .header h1 { font-size: 36px; font-weight: 800; color: var(--brand-dark); margin-bottom: 10px; }
+  .header p { font-size: 16px; color: var(--brand-muted); max-width: 560px; margin: 0 auto; }
+  .header .back { display: inline-block; margin-top: 14px; font-size: 13px; }
+
+  .section-label {
+    font-size: 13px; font-weight: 700; color: var(--brand-muted);
+    letter-spacing: 0.09em; text-transform: uppercase; margin-bottom: 14px;
+  }
+
+  /* Recent strip */
+  .recent-wrap { margin-bottom: 40px; }
+  .recent-scroll {
+    display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px;
+    scrollbar-width: thin;
+  }
+  .recent-card {
+    flex: 0 0 auto; width: 260px; background: white; border: 1px solid var(--brand-border);
+    border-radius: 12px; padding: 16px; cursor: pointer;
+  }
+  .recent-card .rc-topic { font-size: 11px; font-weight: 700; color: var(--brand-accent); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .recent-card .rc-q { font-size: 13.5px; color: var(--brand-text); line-height: 1.45; }
+
+  /* Filters */
+  .filters { background: white; border: 1px solid var(--brand-border); border-radius: 16px; padding: 22px 24px; margin-bottom: 28px; }
+  .filter-row { margin-bottom: 16px; }
+  .filter-row:last-child { margin-bottom: 0; }
+  .filter-row .label { font-size: 12px; font-weight: 700; color: var(--brand-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 999px;
+    border: 1px solid var(--brand-border); background: var(--brand-bg); color: var(--brand-text);
+    cursor: pointer; user-select: none; transition: all 0.15s;
+  }
+  .chip:hover { border-color: var(--brand-accent); }
+  .chip.active { background: var(--brand-accent); border-color: var(--brand-accent); color: white; }
+  .chip.active.diff-easy { background: var(--brand-green); border-color: var(--brand-green); }
+  .chip.active.diff-medium { background: var(--brand-gold); border-color: var(--brand-gold); }
+  .chip.active.diff-hard { background: var(--brand-red); border-color: var(--brand-red); }
+
+  .search-row { display: flex; gap: 10px; margin-top: 4px; }
+  .search-row input {
+    flex: 1; font-family: inherit; font-size: 14px; padding: 10px 14px;
+    border: 1px solid var(--brand-border); border-radius: 10px; background: var(--brand-bg);
+  }
+  .search-row input:focus { outline: none; border-color: var(--brand-accent); }
+  .clear-btn {
+    font-size: 13px; font-weight: 600; padding: 10px 16px; border-radius: 10px;
+    border: 1px solid var(--brand-border); background: white; color: var(--brand-muted); cursor: pointer;
+  }
+  .clear-btn:hover { border-color: var(--brand-red); color: var(--brand-red); }
+
+  .results-count { font-size: 13px; color: var(--brand-muted); margin-bottom: 14px; }
+
+  /* Question list */
+  .q-list { display: flex; flex-direction: column; gap: 12px; }
+  .q-card { background: white; border: 1px solid var(--brand-border); border-radius: 14px; padding: 20px 22px; }
+  .q-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .badge-topic { background: rgba(37,99,235,0.1); color: var(--brand-accent); }
+  .badge-easy { background: rgba(22,163,74,0.12); color: var(--brand-green); }
+  .badge-medium { background: rgba(184,134,11,0.14); color: var(--brand-gold); }
+  .badge-hard { background: rgba(220,38,38,0.12); color: var(--brand-red); }
+  .badge-company { background: #f1f0ec; color: var(--brand-muted); }
+  .q-num { font-size: 12px; color: var(--brand-muted); font-weight: 600; margin-left: auto; }
+  .q-text { font-size: 16px; color: var(--brand-text); line-height: 1.55; }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--brand-muted); }
+
+  .footer { text-align: center; margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--brand-border); color: var(--brand-muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="brand">@systemsbyakshay</div>
+    <h1>AI Engineering Interview Questions</h1>
+    <p>Real questions asked in AI Engineering interviews — RAG, evals, serving, fine-tuning, MLOps, governance, agents, cost, and architecture trade-offs. New ones added with every reel.</p>
+    <a class="back" href="../">&larr; All resources</a>
+  </div>
+
+  <div class="recent-wrap">
+    <div class="section-label">Recently Added</div>
+    <div class="recent-scroll" id="recentScroll"></div>
+  </div>
+
+  <div class="filters">
+    <div class="filter-row">
+      <div class="label">Topic</div>
+      <div class="chips" id="topicChips"></div>
+    </div>
+    <div class="filter-row">
+      <div class="label">Difficulty</div>
+      <div class="chips" id="diffChips"></div>
+    </div>
+    <div class="filter-row">
+      <div class="label">Company</div>
+      <div class="chips" id="companyChips"></div>
+    </div>
+    <div class="filter-row">
+      <div class="search-row">
+        <input type="text" id="searchInput" placeholder="Search questions...">
+        <button class="clear-btn" id="clearBtn">Clear filters</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="results-count" id="resultsCount"></div>
+  <div class="q-list" id="qList"></div>
+
+  <div class="footer">
+    <p>Built by <strong>@systemsbyakshay</strong></p>
+    <p>Follow on <a href="https://instagram.com/systemsbyakshay">Instagram</a> for the AI Engineering Interview Questions series</p>
+  </div>
+
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
