@@ -1,0 +1,21 @@
+AI Engineering Interview Question 5
+
+Your RAG system works great in English but retrieval quality collapses for Arabic queries even though the documents are indexed correctly. How do you debug and fix this?
+
+What this actually tests: Cross-lingual retrieval failure diagnosis, and awareness that most embedding models are English-optimized.
+
+How a strong answer breaks down:
+→ Check the embedding model's multilingual training coverage - most popular embedding models skew heavily English, and Arabic is a known weak spot.
+→ Check tokenization - Arabic's root-pattern morphology and diacritics fragment very differently than English.
+→ Check normalization consistency - are queries and docs using the same script/diacritic handling on both sides.
+→ Test retrieval-only metrics (recall@k) on an Arabic-labeled eval set in isolation before touching anything else.
+
+🚩 Red flag: Assuming it's the same bug as English and re-tuning chunk size/top-k
+
+🔁 Likely follow-up: Swapping to a multilingual embedding model fixes Arabic but drops English recall by 4%. How do you decide between one model and routing by detected language?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #RAG #MLOps #TechCareers

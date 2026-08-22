@@ -1,0 +1,21 @@
+AI Engineering Interview Question 2
+
+Your RAG system's answers are correct but retrieval latency is 4s on a 50M-document index. Where do you look first?
+
+What this actually tests: Systematic latency profiling instead of guessing at the most visible number.
+
+How a strong answer breaks down:
+→ Split end-to-end latency into query embedding, ANN search, reranking, and generation - don't guess which stage owns the 4s.
+→ Confirm an ANN index (HNSW, IVF-PQ) is actually in use - flat/exact search doesn't scale to 50M vectors.
+→ Check whether a cross-encoder reranker is running over too many candidates - top-k=100 into a reranker is a common silent bottleneck.
+→ Check if query embedding happens synchronously per request with no caching or batching.
+
+🚩 Red flag: Jumping to "scale up the vector DB hardware" without profiling first
+
+🔁 Likely follow-up: Your fix gets p50 to 4s but p99 is still 9s. What's different about those tail requests and how do you find them?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #RAG #MLOps #TechCareers

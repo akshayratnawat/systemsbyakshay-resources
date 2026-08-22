@@ -1,0 +1,21 @@
+AI Engineering Interview Question 17
+
+LoRA fine-tune improves your eval benchmark by 8% but production complaints double. How do you diagnose the gap?
+
+What this actually tests: Distinguishing benchmark improvement from real-world regression - the classic overfit-to-eval trap.
+
+How a strong answer breaks down:
+→ Start from the premise that the eval set and production traffic aren't the same distribution - an 8% eval gain with 2x complaints means the fine-tune helped what the eval measures and hurt something it doesn't.
+→ Pull actual complaint examples and categorize them (tone, factuality, format, refusal, something new) rather than treating "complaints doubled" as one signal.
+→ Compare fine-tuned vs. base model outputs on the complaint-triggering examples specifically, to see exactly where behavior diverged.
+→ Check for narrow overfitting - did the fine-tuning data oversample a style/task the eval set also emphasizes, at the cost of general capability.
+
+🚩 Red flag: Trusting the 8% eval number as proof the fine-tune is strictly better, with no further investigation
+
+🔁 Likely follow-up: You find the fine-tune improved technical accuracy but users now find it 'colder' in tone. Is that a bug or a trade-off, and how do you decide?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #FineTuning #MLOps #TechCareers

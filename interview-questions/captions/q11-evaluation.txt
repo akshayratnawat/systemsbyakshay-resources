@@ -1,0 +1,21 @@
+AI Engineering Interview Question 11
+
+You're comparing two models on the same eval suite and one wins on automated metrics but users consistently prefer the other in blind tests. How do you reconcile this and which do you ship?
+
+What this actually tests: Trusting real user signal over a proxy metric, and diagnosing why the proxy diverged.
+
+How a strong answer breaks down:
+→ Start from the premise that the automated metric is a proxy, and proxies can diverge from what they're a proxy for - this isn't a paradox to explain away.
+→ Dig into what the automated eval actually measures versus what blind testers are reacting to (tone, formatting, verbosity, confidence).
+→ Check the blind test's own validity first - rater count, instructions, potential bias - before fully trusting it either.
+→ Look at the specific examples where the two signals disagree most, that's usually where the real explanation lives.
+
+🚩 Red flag: Shipping the model that wins on automated metrics because "the numbers say so," ignoring real user signal
+
+🔁 Likely follow-up: You ship the user-preferred model and add tone/formatting to your automated eval. Three months later the automated eval says a new candidate wins on every dimension including tone. Do you still run a blind test before shipping?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #LLMEval #MLOps #TechCareers

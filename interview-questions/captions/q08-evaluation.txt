@@ -1,0 +1,21 @@
+AI Engineering Interview Question 8
+
+Build a comprehensive LLM/RAG eval framework covering retrieval, generation, hallucinations, refusals, multilingual quality, latency, and cost - what's the architecture?
+
+What this actually tests: End-to-end systems design for evaluation as a platform, not a single script.
+
+How a strong answer breaks down:
+→ Layer the architecture: a versioned eval-data layer, an orchestration/runner layer, a scoring layer (judges), and a reporting/gating layer.
+→ Split retrieval eval (recall/precision/MRR on labeled query-doc pairs) from generation eval (faithfulness/correctness) - they need different data and fail independently.
+→ Design the scoring layer with a common interface behind multiple judge types (rule-based, LLM-judge, human-in-the-loop).
+→ Support both offline (pre-release, curated sets) and online (production sampling, shadow evals) modes sharing the same scoring layer.
+
+🚩 Red flag: Describing a single monolithic script instead of a layered, versioned system
+
+🔁 Likely follow-up: A new model version passes every offline gate but user complaints spike after rollout. What's missing from this architecture that would have caught it earlier?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #LLMEval #MLOps #TechCareers

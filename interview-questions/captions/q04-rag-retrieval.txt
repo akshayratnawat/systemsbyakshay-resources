@@ -1,0 +1,21 @@
+AI Engineering Interview Question 4
+
+Two documents contradict each other and your RAG system picks the wrong one 30% of the time. How do you fix retrieval ranking for this?
+
+What this actually tests: Reasoning about ranking signals beyond pure semantic similarity, and about document trustworthiness.
+
+How a strong answer breaks down:
+→ Characterize the contradiction first: stale-vs-current (a versioning problem) or genuinely conflicting sources (a trust problem) - the fix differs.
+→ If versioning: add recency/version metadata and boost or filter by it at retrieval time - this is the majority of real-world cases.
+→ If trust: add a source-authority signal (canonical doc, owner, approval status) as a ranking feature, not pure cosine similarity.
+→ Check whether the embedding model even distinguishes the two documents, or if they're near-duplicates it can't separate.
+
+🚩 Red flag: Treating it as a chunking/embedding tuning problem when it's a data-governance problem
+
+🔁 Likely follow-up: The two docs are both current and genuinely contradict each other, no stale version to prefer. What does the product actually do at answer time?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #RAG #MLOps #TechCareers

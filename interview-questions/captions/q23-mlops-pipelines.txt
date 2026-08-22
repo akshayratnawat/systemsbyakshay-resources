@@ -1,0 +1,21 @@
+AI Engineering Interview Question 23
+
+Your model performs great in staging, degrades within a week in production, then recovers on redeploy with the same weights. What's your hypothesis and how do you test it?
+
+What this actually tests: Distinguishing a stateful/environmental degradation from a model-weights problem.
+
+How a strong answer breaks down:
+→ Name the clue explicitly - the same weights working again after redeploy rules out the model itself, this must be state accumulating in the running process over the week.
+→ Hypothesize a memory/resource leak or cache growth that degrades performance over days and resets on redeploy.
+→ Hypothesize a stateful cache or connection going stale over time (a connection pool degrading, a local cache not refreshing) that a fresh process wouldn't have.
+→ Hypothesize numerical drift in a stateful component (a running average, adaptive threshold, or embedding cache) that quietly drifts and resets on redeploy.
+
+🚩 Red flag: Treating this as a model/weights problem and considering retraining, despite the clue that rules it out
+
+🔁 Likely follow-up: You isolate it to a feature cache with no TTL that starts serving stale features after about a week. What's the actual fix, and how do you make sure this class of bug doesn't happen again in a different cache somewhere else?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #MLOps #MLOps #TechCareers

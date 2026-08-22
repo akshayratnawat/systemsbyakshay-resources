@@ -99,7 +99,33 @@
   .badge-hard { background: rgba(220,38,38,0.12); color: var(--brand-red); }
   .badge-company { background: #f1f0ec; color: var(--brand-muted); }
   .q-num { font-size: 12px; color: var(--brand-muted); font-weight: 600; margin-left: auto; }
-  .q-text { font-size: 16px; color: var(--brand-text); line-height: 1.55; }
+  .q-text { font-size: 16px; color: var(--brand-text); line-height: 1.55; cursor: pointer; }
+
+  .reveal-btn {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 14px;
+    font-size: 13px; font-weight: 700; color: var(--brand-accent); background: none;
+    border: none; cursor: pointer; padding: 0;
+  }
+  .reveal-btn .arrow { transition: transform 0.15s; }
+  .reveal-btn.open .arrow { transform: rotate(90deg); }
+
+  .answer { display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--brand-border); }
+  .answer.open { display: block; }
+  .answer .a-block { margin-bottom: 16px; }
+  .answer .a-block:last-child { margin-bottom: 0; }
+  .answer .a-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--brand-muted); margin-bottom: 6px;
+  }
+  .answer .a-testing { font-size: 14px; color: var(--brand-text); font-weight: 600; }
+  .answer .a-context { font-size: 14px; color: var(--brand-muted); font-style: italic; }
+  .answer ul { margin: 0; padding-left: 20px; }
+  .answer li { font-size: 14px; color: var(--brand-text); line-height: 1.55; margin-bottom: 6px; }
+  .answer li:last-child { margin-bottom: 0; }
+  .a-strong .a-label { color: var(--brand-accent); }
+  .a-redflags .a-label { color: var(--brand-red); }
+  .a-bonus .a-label { color: var(--brand-gold); }
+  .answer .a-followup { font-size: 14px; color: var(--brand-text); background: var(--brand-bg); border-radius: 10px; padding: 12px 14px; }
 
   .empty-state { text-align: center; padding: 60px 20px; color: var(--brand-muted); }
 
@@ -112,7 +138,7 @@
   <div class="header">
     <div class="brand">@systemsbyakshay</div>
     <h1>AI Engineering Interview Questions</h1>
-    <p>Real questions asked in AI Engineering interviews — RAG, evals, serving, fine-tuning, MLOps, governance, agents, cost, and architecture trade-offs. New ones added with every reel.</p>
+    <p>Real questions asked in AI Engineering interviews - RAG, evals, serving, fine-tuning, MLOps, governance, agents, cost, and architecture trade-offs. New ones added with every reel.</p>
     <a class="back" href="../">&larr; All resources</a>
   </div>
 
@@ -153,6 +179,7 @@
 </div>
 
 <script src="data.js"></script>
+<script src="answers.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

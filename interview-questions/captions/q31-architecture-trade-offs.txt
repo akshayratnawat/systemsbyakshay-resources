@@ -1,0 +1,21 @@
+AI Engineering Interview Question 31
+
+A government smart-city platform streams 10,000 events/second. You need sub-5-second latency for real-time AI alerting AND full history for model retraining. How do you design this?
+
+What this actually tests: Lambda/kappa-style streaming architecture design balancing low-latency and durable-storage requirements.
+
+How a strong answer breaks down:
+→ Recognize the two requirements need different paths - a hot/streaming path for sub-5s alerting, and a cold/durable path for complete, queryable history - serving both from one system compromises both.
+→ Ingest through a durable, high-throughput event bus (e.g. Kafka/Kinesis) at the front, since 10,000 events/sec needs sustained high-throughput write, and this bus becomes the single source of truth both paths read from.
+→ Hot path: a stream processor (e.g. Flink) consuming from the bus with lightweight alerting logic and a tight latency budget, writing alerts to a low-latency serving layer, and explicitly avoiding heavy joins or uncached lookups that risk blowing the 5s budget.
+→ Cold path: the same bus also sinks to durable, cheap storage (object storage/data lake) via a separate consumer with no latency pressure, feeding retraining and long-term analytics.
+
+🚩 Red flag: Trying to serve both real-time alerting and full-history retraining from a single unified pipeline with one latency profile
+
+🔁 Likely follow-up: The hot path hits 5s at 10,000 events/sec today, but city growth projections put you at 30,000 events/sec next year. What in this design breaks first, and what do you fix ahead of time?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #SystemDesign #MLOps #TechCareers

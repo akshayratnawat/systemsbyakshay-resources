@@ -1,0 +1,21 @@
+AI Engineering Interview Question 6
+
+How should you evaluate an LLM beyond just latency?
+
+What this actually tests: Breadth of evaluation thinking, not just naming a metric.
+
+How a strong answer breaks down:
+→ Start with task-level quality: correctness against a labeled or LLM-judged eval set specific to the actual use case, not a generic benchmark.
+→ Add safety dimensions: hallucination rate, and refusal rate in both directions (over- and under-refusal).
+→ Add robustness: performance on edge cases, adversarial prompts, and out-of-distribution inputs.
+→ Add cost as a real product constraint, even though it isn't 'quality' - cost per request/token at target volume.
+
+🚩 Red flag: Naming only accuracy or BLEU/ROUGE-style metrics
+
+🔁 Likely follow-up: You've got 6 metrics you like. Which one becomes the release-blocking gate, and why only one?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #LLMEval #MLOps #TechCareers

@@ -1,0 +1,21 @@
+AI Engineering Interview Question 16
+
+Design a feature store for a fraud detection AI model - features must reflect the last 1, 5, and 30 minutes of activity per citizen ID, with retrieval under 10ms. How do you build this?
+
+What this actually tests: Real-time feature engineering and low-latency serving architecture design.
+
+How a strong answer breaks down:
+→ Split into two paths: a streaming path maintaining rolling aggregates (1/5/30 min windows), and a serving path that just reads precomputed values - never compute aggregates at request time.
+→ Use a stream processor (e.g. Flink/Kafka Streams) to maintain windowed aggregates per citizen ID incrementally as events arrive, updating a fast key-value store.
+→ Serve from an in-memory or purpose-built low-latency KV store (e.g. Redis) keyed by citizen ID - disk-backed lookups won't consistently hit 10ms at scale.
+→ Precompute and materialize the windows continuously - request-time aggregation over raw events cannot hit a 10ms bar.
+
+🚩 Red flag: Computing windowed aggregates at request time by querying raw event logs, which cannot hit 10ms at this scale
+
+🔁 Likely follow-up: The stream processor falls behind during a traffic spike and the 1-minute window is now 90 seconds stale. Does the fraud model still trust it, and what's your circuit breaker?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #ModelServing #MLOps #TechCareers

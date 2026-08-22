@@ -1,0 +1,21 @@
+AI Engineering Interview Question 7
+
+You want continuous evaluation measuring hallucination rate, refusal rate, Arabic quality, and more - how do you build that pipeline?
+
+What this actually tests: Pipeline/systems design thinking for evaluation infrastructure, not just listing metrics.
+
+How a strong answer breaks down:
+→ Start with a versioned, curated eval set per dimension (hallucination, refusal, per-language quality), each with clear labeling criteria.
+→ Decide a judge strategy per dimension: rule-based for refusal detection, LLM-as-judge for hallucination/quality, human spot-checks for calibration.
+→ Run the eval suite automatically on every model/prompt change (CI-style gate), not just on a schedule.
+→ Also run a scheduled slice against live production traffic samples, since offline sets drift from real usage.
+
+🚩 Red flag: One giant static eval set with no versioning or refresh plan
+
+🔁 Likely follow-up: Your LLM judge and human labelers agree 90% of the time. Is that good enough to trust the judge as the release gate, and what would change your answer?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #LLMEval #MLOps #TechCareers

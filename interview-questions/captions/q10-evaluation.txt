@@ -1,0 +1,21 @@
+AI Engineering Interview Question 10
+
+Two LLM judges disagree on 20% of your eval set. How do you resolve which one to trust?
+
+What this actually tests: Judge reliability/calibration methodology, not picking a favorite.
+
+How a strong answer breaks down:
+→ Don't pick a favorite on gut feel - build a small human-labeled gold set specifically on the disagreement cases.
+→ Score both judges against that gold set - whichever tracks human labels better wins on that dimension, not in general.
+→ Look at disagreement cases qualitatively - is one judge systematically lenient/harsh, or are they concentrated on genuinely ambiguous edge cases.
+→ Check for known judge biases: position bias, length/verbosity bias, self-preference bias toward its own model family.
+
+🚩 Red flag: Picking the judge that gives the higher or more favorable score
+
+🔁 Likely follow-up: Your gold-set calibration shows Judge A tracks humans better overall, but Judge B is better specifically on refusal cases. What do you ship?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #LLMEval #MLOps #TechCareers

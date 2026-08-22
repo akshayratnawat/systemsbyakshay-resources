@@ -1,0 +1,21 @@
+AI Engineering Interview Question 12
+
+70B model, 5000 concurrent users, A100s, p99 TTFT <800ms, zero data leaving org. What's the serving stack and why?
+
+What this actually tests: Production LLM serving architecture design under real self-hosting, latency, and concurrency constraints.
+
+How a strong answer breaks down:
+→ Name the constraint first: zero data leaving org rules out any third-party API, this has to run self-hosted on org-controlled A100s, and that decision drives everything else.
+→ Use a serving engine built for throughput/concurrency (e.g. vLLM or TensorRT-LLM) instead of a naive transformers loop, specifically for continuous batching and efficient KV-cache memory management.
+→ Size the GPU fleet for the model to fit (tensor parallelism across multiple A100s for a 70B model in fp16), then multiply by the replica count the concurrency/TTFT target needs.
+→ Use continuous batching so new requests join in-flight batches instead of waiting for a batch boundary - usually the single biggest lever for concurrent-user TTFT.
+
+🚩 Red flag: Suggesting a hosted API despite the explicit no-data-leaving-org constraint
+
+🔁 Likely follow-up: Your p99 is 750ms at normal load but spikes to 2s during a traffic burst. What's your first move: scale out, or something else?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #ModelServing #MLOps #TechCareers

@@ -1,0 +1,21 @@
+AI Engineering Interview Question 26
+
+A regulator asks you to explain a single model decision from 6 months ago, down to the exact prompt and retrieved context. What do you need logged today to answer that tomorrow?
+
+What this actually tests: Designing complete request-level observability/logging for LLM systems with compliance in mind.
+
+How a strong answer breaks down:
+→ Log everything that determined the output at generation time: the exact final prompt after templating, the retrieved context/documents with their versions, the model version/checkpoint, and any active system-prompt/config version.
+→ Use immutable, tamper-evident storage with a retention policy that explicitly covers the compliance window, since logs rotated out at 30/90 days can't answer this at all.
+→ Version everything that could have varied - the retrieval corpus/index version (documents get updated), the prompt template version, the model version.
+→ Tie every logged request to a stable request ID a compliance team can look up, and make sure that ID is available to the case at decision time.
+
+🚩 Red flag: Logging only the final user-facing answer, not the exact prompt/retrieved context/model version
+
+🔁 Likely follow-up: You reconstruct the exact prompt and context from 6 months ago, but the model version used has since been deprecated and is no longer deployable. Can you still answer the regulator, and what do you need to have kept to do it?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #AIGovernance #MLOps #TechCareers

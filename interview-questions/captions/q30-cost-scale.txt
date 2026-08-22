@@ -1,0 +1,21 @@
+AI Engineering Interview Question 30
+
+You need to serve 10x more traffic next quarter with the same infra budget. What do you optimize first: model, infra, or usage patterns - and why?
+
+What this actually tests: Prioritization judgment under a hard constraint, not just naming all three levers.
+
+How a strong answer breaks down:
+→ Size the gap first: at current cost-per-request, 10x traffic on the same budget requires roughly a 90% cost-per-request reduction - name that number, since it reframes the problem entirely.
+→ Attack usage patterns first, usually the cheapest lever - check caching opportunities, redundant/duplicate calls, and whether every request needs the most expensive model tier.
+→ Attack model choice second - evaluate whether a smaller/cheaper/quantized model meets the quality bar for most traffic, reserving the expensive model for requests that genuinely need it (a cascading/routing pattern).
+→ Attack infra last, not because it doesn't matter, but because infra optimization typically yields smaller percentage gains than fixing usage waste or model mix, and takes longer to implement safely.
+
+🚩 Red flag: Listing all three (model, infra, usage) with no stated priority or reasoning for the order
+
+🔁 Likely follow-up: You've pulled usage and model levers and you're at 6x more efficient, still short of the 10x/flat-budget bar. What's the actual conversation with leadership at that point?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #AICost #MLOps #TechCareers

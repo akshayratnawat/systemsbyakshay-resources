@@ -1,0 +1,21 @@
+AI Engineering Interview Question 24
+
+Build a PII detection and tokenization system for a government data lake feeding AI training. How do you prove to an auditor that no raw PII ever reaches a training job?
+
+What this actually tests: Designing verifiable, auditable data governance, not just "we have a PII scrubber."
+
+How a strong answer breaks down:
+→ Design PII detection and tokenization as a mandatory gate at ingestion into the data lake, before data is available to any downstream consumer including training jobs.
+→ Use layered detection: pattern/regex for structured PII (IDs, phone numbers), NER models for unstructured PII (names, addresses in free text) - neither alone is sufficient.
+→ Tokenize detected PII with a reversible mapping stored in a separate, access-controlled vault, so the data lake itself never holds raw PII even before tokenization.
+→ Architecturally separate a raw zone (PII present, tightly access-controlled, short retention) from a training zone (tokenized only), so training jobs are physically incapable of reading raw data, not just told not to.
+
+🚩 Red flag: Relying on a single PII-scrubbing step "before training" with no architectural separation enforcing it
+
+🔁 Likely follow-up: The PII detector has 98% recall. What do you do about the 2% that gets through, and how does that show up in what you tell the auditor?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #AIGovernance #MLOps #TechCareers

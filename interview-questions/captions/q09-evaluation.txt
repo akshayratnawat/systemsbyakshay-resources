@@ -1,0 +1,21 @@
+AI Engineering Interview Question 9
+
+Your eval set was built 6 months ago and the model now scores 95% on it but users complain constantly. What's wrong and how do you fix it?
+
+What this actually tests: Recognizing eval-set staleness/drift as a distinct failure mode from model regression.
+
+How a strong answer breaks down:
+→ First hypothesis: the eval set no longer represents real user queries, not that the model got worse, since the score is high and stable.
+→ Pull a fresh sample of real production queries and compare its distribution to the eval set - look for new topics, new query types, new segments.
+→ Check whether the eval set has been "solved" by repeated prompt tuning against the same fixed examples - a known static-set failure mode.
+→ Cross-reference complaint themes (tickets, thumbs-down, regenerations) against what the eval set actually tests.
+
+🚩 Red flag: Immediately assuming a model regression and trying to retrain or roll back
+
+🔁 Likely follow-up: You refresh the eval set and the score drops from 95% to 78%. How do you know that's a better number and not just a harder, less representative set?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #LLMEval #MLOps #TechCareers

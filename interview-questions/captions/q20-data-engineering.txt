@@ -1,0 +1,21 @@
+AI Engineering Interview Question 20
+
+An org sends a daily CSV of 2M citizen records - different column names weekly, random nulls, 3 date formats, French names transliterated inconsistently. How do you stop bad data silently breaking the downstream AI model?
+
+What this actually tests: Building a robust ingestion/validation layer, not just a parser that works today.
+
+How a strong answer breaks down:
+→ Treat the ingestion boundary as untrusted by default - build explicit schema validation at the point of ingestion, don't trust the CSV structure.
+→ Decouple column mapping from the raw file with a configurable alias layer, so a weekly rename doesn't silently break the parser or misalign columns.
+→ Normalize date formats explicitly against a small, tested set of expected formats and fail loudly on anything outside that set.
+→ Define null-handling rules per field (required vs. optional, default vs. reject-the-row), not one blanket rule for the whole file.
+
+🚩 Red flag: Writing a parser hardcoded to today's column names/date formats with no validation layer
+
+🔁 Likely follow-up: The upstream org renames a critical column with no alias, and the whole file gets quarantined for three days straight. What's your fallback so the model doesn't run on three-day-stale data silently?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #DataEngineering #MLOps #TechCareers

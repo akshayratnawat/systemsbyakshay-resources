@@ -1,0 +1,21 @@
+AI Engineering Interview Question 32
+
+12 ministry datasets must be queryable by a central AI platform, but each ministry's raw data must be invisible to the others. How do you architect this?
+
+What this actually tests: Federated/multi-tenant data architecture design with strict isolation requirements.
+
+How a strong answer breaks down:
+→ Start from the isolation requirement as the hard constraint - each ministry's raw data must be structurally inaccessible to others, not just access-controlled by policy, since policy-only controls fail under misconfiguration.
+→ Keep each ministry's raw data in its own isolated storage/compute boundary (separate accounts/tenants/encryption keys) rather than one shared data lake with row-level permissions, since a shared store is one misconfigured policy away from cross-tenant exposure.
+→ Build the central AI platform as a federated query/compute layer that runs queries/models within each ministry's boundary and only returns aggregated or derived results centrally, rather than centralizing raw data.
+→ For cross-ministry insights specifically, use privacy-preserving aggregation (federated learning, secure aggregation, or differential privacy on outputs) so the central platform learns patterns without any ministry's raw records ever leaving its boundary.
+
+🚩 Red flag: Proposing a single shared central data lake with row-level or role-based access control as the only isolation mechanism
+
+🔁 Likely follow-up: One ministry wants a cross-ministry insight that federated aggregation genuinely cannot answer without seeing some raw joined records. What's the actual process for that request, and who has the authority to approve it?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #SystemDesign #MLOps #TechCareers

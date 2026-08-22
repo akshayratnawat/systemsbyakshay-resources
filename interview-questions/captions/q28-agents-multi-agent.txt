@@ -1,0 +1,21 @@
+AI Engineering Interview Question 28
+
+An autonomous agent with tool access starts taking actions outside its intended scope under edge-case inputs. How do you design guardrails without crippling its usefulness?
+
+What this actually tests: Designing proportional, layered safety controls instead of over-restricting or under-restricting.
+
+How a strong answer breaks down:
+→ Classify the agent's tools/actions by risk and reversibility (read-only lookup vs. sending an email vs. deleting data vs. spending money) - the right guardrail differs per class, a blanket restriction either overblocks or underblocks.
+→ Add explicit scope constraints at the tool-execution layer, not just the prompt/instructions layer, since prompt-level rules aren't a reliable boundary against edge-case or adversarial inputs.
+→ Require human-in-the-loop confirmation specifically for high-risk/irreversible actions, while letting low-risk actions proceed autonomously - this is what preserves usefulness instead of gating everything.
+→ Add input/output validation around tool calls - constrain what parameters an action can be called with (e.g. an email tool restricted to an allowlist) so an edge-case prompt can't smuggle an unintended action through a legitimate tool.
+
+🚩 Red flag: Trying to solve this purely with a stricter system prompt, with no enforcement at the tool-execution layer
+
+🔁 Likely follow-up: Your risk classification puts 'send a Slack message' in the low-risk autonomous tier, but an edge-case input gets the agent to send an internal message with leaked customer data in it. Was that the wrong tier, or a different kind of guardrail failure?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #AIAgents #MLOps #TechCareers

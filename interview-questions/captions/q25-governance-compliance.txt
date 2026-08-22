@@ -1,0 +1,21 @@
+AI Engineering Interview Question 25
+
+For a training run 14 months ago, you must prove exactly which records were used, who approved access, and whether any have since been deletion-requested. How do you design for this?
+
+What this actually tests: Designing for long-horizon data lineage and compliance from the start, not retrofitting it later.
+
+How a strong answer breaks down:
+→ Design the training pipeline to record its own provenance as a first-class output - immutable, versioned lineage captured at training time, not reconstructed after the fact.
+→ At every training run, log the exact dataset version/hash used, the access-approval record tied to that dataset version, and a pointer to the model artifact produced.
+→ Version datasets immutably (content-addressed storage or a dataset versioning tool) so "the dataset used 14 months ago" is a retrievable, exact artifact.
+→ Tie access approvals to a formal access-request system with its own audit log, cross-referenced by dataset version at training time, not just at initial grant.
+
+🚩 Red flag: Assuming this can be answered after the fact from application logs or memory instead of designing for it up front
+
+🔁 Likely follow-up: A citizen's deletion request predates this specific model by two months, but the training pipeline shows their record was still present in the dataset snapshot used. What's the actual remediation, and who signs off on it?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #AIGovernance #MLOps #TechCareers

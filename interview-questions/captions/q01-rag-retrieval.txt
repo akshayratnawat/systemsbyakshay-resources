@@ -1,0 +1,21 @@
+AI Engineering Interview Question 1
+
+Retriever returns the correct chunk, generator still hallucinates details. 15% hallucination rate overall. How do you debug it?
+
+What this actually tests: Ability to isolate a failure to the generation stage instead of reflexively re-tuning retrieval.
+
+How a strong answer breaks down:
+→ Confirm retrieval precision/recall on a labeled eval set before touching the generator - if the right chunk is in context, the bug is downstream.
+→ Check context position: a chunk buried in the middle of a long context gets ignored (lost-in-the-middle), verify chunk placement/ordering.
+→ Check the prompt: is it explicitly telling the model to answer only from provided context, or letting it blend in prior knowledge.
+→ Check chunk granularity: the right chunk retrieved but too broad, forcing the model to extract one detail from noise.
+
+🚩 Red flag: Re-tuning the retriever/chunking without first verifying the correct chunk actually reached the model
+
+🔁 Likely follow-up: If the hallucination is concentrated on numeric values specifically, what's your fix, and would a bigger model actually solve it or just hide it?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #RAG #MLOps #TechCareers

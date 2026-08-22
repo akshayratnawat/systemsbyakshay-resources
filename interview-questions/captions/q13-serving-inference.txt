@@ -1,0 +1,21 @@
+AI Engineering Interview Question 13
+
+13B LoRA model on a single RTX 4090 edge server, need <500ms for 1000-token responses. What optimizations get you there?
+
+What this actually tests: Single-GPU inference optimization under a hard memory and latency budget, edge-specific trade-offs.
+
+How a strong answer breaks down:
+→ Name the constraint: a 4090 has 24GB VRAM, a 13B model in fp16 already needs ~26GB just for weights, so quantization is required to fit at all, not optional.
+→ Quantize the base model (4-bit AWQ/GPTQ/bitsandbytes) and keep the LoRA adapter at higher precision on top - the standard pattern for fitting under budget without gutting quality.
+→ Use a serving engine with efficient LoRA support on quantized base weights (e.g. vLLM's LoRA support) instead of a naive merge-and-reload per request.
+→ Use continuous batching / KV-cache reuse if serving multiple requests, and avoid redundant recomputation even on a single-stream server.
+
+🚩 Red flag: Proposing fp16/fp32 serving on a single 4090 without addressing the memory math
+
+🔁 Likely follow-up: Your median hits 480ms but a fraction of long-context requests blow past 500ms. Do you cap max context length, or something else?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #ModelServing #MLOps #TechCareers

@@ -1,0 +1,21 @@
+AI Engineering Interview Question 3
+
+Adding more chunks to context improves recall but tanks precision - how do you tune chunk size and top-k systematically, not by guessing?
+
+What this actually tests: Building an eval-driven tuning process instead of hand-tuning on a handful of examples.
+
+How a strong answer breaks down:
+→ Build a labeled eval set first (queries with known correct source spans) - this is the prerequisite for 'systematic,' not optional.
+→ Score retrieval (recall@k, precision@k, MRR) separately from end-answer quality (faithfulness, correctness).
+→ Grid search chunk size x overlap x top-k against retrieval metrics first, to isolate the retrieval stage.
+→ Run the winning retrieval configs through the full pipeline, since the best retrieval config isn't always best end-to-end.
+
+🚩 Red flag: "I'd try a few chunk sizes and see what looks good" with no eval set
+
+🔁 Likely follow-up: Your eval set has 200 queries. How do you know that's enough to trust the grid search, and what would make you distrust it?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #RAG #MLOps #TechCareers

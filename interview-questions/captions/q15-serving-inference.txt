@@ -1,0 +1,21 @@
+AI Engineering Interview Question 15
+
+GPU utilization sits at 30% during peak traffic but requests still queue. What's actually happening and how do you fix it?
+
+What this actually tests: Distinguishing a compute-bound bottleneck from an orchestration/scheduling-bound one.
+
+How a strong answer breaks down:
+→ Low utilization plus queuing means the GPU isn't the bottleneck - something upstream or in scheduling is, don't add GPUs yet.
+→ Check batching configuration - if requests aren't being batched or the batch size/timeout is misconfigured, the GPU sits idle between near-sequential requests.
+→ Check for a CPU-bound preprocessing step or a synchronous network call (auth, logging, retrieval) sitting in the critical path before the GPU is even invoked.
+→ Check the router/queue configuration - a too-conservative max-in-flight setting can throttle far below what the GPU could actually handle.
+
+🚩 Red flag: Concluding "we need more GPUs" from a low-utilization symptom
+
+🔁 Likely follow-up: You fix batching and GPU utilization climbs to 85%, but p99 latency barely improves. What do you check next?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #ModelServing #MLOps #TechCareers

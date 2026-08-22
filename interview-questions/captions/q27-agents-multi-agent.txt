@@ -1,0 +1,21 @@
+AI Engineering Interview Question 27
+
+Your agent completes tasks correctly 90% of the time solo, but drops to 60% when chained with 2 other agents. How do you isolate where the failure is introduced?
+
+What this actually tests: Systematic multi-agent debugging - isolating compounding error from an interface failure.
+
+How a strong answer breaks down:
+→ Do the math first: three agents at 90% each, if errors were fully independent, chained accuracy would be roughly 0.9^3 ≈ 73%, check that baseline before assuming something is uniquely broken.
+→ If the observed 60% is meaningfully below the independent-compounding estimate, that gap points to an interface/handoff problem, not each agent's individual capability.
+→ Test each agent in isolation but fed realistic upstream-agent outputs, not clean hand-crafted inputs - 90% on curated inputs can look very different on another agent's real output.
+→ Log and inspect the exact handoff payload at each stage - format mismatches, lost context, or ambiguous instructions between agents that neither agent alone would surface as "its" failure.
+
+🚩 Red flag: Treating the 90% to 60% drop as inherently mysterious without checking what pure compounding would predict
+
+🔁 Likely follow-up: You find agent 2's failure rate roughly matches the compounding-math prediction, but agent 3's failure rate is way higher than expected on agent 2's real outputs specifically. What does that isolate, and what do you check next?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #AIAgents #MLOps #TechCareers

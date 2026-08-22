@@ -1,0 +1,21 @@
+AI Engineering Interview Question 22
+
+Your Airflow DAG for nightly model training is failing 40% of the time with no code changes. How do you debug it?
+
+What this actually tests: Operational debugging of a flaky pipeline, distinguishing systemic causes from intermittent ones.
+
+How a strong answer breaks down:
+→ Pull failure logs across multiple recent runs first - is it the same task failing every time, or does it vary - that distinguishes a systemic bug from flakiness.
+→ Check for resource contention - is this DAG competing for cluster resources with other jobs at the same nightly window, causing OOM or timeouts.
+→ Check upstream data dependencies - is the DAG occasionally starting before an upstream source finishes landing, a race condition common when an upstream SLA shifted.
+→ Check for external service flakiness - API rate limits, connection pool exhaustion, or a network timeout to a dependency outside the DAG's own code.
+
+🚩 Red flag: Assuming a code bug must exist despite "no code changes," and combing through DAG code before logs/infra
+
+🔁 Likely follow-up: You find it's resource contention with another team's nightly job scheduled into the same window last month. Do you fix your DAG, or is this someone else's problem to fix?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #MLOps #MLOps #TechCareers

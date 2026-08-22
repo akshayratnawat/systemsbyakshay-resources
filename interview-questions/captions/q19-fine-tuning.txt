@@ -1,0 +1,21 @@
+AI Engineering Interview Question 19
+
+Your fine-tuned model catastrophically forgets a capability it had before training. How do you detect this before it ships and how do you fix it?
+
+What this actually tests: Awareness of catastrophic forgetting as a specific, testable risk in fine-tuning workflows.
+
+How a strong answer breaks down:
+→ Detecting it before ship requires a held-out general-capability eval suite, not just the new task's eval set, run as a standing step in the fine-tuning pipeline.
+→ Include a regression suite covering the model's previously-relied-on capabilities (general reasoning, other tasks, instruction-following), run automatically before every fine-tune is approved.
+→ Compare fine-tuned vs. base model side by side on that regression suite, not just checking the fine-tuned model alone against a pass/fail bar.
+→ If forgetting is detected, first check hyperparameters - too high a learning rate or too many epochs on a narrow dataset is the most common direct cause.
+
+🚩 Red flag: Only evaluating the fine-tuned model on the new task's eval set, never checking prior capabilities at all
+
+🔁 Likely follow-up: Adding rehearsal data recovers most of the lost capability but costs 2 points on the new task's eval. Do you ship, and how do you decide where that line is?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #FineTuning #MLOps #TechCareers

@@ -1,0 +1,21 @@
+AI Engineering Interview Question 29
+
+Your LLM API bill grew 4x in a quarter while user count grew 1.3x. How do you find where the cost is actually going, and what's your fix?
+
+What this actually tests: Basic cost forensics - matching cost growth to usage growth before assuming waste.
+
+How a strong answer breaks down:
+→ Start with the mismatch: 4x cost against 1.3x users means cost-per-user roughly tripled, so the driver isn't user growth, it's a usage pattern or pricing shift.
+→ Break the bill down by model, endpoint/feature, and token type (input vs. output), since a single dominant driver is far more common than uniform growth everywhere.
+→ Check for a model-mix shift - did a feature quietly start calling a more expensive model, or did requests-per-user go up.
+→ Check for prompt/context growth - accumulated conversation history, larger retrieved context, or a verbose system prompt, since input tokens are often the sneaky driver.
+
+🚩 Red flag: Jumping straight to "add caching" or "use a cheaper model everywhere" without first breaking down where the cost went
+
+🔁 Likely follow-up: You find the driver is a feature where conversation history is appended to every call uncapped, so power users' prompts have quietly grown to 10x their original size. What's your fix, and does it change the product experience?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #AICost #MLOps #TechCareers

@@ -1,0 +1,21 @@
+AI Engineering Interview Question 18
+
+You have 500 labeled examples and need a domain-specific model in 2 weeks. Fine-tune, RAG, or prompt engineering - how do you decide, and what would change your answer?
+
+What this actually tests: Matching a solution to data volume and time constraints instead of defaulting to fine-tuning.
+
+How a strong answer breaks down:
+→ Start with the constraint: 500 examples is thin for fine-tuning a new capability from scratch, but reasonable for few-shot prompting or as an eval set.
+→ Default to prompt engineering (few-shot from the 500) plus RAG if the task is knowledge-lookup-shaped, since both can ship inside 2 weeks with minimal infra.
+→ Reach for fine-tuning specifically when the task is about behavior/style/format the base model can't be prompted into reliably, not new knowledge - and even then, prefer LoRA over full fine-tune given the timeline.
+→ Use the 500 examples as an eval set first regardless of approach, to actually measure whether prompt/RAG alone clears the bar before investing further.
+
+🚩 Red flag: Defaulting to fine-tuning without asking what the task actually needs (knowledge vs. behavior)
+
+🔁 Likely follow-up: You ship with RAG in week 1 and it's 70% accurate on the eval set. You have one week left. Do you invest it in better retrieval or start a fine-tune?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #FineTuning #MLOps #TechCareers

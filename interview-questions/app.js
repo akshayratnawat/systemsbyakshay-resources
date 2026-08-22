@@ -1,4 +1,4 @@
-// @systemsbyakshay — Interview Questions filter/toggle app
+// @systemsbyakshay - Interview Questions filter/toggle app
 (function () {
   const state = {
     topics: new Set(),
@@ -56,7 +56,7 @@
       const none = document.createElement("div");
       none.style.fontSize = "13px";
       none.style.color = "var(--brand-muted)";
-      none.textContent = "Not tagged yet — company filters appear here once questions are tagged.";
+      none.textContent = "Not tagged yet - company filters appear here once questions are tagged.";
       companyChipsEl.appendChild(none);
     } else {
       COMPANIES.forEach(company => {
@@ -98,6 +98,56 @@
     filtered.forEach(q => qListEl.appendChild(renderCard(q)));
   }
 
+  function renderBulletList(items) {
+    const ul = document.createElement("ul");
+    items.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = item;
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+
+  function renderAnswerBlock(ans) {
+    const wrap = document.createElement("div");
+    wrap.className = "answer";
+
+    const testing = document.createElement("div");
+    testing.className = "a-block";
+    testing.innerHTML = `<div class="a-label">What they're testing</div><div class="a-testing">${ans.testing}</div>`;
+    wrap.appendChild(testing);
+
+    const context = document.createElement("div");
+    context.className = "a-block";
+    context.innerHTML = `<div class="a-context">${ans.context}</div>`;
+    wrap.appendChild(context);
+
+    const strong = document.createElement("div");
+    strong.className = "a-block a-strong";
+    strong.innerHTML = `<div class="a-label">Strong Answer Structure</div>`;
+    strong.appendChild(renderBulletList(ans.strong));
+    wrap.appendChild(strong);
+
+    const redFlags = document.createElement("div");
+    redFlags.className = "a-block a-redflags";
+    redFlags.innerHTML = `<div class="a-label">🚩 Red Flag Answers</div>`;
+    redFlags.appendChild(renderBulletList(ans.redFlags));
+    wrap.appendChild(redFlags);
+
+    const bonus = document.createElement("div");
+    bonus.className = "a-block a-bonus";
+    bonus.innerHTML = `<div class="a-label">⭐ Bonus Points</div>`;
+    bonus.appendChild(renderBulletList(ans.bonus));
+    wrap.appendChild(bonus);
+
+    const followUp = document.createElement("div");
+    followUp.className = "a-block";
+    followUp.innerHTML = `<div class="a-label">🔁 Likely Follow-Up</div><div class="a-followup">${ans.followUp}</div>`;
+    wrap.appendChild(followUp);
+
+    return wrap;
+  }
+
   function renderCard(q) {
     const card = document.createElement("div");
     card.className = "q-card";
@@ -133,6 +183,26 @@
 
     card.appendChild(meta);
     card.appendChild(text);
+
+    const ans = typeof ANSWERS !== "undefined" ? ANSWERS[q.id] : null;
+    if (ans) {
+      const btn = document.createElement("button");
+      btn.className = "reveal-btn";
+      btn.innerHTML = `<span class="arrow">▸</span><span class="btn-label">Show answer</span>`;
+      const answerEl = renderAnswerBlock(ans);
+
+      const toggle = () => {
+        const open = answerEl.classList.toggle("open");
+        btn.classList.toggle("open", open);
+        btn.querySelector(".btn-label").textContent = open ? "Hide answer" : "Show answer";
+      };
+      btn.addEventListener("click", toggle);
+      text.addEventListener("click", toggle);
+
+      card.appendChild(btn);
+      card.appendChild(answerEl);
+    }
+
     return card;
   }
 

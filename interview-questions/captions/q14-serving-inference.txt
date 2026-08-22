@@ -1,0 +1,21 @@
+AI Engineering Interview Question 14
+
+Your inference cost per request tripled after a "minor" model upgrade with no accuracy gain reported by the vendor. How do you investigate and what levers do you pull?
+
+What this actually tests: Cost forensics discipline, not taking a vendor's framing at face value.
+
+How a strong answer breaks down:
+→ Don't trust "minor" at face value - pull the actual billing breakdown: is the 3x from per-token price, token volume, or request volume.
+→ Check if the new model version is simply more verbose by default, since longer completions multiply cost per request even at the same price per token.
+→ Check if pricing tiers changed - a 'minor' model bump sometimes moves the account into a different price bracket entirely.
+→ Check for retry/fallback logic silently multiplying requests, if the new model has a different error rate.
+
+🚩 Red flag: Accepting "minor upgrade, no accuracy change" from the vendor without independently verifying via billing data
+
+🔁 Likely follow-up: You find the new model is 40% more verbose per response and that's most of the 3x. Capping max_tokens hard-truncates some answers mid-sentence. What's your actual fix?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #ModelServing #MLOps #TechCareers

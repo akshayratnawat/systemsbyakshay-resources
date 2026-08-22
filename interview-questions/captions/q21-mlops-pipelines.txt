@@ -1,0 +1,21 @@
+AI Engineering Interview Question 21
+
+An ML model's F1 score dropped from 0.87 to 0.71 last month. No code changes. Walk through exactly how you'd investigate.
+
+What this actually tests: Methodical root-cause investigation across data, pipeline, and environment, not jumping straight to retrain.
+
+How a strong answer breaks down:
+→ Compare last month's input distribution to training/validation, checking for feature drift, label shift, or a new data source silently mixed in.
+→ Check for a labeling process change - did the ground-truth labeling pipeline, vendor, or criteria change even though the model code didn't.
+→ Check upstream pipeline changes - a schema, join, or feature computation change even though "the model code" specifically didn't move.
+→ Check for a silent dependency/environment change - library version bumps, a feature store returning stale or differently-computed values.
+
+🚩 Red flag: Jumping straight to retraining without investigating whether it's a data/pipeline problem first
+
+🔁 Likely follow-up: You find the drop is concentrated entirely in one customer segment that grew 3x in volume last month. Is this a model problem at all, and what do you actually fix?
+
+---
+Building a running list of real AI Engineering interview questions, sorted by category. Comment "Meteoric" and I'll send you the full bank so far, plus you're in for every new one as it drops.
+Follow @systemsbyakshay for a new AI Engineering interview question every post.
+
+#AIEngineering #MachineLearning #LLM #InterviewPrep #MLOps #MLOps #TechCareers
