@@ -96,6 +96,25 @@
   .back:hover { color: #2563eb; }
   a { color: #2563eb; }
   body { max-width: 860px; }
+  html { scroll-behavior: smooth; }
+  h2[id] { scroll-margin-top: 24px; }
+  :root { --hover-yellow: #EF9F27; }
+  /* text links turn yellow on hover (buttons excluded) */
+  a, .back { transition: color 0.15s; }
+  a:hover, .back:hover, .optin-box .optin-ok a:hover { color: var(--hover-yellow); }
+  .toc-inline { background: #fff; border: 1px solid #e8e4dc; border-radius: 12px; padding: 14px 20px; margin: 0 0 32px; }
+  .toc-inline summary { cursor: pointer; font-weight: 700; font-size: 15px; }
+  .toc-inline ul, .toc-margin ul { list-style: none; margin: 12px 0 0; }
+  .toc-inline li, .toc-margin li { margin: 0; }
+  .toc-inline a, .toc-margin a { display: block; padding: 6px 0; font-size: 14px; line-height: 1.4; color: #4a4741; text-decoration: none; }
+  .toc-inline a:hover, .toc-margin a:hover { color: var(--hover-yellow); }
+  .toc-margin { display: none; }
+  .toc-margin .toc-title { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #6e6a64; margin: 0; }
+  @media (min-width: 1400px) {
+    .toc-inline { display: none; }
+    .toc-margin { display: block; position: fixed; top: 80px; width: 230px; left: calc(50% - 430px - 270px); max-height: calc(100vh - 120px); overflow-y: auto; border-right: 2px solid #e8e4dc; padding-right: 16px; }
+    .toc-margin a.active { color: #1a1a1a; font-weight: 700; }
+  }
 </style>
 <style id="ck-optin-css">
   .optin-box{background:#0a0a0a;color:#f9f8f4;border-radius:16px;padding:34px 30px;margin:44px 0;text-align:center;font-family:'Inter',system-ui,sans-serif;}
@@ -123,14 +142,17 @@
   <div class="byline">Nov 26, 2026 &middot; @Akshay</div>
 </div>
 
-<h2>The problem, in one example</h2>
+<details class="toc-inline"><summary>Contents</summary><nav><ul><li><a href="#the-problem-in-one-example">The problem, in one example</a></li><li><a href="#where-it-breaks">Where it breaks</a></li><li><a href="#fix-1-build-a-new-index-never-edit-the-live-one">Fix 1: build a new index, never edit the live one</a></li><li><a href="#fix-2-a-question-set-is-your-gate-quick-hack">Fix 2: a question set is your gate (quick hack)</a></li><li><a href="#fix-3-challenge-the-update-with-deletes-and-replacements-15-minute-hack">Fix 3: challenge the update with deletes and replacements (15-minute hack)</a></li><li><a href="#how-to-track-it-watch-the-answers-not-the-servers">How to track it: watch the answers, not the servers</a></li><li><a href="#the-checklist-before-your-next-update">The checklist before your next update</a></li><li><a href="#sources">Sources</a></li></ul></nav></details>
+<aside class="toc-margin" aria-label="Contents"><p class="toc-title">Contents</p><nav><ul><li><a href="#the-problem-in-one-example">The problem, in one example</a></li><li><a href="#where-it-breaks">Where it breaks</a></li><li><a href="#fix-1-build-a-new-index-never-edit-the-live-one">Fix 1: build a new index, never edit the live one</a></li><li><a href="#fix-2-a-question-set-is-your-gate-quick-hack">Fix 2: a question set is your gate (quick hack)</a></li><li><a href="#fix-3-challenge-the-update-with-deletes-and-replacements-15-minute-hack">Fix 3: challenge the update with deletes and replacements (15-minute hack)</a></li><li><a href="#how-to-track-it-watch-the-answers-not-the-servers">How to track it: watch the answers, not the servers</a></li><li><a href="#the-checklist-before-your-next-update">The checklist before your next update</a></li><li><a href="#sources">Sources</a></li></ul></nav></aside>
+
+<h2 id="the-problem-in-one-example">The problem, in one example</h2>
 <p>A company runs an HR assistant on a RAG knowledge base. The leave policy says employees can carry over 10 unused leave days. In March, HR publishes a new policy: the limit is now 5.</p>
 <p>The team uploads <code>leave_policy_v2.pdf</code> into the same index that already holds <code>leave_policy_v1.pdf</code>. The ingestion job reports success. Dashboards stay green: latency is normal, the error rate is zero, and users keep getting answers.</p>
 <p>Then an employee asks: <em>"How many leave days can I carry over?"</em></p>
 <p>The retriever returns chunks from both versions. The v1 chunk is the closer semantic match, because its wording matches the question more directly. The model answers "10 days" and cites a real company document. Nothing looks broken, and the answer is wrong.</p>
 <p>That is the whole problem: <strong>the failure is silent, and it looks like success.</strong></p>
 <hr class="section-divider">
-<h2>Where it breaks</h2>
+<h2 id="where-it-breaks">Where it breaks</h2>
 <p>Your knowledge base is two stores, not one: the <strong>source</strong> (files, wiki, database) and the <strong>index</strong> (chunks plus embeddings). Updating the source does not update the index. Every gap between the two is a place for a stale answer.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -176,7 +198,7 @@
 <p>Two of these are not hypothetical for Azure AI Search. An indexer does not track object deletion in the data source, so deleted files can leave orphan search documents (<a href="https://learn.microsoft.com/en-us/azure/search/search-howto-index-changed-deleted-blobs" target="_blank" rel="noopener">Microsoft docs</a>). And if the deletion policy is not set before the first indexer run, documents deleted earlier stay in the index even if you add the policy later and reset the indexer (<a href="https://learn.microsoft.com/en-us/azure/search/search-howto-index-changed-deleted-blobs" target="_blank" rel="noopener">Microsoft docs</a>).</p>
 <p>None of these show up in latency, error rate or token cost. They show up as answers that are wrong in a way users cannot see, which is why the fixes below test the answers, not the pipeline.</p>
 <hr class="section-divider">
-<h2>Fix 1: build a new index, never edit the live one</h2>
+<h2 id="fix-1-build-a-new-index-never-edit-the-live-one">Fix 1: build a new index, never edit the live one</h2>
 <p>The rule: your app never queries an index by its real name. It queries an <strong>alias</strong> (for example <code>kb-live</code>). Every update builds a brand-new index (<code>kb-2026-11-26</code>), tests it, and only then moves the alias.</p>
 <h3>Step 1: Put the right fields on every chunk</h3>
 <p>You cannot clean up what you cannot find. Give every chunk these fields, all filterable (in Azure AI Search, mark the fields filterable; in Pinecone, store them as record metadata):</p>
@@ -250,7 +272,7 @@
 <h3>Step 7: Keep the old version for rollback</h3>
 <p>Do not delete the old index or namespace right after the switch. If groundedness drops or users report a wrong answer, rollback is changing the pointer back. Delete the old version after a few days of clean monitoring.</p>
 <hr class="section-divider">
-<h2>Fix 2: a question set is your gate (quick hack)</h2>
+<h2 id="fix-2-a-question-set-is-your-gate-quick-hack">Fix 2: a question set is your gate (quick hack)</h2>
 <p>Before any index goes live, ask it questions you already know the answers to. If a question that passed on the old index fails on the new one, the update does not ship.</p>
 <p><strong>How to start:</strong> open your support tickets or chat logs and copy 20 real questions. Write the expected fact next to each one. Add a new row every time something breaks in production, so the set grows from your own failures.</p>
 <div class="table-wrap"><table>
@@ -306,7 +328,7 @@
 <p>A spreadsheet is enough to start. Automate it once you run it every week.</p>
 <p>Check answers with simple string rules first (<code>Must say</code>, <code>Must not say</code>). Only add an LLM judge for questions where the wording varies, and spot-check the judge yourself.</p>
 <hr class="section-divider">
-<h2>Fix 3: challenge the update with deletes and replacements (15-minute hack)</h2>
+<h2 id="fix-3-challenge-the-update-with-deletes-and-replacements-15-minute-hack">Fix 3: challenge the update with deletes and replacements (15-minute hack)</h2>
 <p>Fix 2 checks what you thought to ask. Fix 3 checks the exact documents the update touched, and it needs no LLM, only retrieval.</p>
 <p>Your ingestion job already knows which documents were replaced and which were deleted. Turn that list into automatic tests:</p>
 <div class="table-wrap"><table>
@@ -351,7 +373,7 @@
 </ol>
 <p>Where do the sample questions come from? Take the first heading or sentence of each changed document and turn it into a question, or ask an LLM to write one question per document once, then store it. These tests run in seconds, so run them on every update, not only the risky ones.</p>
 <hr class="section-divider">
-<h2>How to track it: watch the answers, not the servers</h2>
+<h2 id="how-to-track-it-watch-the-answers-not-the-servers">How to track it: watch the answers, not the servers</h2>
 <p>In the opening example, latency and error rate stayed green while the answers were wrong, so a standard infrastructure dashboard would have missed it. This mockup shows the two signals that catch a bad update fastest, plus the index status that tells you what to roll back to.</p>
 <div class="diagram-wrap">
 <svg viewBox="0 0 760 440" role="img" aria-labelledby="ct cd" style="width:100%;height:auto;font-family:Inter,sans-serif">
@@ -437,12 +459,12 @@
 </table></div>
 <p>The alert values are starting points for the example, not benchmarks. Set yours from two weeks of your own baseline, and note that the outdated-answer rate only works if you stored <code>source_version</code> on every chunk in Fix 1, step 1.</p>
 <hr class="section-divider">
-<h2>The checklist before your next update</h2>
+<h2 id="the-checklist-before-your-next-update">The checklist before your next update</h2>
 <ul class="checklist"><li>Every chunk carries <code>doc_id</code>, <code>source_version</code>, <code>content_hash</code> and <code>embedding_model</code></li><li>The app queries an alias, never a real index name</li><li>Each update builds a new, versioned index from the source</li><li>Deletion detection was on from the first run (Azure indexers do not track deletions by default)</li><li>A question set, including "I don't know" questions, runs on the old and the new index</li><li>Challenge queries cover every deleted, replaced and shortened document</li><li>The old index stays for a few days, so rollback is one alias change</li><li>The dashboard tracks groundedness and the outdated-answer rate, not only latency</li></ul>
 <p>A RAG system is only as current as its last successful update, and "successful" has to mean the answers are right, not that the job exited with zero errors.</p>
 <p><strong>What is the worst update that ever broke your RAG?</strong></p>
 <hr class="section-divider">
-<h2>Sources</h2>
+<h2 id="sources">Sources</h2>
 <ul>
 <li><a href="https://learn.microsoft.com/en-us/azure/search/search-howto-reindex" target="_blank" rel="noopener">Update or rebuild an index in Azure AI Search</a>: side-by-side index and alias swap for production</li>
 <li><a href="https://learn.microsoft.com/azure/search/search-how-to-alias" target="_blank" rel="noopener">Create an index alias in Azure AI Search</a>: alias workflow, preview status</li>
@@ -493,3 +515,14 @@
 </script>
 </body>
 </html>
+
+<script>
+(function(){
+  var links=document.querySelectorAll('.toc-margin a'); if(!('IntersectionObserver' in window)||!links.length) return;
+  var map={}; links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){
+    if(e.isIntersecting){links.forEach(function(a){a.classList.remove('active');}); var a=map[e.target.id]; if(a)a.classList.add('active');}
+  });},{rootMargin:'0px 0px -70% 0px'});
+  document.querySelectorAll('h2[id]').forEach(function(h){io.observe(h);});
+})();
+</script>
